@@ -1,6 +1,8 @@
 package bitDecayJump.render;
 
-import javax.swing.JDialog;
+import java.io.*;
+
+import javax.swing.*;
 
 import bitDecayJump.geom.*;
 import bitDecayJump.level.*;
@@ -25,6 +27,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public BitPointInt mouseRelease;
 
 	public LevelBuilder curLevelBuilder;
+	public String savedLevel;
 
 	OrthographicCamera camera;
 	ShapeRenderer shaper;
@@ -231,7 +234,52 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		} else if ("DELETE".equalsIgnoreCase(mode)) {
 			mouseMode = new DeleteMouseMode(curLevelBuilder);
 		} else if ("SAVE".equalsIgnoreCase(mode)) {
-			curLevelBuilder.toJson();
+			saveLevel();
+		} else if ("LOAD".equalsIgnoreCase(mode)) {
+			loadLevel();
+		}
+	}
+
+	private void saveLevel() {
+		savedLevel = curLevelBuilder.toJson();
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("."));
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			try {
+				FileWriter writer = new FileWriter(fileChooser.getSelectedFile());
+				writer.write(savedLevel);
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			curLevelBuilder = new LevelBuilder(savedLevel);
+		}
+	}
+
+	private void loadLevel() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("."));
+		// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
+				StringBuffer json = new StringBuffer();
+				String line = reader.readLine();
+				while (line != null) {
+					json.append(line);
+					line = reader.readLine();
+				}
+				if (json.length() > 0) {
+					curLevelBuilder = new LevelBuilder(json.toString());
+				} else {
+					System.out.println("File was empty. Could not load.");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

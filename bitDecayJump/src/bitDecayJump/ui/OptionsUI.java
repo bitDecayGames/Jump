@@ -45,5 +45,29 @@ public class OptionsUI extends JPanel {
 			}
 		});
 		add(btnDelete);
+
+		add(Box.createVerticalStrut(10));
+
+		JButton btnSave = new JButton("Save");
+		btnSave.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Save");
+			}
+		});
+		add(btnSave);
+
+		add(Box.createVerticalStrut(10));
+
+		JButton btnLoad = new JButton("Load");
+		btnLoad.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Load");
+			}
+		});
+		add(btnLoad);
 	}
 }

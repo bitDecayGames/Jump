@@ -16,6 +16,10 @@ public class LevelBuilder {
 		selection = new ArrayList<LevelObject>();
 	}
 
+	public LevelBuilder(String json) {
+		this(new GsonBuilder().create().fromJson(json, Level.class));
+	}
+
 	public void createObject(BitPointInt startPoint, BitPointInt endPoint) {
 		LevelObject obj = new LevelObject();
 		obj.rect = GeomUtils.makeRect(startPoint, endPoint);
@@ -50,8 +54,8 @@ public class LevelBuilder {
 		selection.clear();
 	}
 
-	public void toJson() {
-		Gson gson = new GsonBuilder().create();
-		gson.toJson(level, System.out);
+	public String toJson() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		return gson.toJson(level);
 	}
 }
