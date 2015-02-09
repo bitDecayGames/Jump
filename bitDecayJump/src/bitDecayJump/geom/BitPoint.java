@@ -15,8 +15,12 @@ public class BitPoint {
 	 * @param point
 	 */
 	public void add(BitPoint point) {
-		x += point.x;
-		y += point.y;
+		add(point.x, point.y);
+	}
+
+	public void add(float x, float y) {
+		this.x += x;
+		this.y += y;
 	}
 
 	/**

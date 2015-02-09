@@ -56,7 +56,13 @@ public class BitWorld {
 		pendingRemoves.clear();
 
 		// apply gravity to DYNAMIC bodies
-		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> body.velocity.add(gravity.getScaled(delta)));
+		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> {
+			body.velocity.add(gravity.getScaled(delta));
+			if (body.props.grounded) {
+				// move all grounded bodies down one unit to force the grounded flag to be consistent
+				body.aabb.xy.add(0, -1);
+			}
+		});
 
 		// move all of our bodies
 		bodies.stream().filter(body -> BodyType.STATIC != body.props.bodyType).forEach(body -> body.aabb.translate(body.velocity.getScaled(delta)));
@@ -69,7 +75,6 @@ public class BitWorld {
 		// we will always assume a body is not grounded unless it collides
 		// against something on a per-step basis
 		boolean grounded = false;
-		boolean collisionsDetected = false;
 
 		// 1. determine tile that x,y lives in
 		BitPointInt startCell = body.aabb.xy.divideBy(level.tileSize, level.tileSize).minus(level.gridOffset);
@@ -79,43 +84,35 @@ public class BitWorld {
 		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / level.tileSize);
 
 		// 3. loop over those all occupied tiles
-		// - find all tiles that the body occupies full width or height
-		// - add up resolution via:
-		// if (width of interstRect > height) -> resolve up/down else resolve
-		// left/right
-		// - move body the cumulative resolution amount
 		BitPointInt resolution = new BitPointInt(0, 0);
 		for (int x = startCell.x; x <= endX; x++) {
 			for (int y = startCell.y; y <= endY; y++) {
+				// ensure valid cell
 				if (ArrayUtilities.onGrid(level.objects, x, y) && level.objects[x][y] != null) {
 					LevelObject checkObj = level.objects[x][y];
 					BitRectangle insec = GeomUtils.intersection(body.aabb, level.objects[x][y].rect);
 					if (insec != null) {
-						collisionsDetected = true;
 						if ((checkObj.nValue & Neighbor.UP) == 0 && insec.xy.y == body.aabb.xy.y && insec.height <= insec.width) {
-							// bottom side
+							// body collided on its bottom side
 							resolution.y = Math.max(resolution.y, insec.height);
 							if (body.velocity.y <= 0) {
 								body.velocity.y = 0;
 								grounded = true;
 							}
-							System.out.println("grounded");
 						} else if ((checkObj.nValue & Neighbor.DOWN) == 0 && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
 								&& insec.height <= insec.width) {
-							// top side
+							// body collided on its top side
 							resolution.y = Math.min(resolution.y, -insec.height);
 							body.velocity.y = 0;
 						} else if ((checkObj.nValue & Neighbor.RIGHT) == 0 && insec.xy.x == body.aabb.xy.x && insec.width <= insec.height) {
-							// left side
+							// body collided on its left side
 							resolution.x = Math.max(resolution.x, insec.width);
 							body.velocity.x = 0;
 						} else if ((checkObj.nValue & Neighbor.LEFT) == 0 && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
 								&& insec.width <= insec.height) {
-							// right side
+							// body collided on its right side
 							resolution.x = Math.min(resolution.x, -insec.width);
 							body.velocity.x = 0;
-						} else {
-							System.out.println("Unhandled intersection rect: " + insec);
 						}
 					}
 				}
@@ -123,6 +120,7 @@ public class BitWorld {
 		}
 
 		body.aabb.xy.add(resolution.x, resolution.y);
+		System.out.println(grounded ? "grounded" : "not grounded");
 		body.props.grounded = grounded;
 	}
 
