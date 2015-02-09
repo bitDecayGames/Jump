@@ -7,11 +7,6 @@ import bitDecayJump.geom.*;
 import com.google.gson.*;
 
 public class LevelBuilder {
-	private static final int UP = 1;
-	private static final int RIGHT = 1 << 1;
-	private static final int DOWN = 1 << 2;
-	private static final int LEFT = 1 << 3;
-
 	public Level level;
 
 	public List<LevelObject> selection;
@@ -124,25 +119,25 @@ public class LevelBuilder {
 					// check right
 					if (ArrayUtilities.onGrid(levelGrid, x + 1, y) && levelGrid[x + 1][y] != null) {
 						if (levelGrid[x + 1][y].nValue != -1) {
-							value |= RIGHT;
+							value |= Neighbor.RIGHT;
 						}
 					}
 					// check left
 					if (ArrayUtilities.onGrid(levelGrid, x - 1, y) && levelGrid[x - 1][y] != null) {
 						if (levelGrid[x - 1][y].nValue != -1) {
-							value |= LEFT;
+							value |= Neighbor.LEFT;
 						}
 					}
 					// check up
 					if (ArrayUtilities.onGrid(levelGrid, x, y + 1) && levelGrid[x][y + 1] != null) {
 						if (levelGrid[x][y + 1].nValue != -1) {
-							value |= UP;
+							value |= Neighbor.UP;
 						}
 					}
 					// check down
 					if (ArrayUtilities.onGrid(levelGrid, x, y - 1) && levelGrid[x][y - 1] != null) {
 						if (levelGrid[x][y - 1].nValue != -1) {
-							value |= DOWN;
+							value |= Neighbor.DOWN;
 						}
 					}
 					levelGrid[x][y].nValue = value;

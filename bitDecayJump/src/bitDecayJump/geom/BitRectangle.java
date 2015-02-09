@@ -63,4 +63,9 @@ public class BitRectangle {
 		int y = point.y;
 		return x > xy.x && x < xy.x + width && y > xy.y && y < xy.y + height;
 	}
+
+	@Override
+	public String toString() {
+		return "(x: " + xy.x + ", y: " + xy.y + " - w: " + width + ", h: " + height + ")";
+	}
 }

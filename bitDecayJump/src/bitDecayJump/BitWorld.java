@@ -62,14 +62,6 @@ public class BitWorld {
 		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 	}
 
-	private void resolveCollisions(BitBody dynamicBody, List<BitBody> staticBodies) {
-		// TODO: resolve collisions in a more sensical way. Grid style -- check
-		// top/bottom/left/right first, resolve, then do diagonals or some shit.
-		for (BitBody staticBody : staticBodies) {
-			System.out.println("resolving " + dynamicBody + " against" + staticBody);
-		}
-	}
-
 	private void resolveLevelCollisions(BitBody body) {
 		boolean collisionsDetected = false;
 
@@ -86,18 +78,28 @@ public class BitWorld {
 		// if (width of interstRect > height) -> resolve up/down else resolve
 		// left/right
 		// - move body the cumulative resolution amount
-		List<BitRectangle> fullOverlaps = new ArrayList<BitRectangle>();
-		List<BitRectangle> partialOverlaps = new ArrayList<BitRectangle>();
+		BitPointInt resolution = new BitPointInt(0, 0);
 		for (int x = startCell.x; x <= endX; x++) {
 			for (int y = startCell.y; y <= endY; y++) {
 				if (ArrayUtilities.onGrid(level.objects, x, y) && level.objects[x][y] != null) {
+					LevelObject checkObj = level.objects[x][y];
 					BitRectangle insec = GeomUtils.intersection(body.aabb, level.objects[x][y].rect);
 					if (insec != null) {
 						collisionsDetected = true;
-						if (insec.width == level.tileSize || insec.height == level.tileSize) {
-							fullOverlaps.add(insec);
-						} else {
-							partialOverlaps.add(insec);
+						if ((checkObj.nValue & Neighbor.UP) == 0 && insec.xy.y == body.aabb.xy.y && insec.height <= insec.width) {
+							// bottom side
+							resolution.y = Math.max(resolution.y, insec.height);
+						} else if ((checkObj.nValue & Neighbor.DOWN) == 0 && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
+								&& insec.height <= insec.width) {
+							// top side
+							resolution.y = Math.min(resolution.y, -insec.height);
+						} else if ((checkObj.nValue & Neighbor.RIGHT) == 0 && insec.xy.x == body.aabb.xy.x && insec.width <= insec.height) {
+							// left side
+							resolution.x = Math.max(resolution.x, insec.width);
+						} else if ((checkObj.nValue & Neighbor.LEFT) == 0 && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
+								&& insec.width <= insec.height) {
+							// right side
+							resolution.x = Math.min(resolution.x, -insec.width);
 						}
 					}
 				}
@@ -105,37 +107,8 @@ public class BitWorld {
 		}
 
 		if (collisionsDetected) {
-
-			List<BitRectangle> recsToResolve;
-			BitPointInt resolution = new BitPointInt(0, 0);
-			if (fullOverlaps.size() > 0) {
-				// if we have full width/height overlaps, only resolve those
-				recsToResolve = fullOverlaps;
-			} else {
-				// otherwise resolve the partial overlaps
-				recsToResolve = partialOverlaps;
-				// TODO: in the case of partial overlaps, we need to figure out
-				// how to narrow down what we resolve... if we resolve all of
-				// them in one loop, the body can get resolved strangely.
-			}
-
-			for (BitRectangle fullColl : recsToResolve) {
-				if (fullColl.xy.x == body.aabb.xy.x && fullColl.width < fullColl.height) {
-					// left side
-					resolution.add(fullColl.width, 0);
-				} else if (fullColl.xy.x + fullColl.width == body.aabb.xy.x + body.aabb.width && fullColl.width < fullColl.height) {
-					// right side
-					resolution.add(-fullColl.width, 0);
-				} else if (fullColl.xy.y == body.aabb.xy.y && fullColl.height < fullColl.width) {
-					// bottom side
-					resolution.add(0, fullColl.height);
-				} else if (fullColl.xy.y + fullColl.height == body.aabb.xy.y + body.aabb.height && fullColl.height < fullColl.width) {
-					// top side
-					resolution.add(0, -fullColl.height);
-				}
-			}
-
 			body.aabb.xy.add(resolution.x, resolution.y);
+			System.out.println(body.aabb + " resolved with " + resolution);
 			// NOTE: need to keep track of grounded objects in some fashion.
 		}
 	}
