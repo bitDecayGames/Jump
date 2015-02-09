@@ -27,7 +27,6 @@ public class SelectMouseMode extends BaseMouseMode {
 			builder.selectObject(startPoint, shift);
 		} else {
 			BitRectangle rect = GeomUtils.makeRect(startPoint, endPoint);
-			System.out.println(rect);
 			builder.selectObjects(rect, shift);
 		}
 	}

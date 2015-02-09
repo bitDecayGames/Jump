@@ -71,7 +71,6 @@ public class LevelBuilder {
 		Level tilizeLevel = tilizeLevel();
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(tilizeLevel);
-		System.out.println(json);
 		return json;
 	}
 

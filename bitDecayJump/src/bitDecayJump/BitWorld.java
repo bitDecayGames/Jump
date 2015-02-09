@@ -120,7 +120,6 @@ public class BitWorld {
 		}
 
 		body.aabb.xy.add(resolution.x, resolution.y);
-		System.out.println(grounded ? "grounded" : "not grounded");
 		body.props.grounded = grounded;
 	}
 

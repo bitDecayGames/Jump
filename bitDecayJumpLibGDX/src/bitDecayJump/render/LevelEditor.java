@@ -249,7 +249,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	@Override
 	public void setMode(String mode) {
-		System.out.println(mode);
 		if ("SELECT".equalsIgnoreCase(mode)) {
 			mouseMode = new SelectMouseMode(curLevelBuilder);
 		} else if ("CREATE".equalsIgnoreCase(mode)) {
@@ -276,7 +275,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("loading saved level\n" + savedLevel);
 			curLevelBuilder = new LevelBuilder(savedLevel);
 		}
 	}
