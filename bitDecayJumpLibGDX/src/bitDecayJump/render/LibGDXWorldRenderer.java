@@ -19,6 +19,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 
 	@Override
 	public void render() {
+		renderer.setProjectionMatrix(cam.combined);
 		renderer.begin(ShapeType.Line);
 		for (BitBody body : world.getBodies()) {
 			renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);

@@ -11,7 +11,7 @@ import bitDecayJump.ui.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
@@ -22,6 +22,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private static final int TILE_SIZE = 16;
 
 	public SpriteBatch spriteBatch;
+	public SpriteBatch uiBatch;
+	public BitmapFont font;
 
 	public BitPointInt mouseDown;
 	public BitPointInt mouseRelease;
@@ -38,7 +40,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public LevelEditor() {
 
 		spriteBatch = new SpriteBatch();
+		uiBatch = new SpriteBatch();
 		shaper = new ShapeRenderer();
+
+		font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
+		font.setColor(Color.YELLOW);
 
 		camera = new OrthographicCamera(1600, 900);
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -71,13 +77,21 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		drawOrigin();
 
 		mouseMode.render(shaper);
+
+		renderMouseCoords();
+	}
+
+	private void renderMouseCoords() {
+		uiBatch.begin();
+		font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
+		uiBatch.end();
 	}
 
 	private void drawLevel(SpriteBatch sb) {
 		sb.begin();
 		shaper.begin(ShapeType.Filled);
 		shaper.setColor(Color.DARK_GRAY);
-		for (LevelObject obj : curLevelBuilder.level.objects) {
+		for (LevelObject obj : curLevelBuilder.objects) {
 			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 
@@ -236,12 +250,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		} else if ("SAVE".equalsIgnoreCase(mode)) {
 			saveLevel();
 		} else if ("LOAD".equalsIgnoreCase(mode)) {
-			loadLevel();
+			curLevelBuilder = LevelUtilities.loadLevel();
 		}
 	}
 
 	private void saveLevel() {
-		savedLevel = curLevelBuilder.toJson();
+		savedLevel = curLevelBuilder.getJson();
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -253,33 +267,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			System.out.println("loading saved level\n" + savedLevel);
 			curLevelBuilder = new LevelBuilder(savedLevel);
-		}
-	}
-
-	private void loadLevel() {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(new File("."));
-		// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()));
-				StringBuffer json = new StringBuffer();
-				String line = reader.readLine();
-				while (line != null) {
-					json.append(line);
-					line = reader.readLine();
-				}
-				if (json.length() > 0) {
-					curLevelBuilder = new LevelBuilder(json.toString());
-				} else {
-					System.out.println("File was empty. Could not load.");
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 }

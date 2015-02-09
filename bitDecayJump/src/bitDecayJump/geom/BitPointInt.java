@@ -9,10 +9,9 @@ public class BitPointInt {
 		this.y = y;
 	}
 
-	public BitPointInt add(int x, int y) {
+	public void add(int x, int y) {
 		this.x += x;
 		this.y += y;
-		return this;
 	}
 
 	@Override
@@ -22,5 +21,18 @@ public class BitPointInt {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
+
+	public BitPointInt divideBy(int xDiv, int yDiv) {
+		return new BitPointInt(x / xDiv, y / yDiv);
+	}
+
+	public BitPointInt minus(BitPointInt point) {
+		return new BitPointInt(x - point.x, y - point.y);
 	}
 }
