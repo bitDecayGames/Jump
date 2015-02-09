@@ -32,13 +32,13 @@ public class BitRectangle {
 	}
 
 	public void translate(BitPoint point) {
-		remainderX += point.x;
-		xy.x += remainderX;
-		remainderX = remainderX - (int) remainderX;
+		float totalX = xy.x + remainderX + point.x;
+		xy.x = (int) totalX;
+		remainderX = totalX - xy.x;
 
-		remainderY += point.y;
-		xy.y += remainderY;
-		remainderY = remainderY - (int) remainderY;
+		float totalY = xy.y + remainderY + point.y;
+		xy.y = (int) totalY;
+		remainderY = totalY - xy.y;
 	}
 
 	public BitPoint center() {

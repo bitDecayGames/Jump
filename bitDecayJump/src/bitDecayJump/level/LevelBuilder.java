@@ -11,24 +11,33 @@ public class LevelBuilder {
 
 	public List<LevelObject> selection;
 
-	public Map<BitRectangle, List<LevelObject>> groups;
 	public Collection<LevelObject> objects;
 
 	public LevelBuilder(Level level) {
-		this.level = level;
-		selection = new ArrayList<LevelObject>();
-		groups = new HashMap<BitRectangle, List<LevelObject>>();
-		objects = level.getObjects();
+		setLevel(level);
 	}
 
 	public LevelBuilder(String json) {
 		this(new GsonBuilder().create().fromJson(json, Level.class));
 	}
 
+	private void setLevel(Level level) {
+		this.level = level;
+		objects = level.getObjects();
+		selection = new ArrayList<LevelObject>();
+	}
+
 	public void createObject(BitPointInt startPoint, BitPointInt endPoint) {
 		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), level.tileSize, level.tileSize)) {
 			objects.add(new LevelObject(rect));
 		}
+		refresh();
+	}
+
+	public void deleteSelected() {
+		objects.removeAll(selection);
+		selection.clear();
+		refresh();
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
@@ -54,9 +63,8 @@ public class LevelBuilder {
 		}
 	}
 
-	public void deleteSelected() {
-		objects.removeAll(selection);
-		selection.clear();
+	private void refresh() {
+		setLevel(tilizeLevel());
 	}
 
 	public String getJson() {
@@ -84,7 +92,6 @@ public class LevelBuilder {
 		int yoffset = ymin;
 
 		LevelObject[][] levelGrid = new LevelObject[(xmax - xmin) / level.tileSize][(ymax - ymin) / level.tileSize];
-		System.out.println(levelGrid.length + " by " + levelGrid[0].length);
 
 		for (int x = 0; x < levelGrid.length; x++) {
 			for (int y = 0; y < levelGrid[0].length; y++) {

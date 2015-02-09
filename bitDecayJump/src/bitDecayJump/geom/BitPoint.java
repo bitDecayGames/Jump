@@ -32,4 +32,9 @@ public class BitPoint {
 	public BitPoint getScaled(float scale) {
 		return new BitPoint(x * scale, y * scale);
 	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
 }

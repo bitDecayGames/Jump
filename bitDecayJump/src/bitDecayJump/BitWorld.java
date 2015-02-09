@@ -46,6 +46,9 @@ public class BitWorld {
 	}
 
 	public void step(float delta) {
+		if (delta <= 0) {
+			return;
+		}
 		// make sure world contains everything it should
 		bodies.addAll(pendingAdds);
 		pendingAdds.clear();
@@ -53,16 +56,19 @@ public class BitWorld {
 		pendingRemoves.clear();
 
 		// apply gravity to DYNAMIC bodies
-		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> body.velocity.add(gravity));
+		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> body.velocity.add(gravity.getScaled(delta)));
 
 		// move all of our bodies
-		bodies.parallelStream().filter(body -> BodyType.STATIC != body.props.bodyType).forEach(body -> body.aabb.translate(body.velocity.getScaled(delta)));
+		bodies.stream().filter(body -> BodyType.STATIC != body.props.bodyType).forEach(body -> body.aabb.translate(body.velocity.getScaled(delta)));
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
+		// we will always assume a body is not grounded unless it collides
+		// against something on a per-step basis
+		boolean grounded = false;
 		boolean collisionsDetected = false;
 
 		// 1. determine tile that x,y lives in
@@ -89,28 +95,35 @@ public class BitWorld {
 						if ((checkObj.nValue & Neighbor.UP) == 0 && insec.xy.y == body.aabb.xy.y && insec.height <= insec.width) {
 							// bottom side
 							resolution.y = Math.max(resolution.y, insec.height);
+							if (body.velocity.y <= 0) {
+								body.velocity.y = 0;
+								grounded = true;
+							}
+							System.out.println("grounded");
 						} else if ((checkObj.nValue & Neighbor.DOWN) == 0 && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
 								&& insec.height <= insec.width) {
 							// top side
 							resolution.y = Math.min(resolution.y, -insec.height);
+							body.velocity.y = 0;
 						} else if ((checkObj.nValue & Neighbor.RIGHT) == 0 && insec.xy.x == body.aabb.xy.x && insec.width <= insec.height) {
 							// left side
 							resolution.x = Math.max(resolution.x, insec.width);
+							body.velocity.x = 0;
 						} else if ((checkObj.nValue & Neighbor.LEFT) == 0 && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
 								&& insec.width <= insec.height) {
 							// right side
 							resolution.x = Math.min(resolution.x, -insec.width);
+							body.velocity.x = 0;
+						} else {
+							System.out.println("Unhandled intersection rect: " + insec);
 						}
 					}
 				}
 			}
 		}
 
-		if (collisionsDetected) {
-			body.aabb.xy.add(resolution.x, resolution.y);
-			System.out.println(body.aabb + " resolved with " + resolution);
-			// NOTE: need to keep track of grounded objects in some fashion.
-		}
+		body.aabb.xy.add(resolution.x, resolution.y);
+		body.props.grounded = grounded;
 	}
 
 	private BitBody createBody(BitRectangle rect, BitBodyProps props) {

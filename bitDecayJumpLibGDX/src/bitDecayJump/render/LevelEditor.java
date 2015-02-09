@@ -37,6 +37,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	JDialog buttonsDialog = new JDialog();
 
+	private TextureRegion[] tiles;
+	private TextureRegion fullSet;
+
 	public LevelEditor() {
 
 		spriteBatch = new SpriteBatch();
@@ -57,6 +60,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		buttonsDialog.add(new OptionsUI(this));
 		buttonsDialog.pack();
 		buttonsDialog.setAlwaysOnTop(true);
+
+		fullSet = new TextureRegion(new Texture(Gdx.files.internal("tileset.png")));
+		tiles = fullSet.split(16, 16)[0];
 	}
 
 	@Override
@@ -89,13 +95,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private void drawLevel(SpriteBatch sb) {
 		sb.begin();
-		shaper.begin(ShapeType.Filled);
-		shaper.setColor(Color.DARK_GRAY);
 		for (LevelObject obj : curLevelBuilder.objects) {
-			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+			sb.draw(tiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
+		sb.end();
 
-		shaper.end();
+		//		shaper.begin(ShapeType.Filled);
+		//		shaper.setColor(Color.DARK_GRAY);
+		//		for (LevelObject obj : curLevelBuilder.objects) {
+		//			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+		//		}
+		//		shaper.end();
 		shaper.begin(ShapeType.Line);
 		shaper.setColor(Color.GREEN);
 		for (LevelObject obj : curLevelBuilder.selection) {
@@ -103,7 +113,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		shaper.end();
-		sb.end();
 	}
 
 	private void drawGrid() {
@@ -148,7 +157,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		if (Gdx.input.isKeyPressed(Keys.NUM_2)) {
-			if (camera.zoom > 1) {
+			if (camera.zoom > .3) {
 				camera.zoom -= .032f;
 			}
 		} else if (Gdx.input.isKeyPressed(Keys.NUM_1)) {
