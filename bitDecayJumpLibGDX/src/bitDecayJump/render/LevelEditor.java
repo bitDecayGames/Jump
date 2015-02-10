@@ -19,7 +19,6 @@ import com.badlogic.gdx.math.Vector3;
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
 
 	private static final int CAM_SPEED = 5;
-	private static final int TILE_SIZE = 16;
 
 	public SpriteBatch spriteBatch;
 	public SpriteBatch uiBatch;
@@ -53,7 +52,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 		camera.update();
 
-		curLevelBuilder = new LevelBuilder(new Level(TILE_SIZE));
+		curLevelBuilder = new LevelBuilder(new Level(32));
 
 		mouseMode = new SelectMouseMode(curLevelBuilder);
 
@@ -70,7 +69,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		mouseRelease = GeomUtils.snap(getMouseCoords(), TILE_SIZE);
+		mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
 
 		handleInput();
 
@@ -118,15 +117,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private void drawGrid() {
 		shaper.begin(ShapeType.Line);
 		shaper.setColor(.1f, .1f, .1f, 1f);
-		Vector3 topLeft = camera.unproject(new Vector3(-TILE_SIZE, -TILE_SIZE, 0));
-		BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), TILE_SIZE);
-		Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * TILE_SIZE, 0));
-		BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), TILE_SIZE);
+		Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.level.tileSize, -curLevelBuilder.level.tileSize, 0));
+		BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.level.tileSize);
+		Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.level.tileSize, 0));
+		BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), curLevelBuilder.level.tileSize);
 
-		for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += TILE_SIZE) {
+		for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += curLevelBuilder.level.tileSize) {
 			shaper.line(x, snapTopLeft.y, x, snapBottomRight.y);
 		}
-		for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += TILE_SIZE) {
+		for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += curLevelBuilder.level.tileSize) {
 			shaper.line(snapTopLeft.x, y, snapBottomRight.x, y);
 		}
 		shaper.end();
@@ -135,7 +134,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private void drawOrigin() {
 		shaper.setColor(Color.MAROON);
 		shaper.begin(ShapeType.Filled);
-		shaper.circle(0, 0, camera.zoom * (TILE_SIZE / 3));
+		shaper.circle(0, 0, camera.zoom * (curLevelBuilder.level.tileSize / 3));
 		shaper.end();
 	}
 
@@ -181,14 +180,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		// log.debug("track click: " + mouseDown);
-		// mouseDown = GeomUtils.snap(getMouseCoords(), TILE_SIZE);
+		// mouseDown = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
 		mouseMode.mouseDown(getMouseCoords());
 		return super.touchDown(screenX, screenY, pointer, button);
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// mouseRelease = GeomUtils.snap(getMouseCoords(), TILE_SIZE);
+		// mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
 		mouseMode.mouseUp(getMouseCoords());
 		// createObject();
 		// mouseDown = null;

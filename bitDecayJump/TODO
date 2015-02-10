@@ -1,0 +1,1 @@
+Fix bug where block slides off platform and loses x velocity as it hits the edge making it 'hug' the wall as it goes over the edge.

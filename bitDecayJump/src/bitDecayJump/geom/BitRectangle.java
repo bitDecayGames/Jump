@@ -65,6 +65,34 @@ public class BitRectangle {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		BitRectangle other = (BitRectangle) obj;
+		if (height != other.height) {
+			return false;
+		}
+		if (width != other.width) {
+			return false;
+		}
+		if (xy == null) {
+			if (other.xy != null) {
+				return false;
+			}
+		} else if (!xy.equals(other.xy)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "(x: " + xy.x + ", y: " + xy.y + " - w: " + width + ", h: " + height + ")";
 	}

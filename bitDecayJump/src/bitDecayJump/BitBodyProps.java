@@ -10,6 +10,7 @@ public class BitBodyProps {
 	public int maxSpeedY = 0;
 	public BodyType bodyType;
 	public boolean grounded = false;
+	public boolean gravity = true;
 
 	public BitBodyProps() {
 	}
