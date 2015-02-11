@@ -1,0 +1,152 @@
+{
+  "tileSize": 32,
+  "objects": [
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 0,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 2
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 32,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 10
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 64,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 10
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 96,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 10
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 128,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 9
+      },
+      {
+        "rect": {
+          "xy": {
+            "x": 128,
+            "y": 32
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 5
+      },
+      {
+        "rect": {
+          "xy": {
+            "x": 128,
+            "y": 64
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 5
+      },
+      {
+        "rect": {
+          "xy": {
+            "x": 128,
+            "y": 96
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 5
+      },
+      {
+        "rect": {
+          "xy": {
+            "x": 128,
+            "y": 128
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 4
+      }
+    ]
+  ],
+  "gridOffset": {
+    "x": 0,
+    "y": 0
+  }
+}

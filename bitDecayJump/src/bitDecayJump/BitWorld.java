@@ -104,7 +104,7 @@ public class BitWorld {
 					LevelObject checkObj = level.objects[x][y];
 					BitRectangle insec = GeomUtils.intersection(body.aabb, level.objects[x][y].rect);
 					if (insec != null) {
-						final boolean xSpeedDominant = Math.abs(body.velocity.x) >= Math.abs(body.velocity.y);
+						final boolean xSpeedDominant = Math.abs(body.velocity.x) > Math.abs(body.velocity.y);
 						if (insec.equals(body.aabb)) {
 							resolveBodyInside(resolution, body, checkObj, insec, xSpeedDominant);
 							if (xSpeedDominant) {
@@ -121,25 +121,25 @@ public class BitWorld {
 							} else {
 								haltY = true;
 							}
-						} else if ((checkObj.nValue & Neighbor.UP) == 0 && insec.height != body.aabb.height && insec.xy.y == body.aabb.xy.y
-								&& (insec.height <= insec.width || noSideSpace(checkObj))) {
+						} else if ((checkObj.nValue & Neighbor.UP) == 0 && body.velocity.y <= 0 && insec.height != body.aabb.height
+								&& insec.xy.y == body.aabb.xy.y && (insec.height <= insec.width || noSideSpace(checkObj))) {
 							// body collided on its bottom side
 							resolution.y = Math.max(resolution.y, insec.height);
 							if (body.velocity.y <= 0) {
 								haltY = true;
 								grounded = true;
 							}
-						} else if ((checkObj.nValue & Neighbor.DOWN) == 0 && insec.height != body.aabb.height
+						} else if ((checkObj.nValue & Neighbor.DOWN) == 0 && body.velocity.y >= 0 && insec.height != body.aabb.height
 								&& insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height && (insec.height <= insec.width || noSideSpace(checkObj))) {
 							// body collided on its top side
 							resolution.y = Math.min(resolution.y, -insec.height);
 							haltY = true;
-						} else if ((checkObj.nValue & Neighbor.RIGHT) == 0 && insec.width != body.aabb.width && insec.xy.x == body.aabb.xy.x
-								&& (insec.width <= insec.height || noUpDownSpace(checkObj))) {
+						} else if ((checkObj.nValue & Neighbor.RIGHT) == 0 && body.velocity.x <= 0 && insec.width != body.aabb.width
+								&& insec.xy.x == body.aabb.xy.x && (insec.width <= insec.height || noUpDownSpace(checkObj))) {
 							// body collided on its left side
 							resolution.x = Math.max(resolution.x, insec.width);
 							haltX = true;
-						} else if ((checkObj.nValue & Neighbor.LEFT) == 0 && insec.width != body.aabb.width
+						} else if ((checkObj.nValue & Neighbor.LEFT) == 0 && body.velocity.x >= 0 && insec.width != body.aabb.width
 								&& insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width && (insec.width <= insec.height || noUpDownSpace(checkObj))) {
 							// body collided on its right side
 							resolution.x = Math.min(resolution.x, -insec.width);
@@ -194,22 +194,18 @@ public class BitWorld {
 	private void resolveBodyInside(BitPointInt resolution, BitBody body, LevelObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
-		if (xSpeedDominant) {
-			if (body.velocity.x <= 0) {
-				//push them out to the right
-				resolveRight(resolution, checkObj, insec);
-			} else {
-				// push them out to the left
-				resolveLeft(resolution, checkObj, insec);
-			}
-		} else {
-			if (body.velocity.y <= 0) {
-				// push them out to the top
-				resolveUp(resolution, checkObj, insec);
-			} else {
-				// push them out to the bottom
-				resolveDown(resolution, checkObj, insec);
-			}
+		if (xSpeedDominant && body.velocity.x <= 0 && (checkObj.nValue & Neighbor.RIGHT) == 0) {
+			//push them out to the right
+			resolveRight(resolution, checkObj, insec);
+		} else if (xSpeedDominant && body.velocity.x > 0 && (checkObj.nValue & Neighbor.LEFT) == 0) {
+			// push them out to the left
+			resolveLeft(resolution, checkObj, insec);
+		} else if (!xSpeedDominant && body.velocity.y <= 0 && (checkObj.nValue & Neighbor.UP) == 0) {
+			// push them out to the top
+			resolveUp(resolution, checkObj, insec);
+		} else if (!xSpeedDominant && body.velocity.y > 0 && (checkObj.nValue & Neighbor.DOWN) == 0) {
+			// push them out to the bottom
+			resolveDown(resolution, checkObj, insec);
 		}
 	}
 

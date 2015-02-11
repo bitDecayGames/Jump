@@ -1,0 +1,24 @@
+{
+  "tileSize": 32,
+  "objects": [
+    [
+      {
+        "rect": {
+          "xy": {
+            "x": 0,
+            "y": 0
+          },
+          "remainderX": 0.0,
+          "remainderY": 0.0,
+          "width": 32,
+          "height": 32
+        },
+        "nValue": 0
+      }
+    ]
+  ],
+  "gridOffset": {
+    "x": 0,
+    "y": 0
+  }
+}
