@@ -2,7 +2,7 @@ package bitDecayJump.render;
 
 import bitDecayJump.*;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
@@ -22,6 +22,20 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 		renderer.setProjectionMatrix(cam.combined);
 		renderer.begin(ShapeType.Line);
 		for (BitBody body : world.getBodies()) {
+			switch (body.props.bodyType) {
+			case DYNAMIC:
+				renderer.setColor(Color.CYAN);
+				break;
+			case KINETIC:
+				renderer.setColor(Color.BLUE);
+				break;
+			case STATIC:
+				renderer.setColor(Color.MAROON);
+				break;
+			default:
+				renderer.setColor(Color.WHITE);
+				break;
+			}
 			renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
 		}
 		renderer.end();

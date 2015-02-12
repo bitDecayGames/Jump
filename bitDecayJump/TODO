@@ -8,3 +8,29 @@ figure out if we can only check sides of blocks that our velocity could possibly
 	
 	- velocity.x == 0 ? Do we want to try to resolve left / right based on something else when this happens?
 	- velocity.y == 0 ? Do we want to try to resolve up / down based on something else when this happens?
+	
+	
+	
+	// for reference later
+	} else if (validLeftCollision && (body.velocity.x < 0 || !validTopCollision && !validBottomCollision)) {
+							// body collided on its left side
+							resolution.x = Math.max(resolution.x, insec.width);
+							haltX = true;
+						} else if (validRightCollision && (body.velocity.x > 0 || !validTopCollision && !validBottomCollision)) {
+							// body collided on its right side
+							resolution.x = Math.min(resolution.x, -insec.width);
+							haltX = true;
+						} else if (validTopCollision && body.velocity.y >= 0) {
+							//								&& (validLeftCollision && body.velocity.x >= 0 || validRightCollision && body.velocity.x <= 0)) {
+							// body collided on its top side
+							resolution.y = Math.min(resolution.y, -insec.height);
+							haltY = true;
+						} else if (validBottomCollision && body.velocity.y <= 0) {
+							//								&& (validLeftCollision && body.velocity.x >= 0 || validRightCollision && body.velocity.x <= 0)) {
+							// body collided on its bottom side
+							resolution.y = Math.max(resolution.y, insec.height);
+							if (body.velocity.y <= 0) {
+								haltY = true;
+								grounded = true;
+							}
+						}

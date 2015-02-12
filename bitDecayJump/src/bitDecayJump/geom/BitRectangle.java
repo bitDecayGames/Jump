@@ -32,11 +32,33 @@ public class BitRectangle {
 	}
 
 	public void translate(BitPoint point) {
-		float totalX = xy.x + remainderX + point.x;
+		translate(point.x, point.y);
+	}
+
+	/**
+	 * resets any axis the body is translated along (for resolving collisions)
+	 * 
+	 * @param point
+	 * @param reset
+	 */
+	public void translate(BitPointInt point, boolean reset) {
+		if (reset) {
+			if (point.x != 0) {
+				remainderX = 0;
+			}
+			if (point.y != 0) {
+				remainderY = 0;
+			}
+		}
+		translate(point.x, point.y);
+	}
+
+	public void translate(float x, float y) {
+		float totalX = xy.x + remainderX + x;
 		xy.x = (int) totalX;
 		remainderX = totalX - xy.x;
 
-		float totalY = xy.y + remainderY + point.y;
+		float totalY = xy.y + remainderY + y;
 		xy.y = (int) totalY;
 		remainderY = totalY - xy.y;
 	}

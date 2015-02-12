@@ -17,10 +17,14 @@ public class LevelUtilities {
 		return null;
 	}
 
-	public static LevelBuilder loadLevel(File selectedFile) {
+	public static LevelBuilder loadLevel(String fileName) {
+		return loadLevel(new File(fileName));
+	}
+
+	public static LevelBuilder loadLevel(File file) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader(selectedFile));
+			reader = new BufferedReader(new FileReader(file));
 			StringBuffer json = new StringBuffer();
 			String line = reader.readLine();
 			while (line != null) {

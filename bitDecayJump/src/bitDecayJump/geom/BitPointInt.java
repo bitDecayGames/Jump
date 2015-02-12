@@ -35,4 +35,8 @@ public class BitPointInt {
 	public BitPointInt minus(BitPointInt point) {
 		return new BitPointInt(x - point.x, y - point.y);
 	}
+
+	public void addAndReset(int x, int y) {
+		add(x, y);
+	}
 }

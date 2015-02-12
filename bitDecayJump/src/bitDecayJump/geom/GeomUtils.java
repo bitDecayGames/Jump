@@ -54,7 +54,7 @@ public class GeomUtils {
 		int x2 = Math.min(rec1.xy.x + rec1.width, rec2.xy.x + rec2.width);
 		int y2 = Math.min(rec1.xy.y + rec1.height, rec2.xy.y + rec2.height);
 
-		if (x1 > x2 || y1 > y2) {
+		if (x1 >= x2 || y1 >= y2) {
 			return null;
 		} else {
 			return new BitRectangle(x1, y1, x2 - x1, y2 - y1);
