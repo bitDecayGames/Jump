@@ -1,36 +1,13 @@
-Fix bug where block slides off platform and loses x velocity as it hits the edge making it 'hug' the wall as it goes over the edge.
-
-figure out if we can only check sides of blocks that our velocity could possibly hit
-	- velocity.x > 0 means we can only hit left sides
-	- velocity.x < 0 means we can only hit right sides
-	- velocity.y > 0 means we can only hit bottom sides
-	- velocity.y < 0 means we can only hit top sides
-	
-	- velocity.x == 0 ? Do we want to try to resolve left / right based on something else when this happens?
-	- velocity.y == 0 ? Do we want to try to resolve up / down based on something else when this happens?
-	
+Add specific platformer body property object.
+Contains Properties for:
+	- Double Jump
+	- Hang time
+	- jump strength
+	- wall jump
+	- wall slide speed
+	- variable jump window (longer button press equals higher jump)
+	- grace period for being able to jump after walking off edge
 	
 	
-	// for reference later
-	} else if (validLeftCollision && (body.velocity.x < 0 || !validTopCollision && !validBottomCollision)) {
-							// body collided on its left side
-							resolution.x = Math.max(resolution.x, insec.width);
-							haltX = true;
-						} else if (validRightCollision && (body.velocity.x > 0 || !validTopCollision && !validBottomCollision)) {
-							// body collided on its right side
-							resolution.x = Math.min(resolution.x, -insec.width);
-							haltX = true;
-						} else if (validTopCollision && body.velocity.y >= 0) {
-							//								&& (validLeftCollision && body.velocity.x >= 0 || validRightCollision && body.velocity.x <= 0)) {
-							// body collided on its top side
-							resolution.y = Math.min(resolution.y, -insec.height);
-							haltY = true;
-						} else if (validBottomCollision && body.velocity.y <= 0) {
-							//								&& (validLeftCollision && body.velocity.x >= 0 || validRightCollision && body.velocity.x <= 0)) {
-							// body collided on its bottom side
-							resolution.y = Math.max(resolution.y, insec.height);
-							if (body.velocity.y <= 0) {
-								haltY = true;
-								grounded = true;
-							}
-						}
+Still to do for physics engine:
+	- Add dynamic body collision DETECTION. I'm not worried about resolving those conflicts. Keep it simple. Just simple contact start/end type stuff.
