@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 public class BitBodyProps {
 	public float accelX = 0;
 	public float accelY = 0;
-	public float jumpStrength = 0;
 	public int maxSpeedX = 0;
 	public int maxSpeedY = 0;
 	public BodyType bodyType;
