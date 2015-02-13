@@ -135,7 +135,6 @@ public class BitWorld {
 							resolution.x = Math.max(resolution.x, insec.width);
 							haltX = true;
 						} else if (validRightCollision) {
-							System.out.println();
 							// body collided on its right side
 							resolution.x = Math.min(resolution.x, -insec.width);
 							haltX = true;
