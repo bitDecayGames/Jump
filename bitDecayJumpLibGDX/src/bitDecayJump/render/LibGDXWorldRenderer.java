@@ -30,7 +30,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 				renderer.setColor(Color.BLUE);
 				break;
 			case STATIC:
-				renderer.setColor(Color.MAROON);
+				renderer.setColor(Color.TEAL);
 				break;
 			default:
 				renderer.setColor(Color.WHITE);

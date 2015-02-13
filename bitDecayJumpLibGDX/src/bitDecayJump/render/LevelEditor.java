@@ -51,6 +51,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		@Override
 		public void levelChanged(Level level) {
 			world.setLevel(level);
+			BitBody player = maybeGetPlayer();
+			if (player != null) {
+				world.addBody(player);
+			}
 		}
 	};
 
@@ -126,20 +130,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			sb.draw(tiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 		sb.end();
-
-		//		shaper.begin(ShapeType.Filled);
-		//		shaper.setColor(Color.DARK_GRAY);
-		//		for (LevelObject obj : curLevelBuilder.objects) {
-		//			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
-		//		}
-		//		shaper.end();
-		shaper.begin(ShapeType.Line);
-		shaper.setColor(Color.GREEN);
-		for (LevelObject obj : curLevelBuilder.selection) {
-			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
-		}
-
-		shaper.end();
 	}
 
 	private void drawGrid() {
@@ -203,6 +193,31 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				buttonsDialog.setVisible(true);
 			}
 		}
+
+		BitBody player = maybeGetPlayer();
+		if (player != null) {
+			handlePlayerInput(player);
+		}
+	}
+
+	// change this when we get better controls in place.
+	private void handlePlayerInput(BitBody player) {
+		if (Gdx.input.isKeyJustPressed(Keys.W)) {
+			if (player.props.grounded) {
+				player.velocity.y = 600;
+			}
+		}
+		if (Gdx.input.isKeyPressed(Keys.A)) {
+			player.velocity.x = -60;
+		} else if (Gdx.input.isKeyPressed(Keys.D)) {
+			player.velocity.x = 60;
+		} else {
+			player.velocity.x = 0;
+		}
+	}
+
+	private BitBody maybeGetPlayer() {
+		return ((SetPlayerMouseMode) mouseModes.get("SET PLAYER")).lastPlayer;
 	}
 
 	@Override

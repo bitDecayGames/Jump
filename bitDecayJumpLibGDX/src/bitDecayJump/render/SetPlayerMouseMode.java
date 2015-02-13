@@ -11,8 +11,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 public class SetPlayerMouseMode extends BaseMouseMode {
 
 	private BitWorld world;
-	private BitBody lastPlayer;
 	private BitBodyProps props;
+
+	public BitBody lastPlayer;
 
 	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world) {
 		super(builder);

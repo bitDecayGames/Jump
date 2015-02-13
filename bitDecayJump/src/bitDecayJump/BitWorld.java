@@ -18,7 +18,6 @@ public class BitWorld {
 	private List<BitBody> bodies;
 
 	private Level level;
-	private Map<LevelObject, BitBody> levelBodies;
 
 	private BitPoint gravity = new BitPoint(0, 0);
 
@@ -32,7 +31,6 @@ public class BitWorld {
 
 	public BitWorld() {
 		bodies = new ArrayList<BitBody>();
-		levelBodies = new HashMap<LevelObject, BitBody>();
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
 	}
@@ -281,8 +279,7 @@ public class BitWorld {
 
 	public void setLevel(Level level) {
 		this.level = level;
-		bodies.removeAll(levelBodies.values());
-		levelBodies.clear();
+		bodies.clear();
 
 		for (LevelObject object : level.getObjects()) {
 			createBody(object.rect, levelBodyProps);
