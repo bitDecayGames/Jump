@@ -187,7 +187,7 @@ public class CollisionTest {
 	}
 
 	public static Level loadTestLevel(String levelName) {
-		return LevelUtilities.loadLevel("./assets/test/" + levelName).level;
+		return LevelUtilities.loadLevel("./assets/test/" + levelName);
 	}
 
 }

@@ -6,6 +6,16 @@ import bitDecayJump.geom.*;
 
 import com.google.gson.*;
 
+/**
+ * A wrapper object around a level to handle adding and removing things from the
+ * level. Recreates the underlying level any time changes are made. It does this
+ * to ensure that all level objects are of the proper size.<br>
+ * <br>
+ * If this causes performance issues down the road with larger levels, we will
+ * figure out what to do then. For now it works quite well.
+ * 
+ * @author Monday
+ */
 public class LevelBuilder {
 	public Level level;
 
@@ -13,23 +23,26 @@ public class LevelBuilder {
 
 	public Collection<LevelObject> objects;
 
+	public List<LevelBuilderListener> listeners;
+
 	public LevelBuilder(Level level) {
+		listeners = new ArrayList<LevelBuilderListener>();
 		setLevel(level);
 	}
 
-	public LevelBuilder(String json) {
-		this(new GsonBuilder().create().fromJson(json, Level.class));
-	}
-
-	private void setLevel(Level level) {
+	public void setLevel(Level level) {
 		this.level = level;
+		for (LevelBuilderListener levelListener : listeners) {
+			levelListener.levelChanged(level);
+		}
 		objects = level.getObjects();
 		selection = new ArrayList<LevelObject>();
 	}
 
 	public void createObject(BitPointInt startPoint, BitPointInt endPoint) {
 		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), level.tileSize, level.tileSize)) {
-			objects.add(new LevelObject(rect));
+			LevelObject obj = new LevelObject(rect);
+			objects.add(obj);
 		}
 		refresh();
 	}
@@ -110,9 +123,6 @@ public class LevelBuilder {
 				} else {
 					levelGrid[x][y] = null;
 				}
-				// if (level.objects.stream().filter(levelObj ->
-				// levelObj.rect.contains(inX + xoffset, inY + yoffset)).count()
-				// > 0) {
 			}
 		}
 
@@ -155,5 +165,13 @@ public class LevelBuilder {
 		tillizedLevel.objects = levelGrid;
 
 		return tillizedLevel;
+	}
+
+	public void addListener(LevelBuilderListener levelListener) {
+		listeners.add(levelListener);
+	}
+
+	public void removeListener(LevelBuilderListener levelListener) {
+		listeners.remove(levelListener);
 	}
 }

@@ -33,8 +33,7 @@ public abstract class BaseMouseMode implements MouseMode {
 		endPoint = null;
 	}
 
-	protected void mouseUpLogic(BitPointInt point) {
-	}
+	protected abstract void mouseUpLogic(BitPointInt point);
 
 	@Override
 	public void mouseMoved(BitPointInt point) {

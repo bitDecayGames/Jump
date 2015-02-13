@@ -4,8 +4,10 @@ import java.io.*;
 
 import javax.swing.JFileChooser;
 
+import com.google.gson.GsonBuilder;
+
 public class LevelUtilities {
-	public static LevelBuilder loadLevel() {
+	public static Level loadLevel() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("."));
 		// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -17,11 +19,11 @@ public class LevelUtilities {
 		return null;
 	}
 
-	public static LevelBuilder loadLevel(String fileName) {
+	public static Level loadLevel(String fileName) {
 		return loadLevel(new File(fileName));
 	}
 
-	public static LevelBuilder loadLevel(File file) {
+	public static Level loadLevel(File file) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
@@ -32,7 +34,7 @@ public class LevelUtilities {
 				line = reader.readLine();
 			}
 			if (json.length() > 0) {
-				return new LevelBuilder(json.toString());
+				return levelFromJson(json.toString());
 			} else {
 				System.out.println("File was empty. Could not load.");
 			}
@@ -47,5 +49,9 @@ public class LevelUtilities {
 			}
 		}
 		return null;
+	}
+
+	private static Level levelFromJson(String json) {
+		return new GsonBuilder().create().fromJson(json, Level.class);
 	}
 }

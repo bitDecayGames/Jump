@@ -1,9 +1,11 @@
 package bitDecayJump.render;
 
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
 
+import bitDecayJump.*;
 import bitDecayJump.geom.*;
 import bitDecayJump.level.*;
 import bitDecayJump.ui.*;
@@ -32,12 +34,25 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	OrthographicCamera camera;
 	ShapeRenderer shaper;
+	private Map<String, MouseMode> mouseModes;
 	private MouseMode mouseMode;
 
 	JDialog buttonsDialog = new JDialog();
 
 	private TextureRegion[] tiles;
 	private TextureRegion fullSet;
+
+	private BitWorld world;
+	private LibGDXWorldRenderer worldRenderer;
+
+	private LevelBuilderListener levelListener = new LevelBuilderListener() {
+		Map<LevelObject, BitBody> objToBody = new HashMap<LevelObject, BitBody>();
+
+		@Override
+		public void levelChanged(Level level) {
+			world.setLevel(level);
+		}
+	};
 
 	public LevelEditor() {
 
@@ -52,9 +67,20 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 		camera.update();
 
-		curLevelBuilder = new LevelBuilder(new Level(32));
+		setLevelBuilder(new Level(32));
 
-		mouseMode = new SelectMouseMode(curLevelBuilder);
+		world = new BitWorld();
+		world.setGravity(0, -600);
+		world.setLevel(new Level(curLevelBuilder.level.tileSize));
+
+		worldRenderer = new LibGDXWorldRenderer(world, camera);
+
+		mouseModes = new HashMap<String, MouseMode>();
+		mouseModes.put("SELECT", new SelectMouseMode(curLevelBuilder));
+		mouseModes.put("CREATE", new CreateMouseMode(curLevelBuilder));
+		mouseModes.put("DELETE", new DeleteMouseMode(curLevelBuilder));
+		mouseModes.put("SET PLAYER", new SetPlayerMouseMode(curLevelBuilder, world));
+		mouseMode = mouseModes.get("SELECT");
 
 		buttonsDialog.add(new OptionsUI(this));
 		buttonsDialog.pack();
@@ -78,7 +104,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		shaper.setProjectionMatrix(camera.combined);
 
 		drawGrid();
-		drawLevel(spriteBatch);
+		world.step(delta);
+		worldRenderer.render();
+		drawLevelEdit(spriteBatch);
 		drawOrigin();
 
 		mouseMode.render(shaper);
@@ -92,7 +120,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		uiBatch.end();
 	}
 
-	private void drawLevel(SpriteBatch sb) {
+	private void drawLevelEdit(SpriteBatch sb) {
 		sb.begin();
 		for (LevelObject obj : curLevelBuilder.objects) {
 			sb.draw(tiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
@@ -248,22 +276,22 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	@Override
 	public void setMode(String mode) {
-		if ("SELECT".equalsIgnoreCase(mode)) {
-			mouseMode = new SelectMouseMode(curLevelBuilder);
-		} else if ("CREATE".equalsIgnoreCase(mode)) {
-			mouseMode = new CreateMouseMode(curLevelBuilder);
-		} else if ("DELETE".equalsIgnoreCase(mode)) {
-			mouseMode = new DeleteMouseMode(curLevelBuilder);
+		if (mouseModes.containsKey(mode.toUpperCase())) {
+			mouseMode = mouseModes.get(mode.toUpperCase());
 		} else if ("SAVE".equalsIgnoreCase(mode)) {
 			saveLevel();
 		} else if ("LOAD".equalsIgnoreCase(mode)) {
-			curLevelBuilder = LevelUtilities.loadLevel();
+			Level loadLevel = LevelUtilities.loadLevel();
+			if (loadLevel != null) {
+				setLevelBuilder(loadLevel);
+			}
 		}
 	}
 
 	private void saveLevel() {
 		savedLevel = curLevelBuilder.getJson();
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Save As");
 		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -271,10 +299,18 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				writer.write(savedLevel);
 				writer.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			curLevelBuilder = new LevelBuilder(savedLevel);
+			setLevelBuilder(LevelUtilities.loadLevel(savedLevel));
+		}
+	}
+
+	private void setLevelBuilder(Level level) {
+		if (curLevelBuilder == null) {
+			curLevelBuilder = new LevelBuilder(level);
+			curLevelBuilder.addListener(levelListener);
+		} else {
+			curLevelBuilder.setLevel(level);
 		}
 	}
 }

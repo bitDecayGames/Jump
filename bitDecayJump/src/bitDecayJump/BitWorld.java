@@ -25,6 +25,11 @@ public class BitWorld {
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
 
+	public static final BitBodyProps levelBodyProps = new BitBodyProps();
+	static {
+		levelBodyProps.bodyType = BodyType.STATIC;
+	}
+
 	public BitWorld() {
 		bodies = new ArrayList<BitBody>();
 		levelBodies = new HashMap<LevelObject, BitBody>();
@@ -258,7 +263,7 @@ public class BitWorld {
 		resolution.x = Math.max(resolution.x, checkObj.rect.xy.x + checkObj.rect.width - insec.xy.x);
 	}
 
-	private BitBody createBody(BitRectangle rect, BitBodyProps props) {
+	public BitBody createBody(BitRectangle rect, BitBodyProps props) {
 		return createBody(rect.xy.x, rect.xy.y, rect.width, rect.height, props);
 	}
 
@@ -279,10 +284,8 @@ public class BitWorld {
 		bodies.removeAll(levelBodies.values());
 		levelBodies.clear();
 
-		BitBodyProps props = new BitBodyProps();
-		props.bodyType = BodyType.STATIC;
 		for (LevelObject object : level.getObjects()) {
-			createBody(object.rect, props);
+			createBody(object.rect, levelBodyProps);
 		}
 		bodies.addAll(pendingAdds);
 		pendingAdds.clear();

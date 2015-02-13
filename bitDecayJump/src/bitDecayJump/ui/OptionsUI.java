@@ -49,6 +49,18 @@ public class OptionsUI extends JPanel {
 
 		add(Box.createVerticalStrut(10));
 
+		JButton btnSetPlayer = new JButton("Set Player");
+		btnSetPlayer.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Set Player");
+			}
+		});
+		add(btnSetPlayer);
+
+		add(Box.createVerticalStrut(10));
+
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 
