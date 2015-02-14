@@ -27,6 +27,9 @@ public abstract class BaseMouseMode implements MouseMode {
 
 	@Override
 	public void mouseUp(BitPointInt point) {
+		if (startPoint == null) {
+			return;
+		}
 		endPoint = point;
 		mouseUpLogic(point);
 		startPoint = null;

@@ -2,16 +2,25 @@ package bitDecayJump.input;
 
 import java.util.*;
 
-import bitDecayJump.input.ControllerType.Button;
+import com.badlogic.gdx.Input.Keys;
 
 public class ControlMap {
-	Map<Button, Integer> map = new HashMap<Button, Integer>();
+	public static final ControlMap defaultMapping = new ControlMap();
+	static {
+		defaultMapping.set(PlayerAction.LEFT, Keys.A);
+		defaultMapping.set(PlayerAction.RIGHT, Keys.D);
+		defaultMapping.set(PlayerAction.UP, Keys.W);
+		defaultMapping.set(PlayerAction.DOWN, Keys.S);
+		defaultMapping.set(PlayerAction.JUMP, Keys.SPACE);
+	}
 
-	public int get(Button btn) {
+	Map<PlayerAction, Integer> map = new HashMap<PlayerAction, Integer>();
+
+	public int get(PlayerAction btn) {
 		return map.get(btn);
 	}
 
-	public void set(Button btn, int key) {
+	public void set(PlayerAction btn, int key) {
 		map.put(btn, key);
 	}
 }

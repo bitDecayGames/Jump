@@ -7,4 +7,6 @@ public class BitBody {
 
 	public BitPoint velocity = new BitPoint(0, 0);
 	public BitBodyProps props;
+
+	public BitBodyController controller;
 }

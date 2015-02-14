@@ -2,8 +2,8 @@ package bitDecayJump.render.mouse;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
+import bitDecayJump.input.*;
 import bitDecayJump.level.LevelBuilder;
-import bitDecayJump.render.PlayerController;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.*;
@@ -16,21 +16,25 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 
 	public BitBody lastPlayer;
 	private PlayerController playerController;
+	private ControlMap controls;
 
 	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerController playerController, BitBodyProps props) {
 		super(builder);
 		this.world = world;
 		this.playerController = playerController;
 		this.props = props;
+		this.controls = ControlMap.defaultMapping;
 	}
 
 	@Override
 	protected void mouseUpLogic(BitPointInt point) {
-		if (lastPlayer != null) {
-			world.removeBody(lastPlayer);
+		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
+			if (lastPlayer != null) {
+				world.removeBody(lastPlayer);
+			}
+			lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
+			playerController.setBody(lastPlayer, controls);
 		}
-		lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
-		playerController.setBody(lastPlayer);
 	}
 
 	@Override

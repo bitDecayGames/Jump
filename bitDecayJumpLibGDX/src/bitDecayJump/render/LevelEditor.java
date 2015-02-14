@@ -6,7 +6,7 @@ import javax.swing.JDialog;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
-import bitDecayJump.input.InputDistributer;
+import bitDecayJump.input.PlayerController;
 import bitDecayJump.level.*;
 import bitDecayJump.render.mouse.*;
 import bitDecayJump.ui.*;
@@ -50,8 +50,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private BitWorld world;
 	private LibGDXWorldRenderer worldRenderer;
 
-	private InputDistributer input;
-
 	private LevelBuilderListener levelListener = new LevelBuilderListener() {
 		@Override
 		public void levelChanged(Level level) {
@@ -63,9 +61,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 	};
 
+	private PlayerController playerController;
+
 	public LevelEditor() {
-		input = new InputDistributer();
-		input.addHandler(this);
 
 		spriteBatch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
@@ -95,8 +93,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes.put("DELETE", new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put("SPAWN", new SpawnMouseMode(curLevelBuilder));
 
-		PlayerController playerController = new PlayerController();
-		input.addHandler(playerController);
+		playerController = new PlayerController();
 		mouseModes.put("SET PLAYER", new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
 		mouseMode = mouseModes.get("SELECT");
 
@@ -121,6 +118,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
 
 		handleInput();
+		playerController.update();
 
 		camera.update();
 		spriteBatch.setProjectionMatrix(camera.combined);
@@ -234,28 +232,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				playerTweakDialog.setVisible(true);
 			}
 		}
-
-		//		BitBody player = maybeGetPlayer();
-		//		if (player != null) {
-		//			handlePlayerInput(player);
-		//		}
 	}
-
-	//	// change this when we get better controls in place.
-	//	private void handlePlayerInput(BitBody player) {
-	//		if (Gdx.input.isKeyJustPressed(Keys.W)) {
-	//			if (player.props.grounded) {
-	//				player.velocity.y = 600;
-	//			}
-	//		}
-	//		if (Gdx.input.isKeyPressed(Keys.A)) {
-	//			player.velocity.x = -60;
-	//		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-	//			player.velocity.x = 60;
-	//		} else {
-	//			player.velocity.x = 0;
-	//		}
-	//	}
 
 	private BitBody maybeGetPlayer() {
 		return ((SetPlayerMouseMode) mouseModes.get("SET PLAYER")).lastPlayer;
@@ -317,7 +294,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(input);
+		Gdx.input.setInputProcessor(this);
 	}
 
 	@Override

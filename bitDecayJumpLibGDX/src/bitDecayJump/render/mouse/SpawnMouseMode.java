@@ -1,8 +1,7 @@
-package bitDecayJump.render;
+package bitDecayJump.render.mouse;
 
 import bitDecayJump.geom.BitPointInt;
 import bitDecayJump.level.LevelBuilder;
-import bitDecayJump.render.mouse.BaseMouseMode;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.*;

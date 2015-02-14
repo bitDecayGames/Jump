@@ -66,22 +66,29 @@ public class BitWorld {
 		bodies.removeAll(pendingRemoves);
 		pendingRemoves.clear();
 
-		// apply gravity to DYNAMIC bodies
-		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> {
-			if (body.props.gravity) {
-				body.velocity.add(gravity.getScaled(delta));
-			}
-			if (body.props.grounded) {
-				// move all grounded bodies down one unit to force the grounded flag to be consistent
-				body.aabb.xy.add(0, -1);
-			}
-		});
-
-		// move all of our bodies
-		bodies.stream().filter(body -> BodyType.STATIC != body.props.bodyType).forEach(body -> body.aabb.translate(body.velocity.getScaled(delta)));
+		// first, move everything
+		bodies.parallelStream().forEach(body -> {
+			// apply gravity to DYNAMIC bodies
+				if (BodyType.DYNAMIC == body.props.bodyType) {
+					if (body.props.gravity) {
+						body.velocity.add(gravity.getScaled(delta));
+					}
+					if (body.props.grounded) {
+						// move all grounded bodies down one unit to force the grounded flag to be consistent
+						body.aabb.xy.add(0, -1);
+					}
+				}
+				// move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.aabb.translate(body.velocity.getScaled(delta));
+				}
+				if (body.controller != null) {
+					body.controller.update(delta);
+				}
+			});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
-		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
+		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
