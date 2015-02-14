@@ -4,8 +4,6 @@ import java.util.*;
 
 import bitDecayJump.geom.*;
 
-import com.google.gson.*;
-
 /**
  * A wrapper object around a level to handle adding and removing things from the
  * level. Recreates the underlying level any time changes are made. It does this
@@ -81,10 +79,7 @@ public class LevelBuilder {
 	}
 
 	public String getJson() {
-		Level tilizeLevel = tilizeLevel();
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(tilizeLevel);
-		return json;
+		return FileUtils.toJson(tilizeLevel());
 	}
 
 	public Level tilizeLevel() {
@@ -163,6 +158,7 @@ public class LevelBuilder {
 
 		tillizedLevel.gridOffset = new BitPointInt(xoffset / level.tileSize, yoffset / level.tileSize);
 		tillizedLevel.objects = levelGrid;
+		tillizedLevel.spawn = level.spawn;
 
 		return tillizedLevel;
 	}
@@ -173,5 +169,9 @@ public class LevelBuilder {
 
 	public void removeListener(LevelBuilderListener levelListener) {
 		listeners.remove(levelListener);
+	}
+
+	public void setSpawn(BitPointInt point) {
+		level.spawn = point;
 	}
 }

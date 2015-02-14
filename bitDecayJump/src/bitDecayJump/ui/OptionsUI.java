@@ -47,9 +47,9 @@ public class OptionsUI extends JPanel {
 		});
 		add(btnDelete);
 
-		add(Box.createVerticalStrut(10));
+		add(Box.createVerticalStrut(25));
 
-		JButton btnSetPlayer = new JButton("Set Player");
+		JButton btnSetPlayer = new JButton("Set Test Player");
 		btnSetPlayer.addActionListener(new ActionListener() {
 
 			@Override
@@ -61,7 +61,43 @@ public class OptionsUI extends JPanel {
 
 		add(Box.createVerticalStrut(10));
 
-		JButton btnSave = new JButton("Save");
+		JButton btnSavePlayer = new JButton("Save Player Props");
+		btnSavePlayer.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Save Player Props");
+			}
+		});
+		add(btnSavePlayer);
+
+		add(Box.createVerticalStrut(10));
+
+		JButton btnLoadPlayer = new JButton("Load Player Props");
+		btnLoadPlayer.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Load Player Props");
+			}
+		});
+		add(btnLoadPlayer);
+
+		add(Box.createVerticalStrut(10));
+
+		JButton btnSetSpawn = new JButton("Set Spawn");
+		btnSetSpawn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.setMode("Spawn");
+			}
+		});
+		add(btnSetSpawn);
+
+		add(Box.createVerticalStrut(50));
+
+		JButton btnSave = new JButton("Save Level");
 		btnSave.addActionListener(new ActionListener() {
 
 			@Override
@@ -73,7 +109,7 @@ public class OptionsUI extends JPanel {
 
 		add(Box.createVerticalStrut(10));
 
-		JButton btnLoad = new JButton("Load");
+		JButton btnLoad = new JButton("Load Level");
 		btnLoad.addActionListener(new ActionListener() {
 
 			@Override

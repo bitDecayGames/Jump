@@ -1,13 +1,14 @@
 package bitDecayJump.render;
 
-import java.io.*;
 import java.util.*;
 
-import javax.swing.*;
+import javax.swing.JDialog;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
+import bitDecayJump.input.InputDistributer;
 import bitDecayJump.level.*;
+import bitDecayJump.render.mouse.*;
 import bitDecayJump.ui.*;
 
 import com.badlogic.gdx.*;
@@ -18,7 +19,7 @@ import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
-public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
+public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
 
 	private static final int CAM_SPEED = 5;
 
@@ -32,12 +33,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public LevelBuilder curLevelBuilder;
 	public String savedLevel;
 
-	OrthographicCamera camera;
-	ShapeRenderer shaper;
+	private OrthographicCamera camera;
+	private ShapeRenderer shaper;
 	private Map<String, MouseMode> mouseModes;
 	private MouseMode mouseMode;
 
-	JDialog buttonsDialog = new JDialog();
+	private JDialog buttonsDialog = new JDialog();
+	private JDialog playerTweakDialog = new JDialog();
+	private PropModUI propUI;
+
+	private BitBodyProps playerProps;
 
 	private TextureRegion[] tiles;
 	private TextureRegion fullSet;
@@ -45,9 +50,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private BitWorld world;
 	private LibGDXWorldRenderer worldRenderer;
 
-	private LevelBuilderListener levelListener = new LevelBuilderListener() {
-		Map<LevelObject, BitBody> objToBody = new HashMap<LevelObject, BitBody>();
+	private InputDistributer input;
 
+	private LevelBuilderListener levelListener = new LevelBuilderListener() {
 		@Override
 		public void levelChanged(Level level) {
 			world.setLevel(level);
@@ -59,6 +64,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	};
 
 	public LevelEditor() {
+		input = new InputDistributer();
+		input.addHandler(this);
 
 		spriteBatch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
@@ -79,16 +86,28 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		worldRenderer = new LibGDXWorldRenderer(world, camera);
 
+		playerProps = new BitBodyProps();
+		playerProps.bodyType = BodyType.DYNAMIC;
+
 		mouseModes = new HashMap<String, MouseMode>();
 		mouseModes.put("SELECT", new SelectMouseMode(curLevelBuilder));
 		mouseModes.put("CREATE", new CreateMouseMode(curLevelBuilder));
 		mouseModes.put("DELETE", new DeleteMouseMode(curLevelBuilder));
-		mouseModes.put("SET PLAYER", new SetPlayerMouseMode(curLevelBuilder, world));
+		mouseModes.put("SPAWN", new SpawnMouseMode(curLevelBuilder));
+
+		PlayerController playerController = new PlayerController();
+		input.addHandler(playerController);
+		mouseModes.put("SET PLAYER", new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
 		mouseMode = mouseModes.get("SELECT");
 
 		buttonsDialog.add(new OptionsUI(this));
 		buttonsDialog.pack();
 		buttonsDialog.setAlwaysOnTop(true);
+
+		propUI = new PropModUI(this, playerProps);
+		playerTweakDialog.add(propUI);
+		playerTweakDialog.pack();
+		playerTweakDialog.setAlwaysOnTop(true);
 
 		fullSet = new TextureRegion(new Texture(Gdx.files.internal("tileset.png")));
 		tiles = fullSet.split(16, 16)[0];
@@ -130,6 +149,24 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			sb.draw(tiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 		sb.end();
+
+		shaper.begin(ShapeType.Line);
+		shaper.setColor(Color.GREEN);
+		for (LevelObject obj : curLevelBuilder.selection) {
+			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+		}
+		shaper.end();
+
+		// TODO: Figure out how to better render these special aspects
+		shaper.begin(ShapeType.Filled);
+		BitPointInt spawn = curLevelBuilder.level.spawn;
+		if (spawn != null) {
+			shaper.setColor(Color.YELLOW);
+			shaper.circle(spawn.x, spawn.y, 7);
+			shaper.setColor(Color.RED);
+			shaper.circle(spawn.x, spawn.y, 4);
+		}
+		shaper.end();
 	}
 
 	private void drawGrid() {
@@ -192,29 +229,33 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				buttonsDialog.setLocationRelativeTo(null);
 				buttonsDialog.setVisible(true);
 			}
-		}
-
-		BitBody player = maybeGetPlayer();
-		if (player != null) {
-			handlePlayerInput(player);
-		}
-	}
-
-	// change this when we get better controls in place.
-	private void handlePlayerInput(BitBody player) {
-		if (Gdx.input.isKeyJustPressed(Keys.W)) {
-			if (player.props.grounded) {
-				player.velocity.y = 600;
+			if (!playerTweakDialog.isShowing()) {
+				playerTweakDialog.setLocationRelativeTo(null);
+				playerTweakDialog.setVisible(true);
 			}
 		}
-		if (Gdx.input.isKeyPressed(Keys.A)) {
-			player.velocity.x = -60;
-		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			player.velocity.x = 60;
-		} else {
-			player.velocity.x = 0;
-		}
+
+		//		BitBody player = maybeGetPlayer();
+		//		if (player != null) {
+		//			handlePlayerInput(player);
+		//		}
 	}
+
+	//	// change this when we get better controls in place.
+	//	private void handlePlayerInput(BitBody player) {
+	//		if (Gdx.input.isKeyJustPressed(Keys.W)) {
+	//			if (player.props.grounded) {
+	//				player.velocity.y = 600;
+	//			}
+	//		}
+	//		if (Gdx.input.isKeyPressed(Keys.A)) {
+	//			player.velocity.x = -60;
+	//		} else if (Gdx.input.isKeyPressed(Keys.D)) {
+	//			player.velocity.x = 60;
+	//		} else {
+	//			player.velocity.x = 0;
+	//		}
+	//	}
 
 	private BitBody maybeGetPlayer() {
 		return ((SetPlayerMouseMode) mouseModes.get("SET PLAYER")).lastPlayer;
@@ -256,45 +297,39 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void pause() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void resize(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor(input);
 	}
 
 	@Override
 	public void setMode(String mode) {
 		if (mouseModes.containsKey(mode.toUpperCase())) {
 			mouseMode = mouseModes.get(mode.toUpperCase());
+		} else if ("SAVE PLAYER PROPS".equalsIgnoreCase(mode)) {
+			saveProps();
+		} else if ("LOAD PLAYER PROPS".equalsIgnoreCase(mode)) {
+			loadProps();
 		} else if ("SAVE".equalsIgnoreCase(mode)) {
-			saveLevel();
+			setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
 		} else if ("LOAD".equalsIgnoreCase(mode)) {
 			Level loadLevel = LevelUtilities.loadLevel();
 			if (loadLevel != null) {
@@ -303,29 +338,43 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 	}
 
-	private void saveLevel() {
-		savedLevel = curLevelBuilder.getJson();
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle("Save As");
-		fileChooser.setCurrentDirectory(new File("."));
-		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			try {
-				FileWriter writer = new FileWriter(fileChooser.getSelectedFile());
-				writer.write(savedLevel);
-				writer.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			setLevelBuilder(LevelUtilities.loadLevel(savedLevel));
+	private void saveProps() {
+		BitBody player = maybeGetPlayer();
+		if (player != null) {
+			FileUtils.saveToFile(player.props);
+		}
+	}
+
+	private void loadProps() {
+		BitBody player = maybeGetPlayer();
+		if (player != null) {
+			player.props = FileUtils.loadFileAs(BitBodyProps.class);
+			propUI.setProperties(player.props);
 		}
 	}
 
 	private void setLevelBuilder(Level level) {
+		if (level == null) {
+			level = new Level(16);
+		}
 		if (curLevelBuilder == null) {
 			curLevelBuilder = new LevelBuilder(level);
 			curLevelBuilder.addListener(levelListener);
 		} else {
 			curLevelBuilder.setLevel(level);
+		}
+	}
+
+	@Override
+	public void propertyChanged(String prop, Object value) {
+		System.out.println(prop + " = " + value);
+		BitBody player = maybeGetPlayer();
+		if (player != null) {
+			try {
+				player.props.set(prop, value);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

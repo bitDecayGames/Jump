@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="jars/gdx-setup.jar"/>
 	<classpathentry kind="lib" path="jars/gdx.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bitDecayJump"/>
+	<classpathentry kind="lib" path="jars/gdx-controllers.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

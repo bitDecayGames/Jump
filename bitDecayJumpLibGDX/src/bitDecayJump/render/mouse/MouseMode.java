@@ -1,4 +1,4 @@
-package bitDecayJump.render;
+package bitDecayJump.render.mouse;
 
 import bitDecayJump.geom.BitPointInt;
 

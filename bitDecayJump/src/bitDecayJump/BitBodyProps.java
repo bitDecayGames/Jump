@@ -3,13 +3,14 @@ package bitDecayJump;
 import java.lang.reflect.Field;
 
 public class BitBodyProps {
-	public float accelX = 0;
-	public float accelY = 0;
+	public BodyType bodyType;
+	public int accelX = 0;
+	public int accelY = 0;
 	public int maxSpeedX = 0;
 	public int maxSpeedY = 0;
-	public BodyType bodyType;
 	public boolean grounded = false;
 	public boolean gravity = true;
+	public int jumpStrength = 0;
 
 	public BitBodyProps() {
 	}
@@ -23,5 +24,9 @@ public class BitBodyProps {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void set(String prop, Object value) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.getClass().getDeclaredField(prop).set(this, value);
 	}
 }

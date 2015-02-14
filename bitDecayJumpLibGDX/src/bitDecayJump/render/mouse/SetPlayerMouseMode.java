@@ -1,8 +1,9 @@
-package bitDecayJump.render;
+package bitDecayJump.render.mouse;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
 import bitDecayJump.level.LevelBuilder;
+import bitDecayJump.render.PlayerController;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.*;
@@ -14,12 +15,13 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 	private BitBodyProps props;
 
 	public BitBody lastPlayer;
+	private PlayerController playerController;
 
-	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world) {
+	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerController playerController, BitBodyProps props) {
 		super(builder);
 		this.world = world;
-		props = new BitBodyProps();
-		props.bodyType = BodyType.DYNAMIC;
+		this.playerController = playerController;
+		this.props = props;
 	}
 
 	@Override
@@ -28,6 +30,7 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 			world.removeBody(lastPlayer);
 		}
 		lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
+		playerController.setBody(lastPlayer);
 	}
 
 	@Override

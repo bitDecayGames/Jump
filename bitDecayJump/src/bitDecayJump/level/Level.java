@@ -13,6 +13,7 @@ public class Level {
 	 * objects.
 	 */
 	public BitPointInt gridOffset;
+	public BitPointInt spawn;
 
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
