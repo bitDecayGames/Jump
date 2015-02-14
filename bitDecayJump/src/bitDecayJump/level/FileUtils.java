@@ -20,6 +20,7 @@ public class FileUtils {
 	public static String saveToFile(String json) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Save As");
+		fileChooser.setApproveButtonText("Save");
 		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -48,6 +49,7 @@ public class FileUtils {
 
 	public static String loadFile() {
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setApproveButtonText("Load");
 		fileChooser.setCurrentDirectory(new File("."));
 		// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
