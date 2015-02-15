@@ -70,10 +70,10 @@ public class BitWorld {
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
 				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravity) {
+					if (body.props.gravitational) {
 						body.velocity.add(gravity.getScaled(delta));
 					}
-					if (body.props.grounded) {
+					if (body.grounded) {
 						// move all grounded bodies down one unit to force the grounded flag to be consistent
 						body.aabb.xy.add(0, -1);
 					}
@@ -136,7 +136,7 @@ public class BitWorld {
 							} else {
 								haltY = true;
 							}
-						} else if (validBottomCollision && body.velocity.y <= 0 && body.props.grounded) {
+						} else if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
 							// body collided on its top side
 							resolution.y = Math.max(resolution.y, insec.height);
 							haltY = true;
@@ -193,7 +193,7 @@ public class BitWorld {
 			body.velocity.y = 0;
 		}
 
-		body.props.grounded = grounded;
+		body.grounded = grounded;
 	}
 
 	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 comipared to velocity.x != 0 for left/right)
@@ -275,8 +275,9 @@ public class BitWorld {
 	public BitBody createBody(int x, int y, int width, int height, BitBodyProps props) {
 		BitBody body = new BitBody();
 		body.aabb = new BitRectangle(x, y, width, height);
-		body.props = new BitBodyProps(props);
+		body.props = props.clone();
 		addBody(body);
+		System.out.println("start");
 		return body;
 	}
 

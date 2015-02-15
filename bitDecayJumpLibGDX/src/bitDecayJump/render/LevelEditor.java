@@ -35,14 +35,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private OrthographicCamera camera;
 	private ShapeRenderer shaper;
-	private Map<String, MouseMode> mouseModes;
+	private Map<OptionsMode, MouseMode> mouseModes;
 	private MouseMode mouseMode;
 
-	private JDialog buttonsDialog = new JDialog();
-	private JDialog playerTweakDialog = new JDialog();
+	private Map<Integer, JDialog> uiKeys;
 	private PropModUI propUI;
 
-	private BitBodyProps playerProps;
+	private JumperProps playerProps;
 
 	private TextureRegion[] tiles;
 	private TextureRegion fullSet;
@@ -64,7 +63,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private PlayerController playerController;
 
 	public LevelEditor() {
-
 		spriteBatch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
 		shaper = new ShapeRenderer();
@@ -84,27 +82,30 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		worldRenderer = new LibGDXWorldRenderer(world, camera);
 
-		playerProps = new BitBodyProps();
+		playerProps = new JumperProps();
 		playerProps.bodyType = BodyType.DYNAMIC;
 
-		mouseModes = new HashMap<String, MouseMode>();
-		mouseModes.put("SELECT", new SelectMouseMode(curLevelBuilder));
-		mouseModes.put("CREATE", new CreateMouseMode(curLevelBuilder));
-		mouseModes.put("DELETE", new DeleteMouseMode(curLevelBuilder));
-		mouseModes.put("SPAWN", new SpawnMouseMode(curLevelBuilder));
+		mouseModes = new HashMap<OptionsMode, MouseMode>();
+		mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
 		playerController = new PlayerController();
-		mouseModes.put("SET PLAYER", new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
-		mouseMode = mouseModes.get("SELECT");
+		mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
+		mouseMode = mouseModes.get(OptionsMode.SELECT);
 
-		buttonsDialog.add(new OptionsUI(this));
-		buttonsDialog.pack();
-		buttonsDialog.setAlwaysOnTop(true);
+		uiKeys = new HashMap<Integer, JDialog>();
 
-		propUI = new PropModUI(this, playerProps);
-		playerTweakDialog.add(propUI);
-		playerTweakDialog.pack();
-		playerTweakDialog.setAlwaysOnTop(true);
+		JDialog buttonsDialog = new OptionsUI(this);
+		buttonsDialog.setTitle("Tools");
+
+		uiKeys.put(Keys.T, buttonsDialog);
+
+		JDialog playerTweakDialog = new PropModUI(this, playerProps);
+		playerTweakDialog.setTitle("Player Props");
+
+		uiKeys.put(Keys.P, playerTweakDialog);
 
 		fullSet = new TextureRegion(new Texture(Gdx.files.internal("tileset.png")));
 		tiles = fullSet.split(16, 16)[0];
@@ -132,7 +133,27 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		mouseMode.render(shaper);
 
+		renderHotkeys();
 		renderMouseCoords();
+	}
+
+	private void renderHotkeys() {
+		int menuIndex = 0;
+		int spacing = 200;
+		int row = 0;
+		int rowSpacing = 200;
+		uiBatch.begin();
+		uiBatch.setColor(Color.BLUE);
+		for (Integer menuKey : uiKeys.keySet()) {
+			JDialog menu = uiKeys.get(menuKey);
+			int x = menuIndex++ * spacing;
+			if (x > camera.viewportWidth) {
+				menuIndex = 0;
+				row++;
+			}
+			font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, camera.viewportHeight - row * rowSpacing);
+		}
+		uiBatch.end();
 	}
 
 	private void renderMouseCoords() {
@@ -222,26 +243,22 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			curLevelBuilder.deleteSelected();
 		}
 
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-			if (!buttonsDialog.isShowing()) {
-				buttonsDialog.setLocationRelativeTo(null);
-				buttonsDialog.setVisible(true);
-			}
-			if (!playerTweakDialog.isShowing()) {
-				playerTweakDialog.setLocationRelativeTo(null);
-				playerTweakDialog.setVisible(true);
+		for (Integer uiKey : uiKeys.keySet()) {
+			if (Gdx.input.isKeyPressed(uiKey)) {
+				JDialog dialog = uiKeys.get(uiKey);
+				if (!dialog.isShowing()) {
+					dialog.setVisible(true);
+				}
 			}
 		}
 	}
 
 	private BitBody maybeGetPlayer() {
-		return ((SetPlayerMouseMode) mouseModes.get("SET PLAYER")).lastPlayer;
+		return ((SetPlayerMouseMode) mouseModes.get(OptionsMode.SET_TEST_PLAYER)).lastPlayer;
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// log.debug("track click: " + mouseDown);
-		// mouseDown = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
 		mouseMode.mouseDown(getMouseCoords());
 		return super.touchDown(screenX, screenY, pointer, button);
 	}
@@ -298,16 +315,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	}
 
 	@Override
-	public void setMode(String mode) {
-		if (mouseModes.containsKey(mode.toUpperCase())) {
-			mouseMode = mouseModes.get(mode.toUpperCase());
-		} else if ("SAVE PLAYER PROPS".equalsIgnoreCase(mode)) {
+	public void setMode(OptionsMode mode) {
+		if (mouseModes.containsKey(mode)) {
+			mouseMode = mouseModes.get(mode);
+		} else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
 			saveProps();
-		} else if ("LOAD PLAYER PROPS".equalsIgnoreCase(mode)) {
+		} else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
 			loadProps();
-		} else if ("SAVE".equalsIgnoreCase(mode)) {
+		} else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
 			setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
-		} else if ("LOAD".equalsIgnoreCase(mode)) {
+		} else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
 			Level loadLevel = LevelUtilities.loadLevel();
 			if (loadLevel != null) {
 				setLevelBuilder(loadLevel);
@@ -325,7 +342,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private void loadProps() {
 		BitBody player = maybeGetPlayer();
 		if (player != null) {
-			player.props = FileUtils.loadFileAs(BitBodyProps.class);
+			player.props = FileUtils.loadFileAs(JumperProps.class);
 			propUI.setProperties(player.props);
 		}
 	}

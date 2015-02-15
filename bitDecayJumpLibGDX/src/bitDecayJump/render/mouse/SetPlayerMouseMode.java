@@ -12,13 +12,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 public class SetPlayerMouseMode extends BaseMouseMode {
 
 	private BitWorld world;
-	private BitBodyProps props;
+	private JumperProps props;
 
 	public BitBody lastPlayer;
 	private PlayerController playerController;
 	private ControlMap controls;
 
-	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerController playerController, BitBodyProps props) {
+	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerController playerController, JumperProps props) {
 		super(builder);
 		this.world = world;
 		this.playerController = playerController;
@@ -29,9 +29,14 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 	@Override
 	protected void mouseUpLogic(BitPointInt point) {
 		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
+			BitBodyProps props = new BitBodyProps();
 			if (lastPlayer != null) {
 				world.removeBody(lastPlayer);
+				props = lastPlayer.props;
+			} else {
+				props = this.props;
 			}
+			// TODO: figure out why this isn't bringing over the jumperprops values
 			lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
 			playerController.setBody(lastPlayer, controls);
 		}

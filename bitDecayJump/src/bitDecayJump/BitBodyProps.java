@@ -3,36 +3,39 @@ package bitDecayJump;
 import java.lang.reflect.Field;
 
 public class BitBodyProps {
-	public BodyType bodyType;
+	public BodyType bodyType = BodyType.STATIC;
 	public int accelX = 0;
 	public int accelY = 0;
 	public int maxSpeedX = 0;
 	public int maxSpeedY = 0;
-	public boolean grounded = false;
-	public boolean gravity = true;
-	public int jumpStrength = 0;
-	public float variableJumpWindow = 1;
-
-	public boolean doubleJump = true;
-	public int doubleJumpStrength = 0;
-	public float jumpGraceWindow = .2f;
-	public int jumpCount = 1;
+	public boolean gravitational = true;
 
 	public BitBodyProps() {
 	}
 
 	public BitBodyProps(BitBodyProps props) {
+		copyProps(props);
+	}
+
+	protected void copyProps(BitBodyProps props) {
 		try {
-			for (Field field : this.getClass().getDeclaredFields()) {
+			for (Field field : BitBodyProps.class.getDeclaredFields()) {
 				field.set(this, field.get(props));
 			}
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
 		}
 	}
 
-	public void set(String prop, Object value) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.getClass().getDeclaredField(prop).set(this, value);
+	public void set(String prop, Object value) {
+		try {
+			BitBodyProps.class.getDeclaredField(prop).set(this, value);
+		} catch (Exception e) {
+			System.out.println("Couldn't set " + prop + " to '" + value + "'");
+		}
+	}
+
+	@Override
+	public BitBodyProps clone() {
+		return new BitBodyProps(this);
 	}
 }

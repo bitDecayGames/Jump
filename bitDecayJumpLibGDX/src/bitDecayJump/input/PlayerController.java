@@ -7,12 +7,12 @@ import com.badlogic.gdx.Gdx;
 public class PlayerController {
 	private BitBody body;
 	private ControlMap controls;
-	private BitBodyController bodyController;
+	private JumperController bodyController;
 
 	public void setBody(BitBody body, ControlMap controls) {
 		this.body = body;
 		this.controls = controls;
-		bodyController = new BitBodyController(body);
+		bodyController = new JumperController(body);
 		body.controller = bodyController;
 	}
 

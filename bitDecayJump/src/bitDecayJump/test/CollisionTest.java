@@ -17,7 +17,7 @@ public class CollisionTest {
 		world = new BitWorld();
 		props = new BitBodyProps();
 		props.bodyType = BodyType.DYNAMIC;
-		props.gravity = false;
+		props.gravitational = false;
 	}
 
 	@After
