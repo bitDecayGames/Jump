@@ -69,23 +69,23 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						body.velocity.add(gravity.getScaled(delta));
-					}
-					if (body.grounded) {
-						// move all grounded bodies down one unit to force the grounded flag to be consistent
-						body.aabb.xy.add(0, -1);
-					}
+			if (BodyType.DYNAMIC == body.props.bodyType) {
+				if (body.props.gravitational) {
+					body.velocity.add(gravity.getScaled(delta));
 				}
-				// move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.aabb.translate(body.velocity.getScaled(delta));
+				if (body.grounded) {
+					// move all grounded bodies down one unit to force the grounded flag to be consistent
+					body.aabb.xy.add(0, -1);
 				}
-				if (body.controller != null) {
-					body.controller.update(delta);
-				}
-			});
+			}
+			// move all of our non-static bodies
+			if (BodyType.STATIC != body.props.bodyType) {
+				body.aabb.translate(body.velocity.getScaled(delta));
+			}
+			if (body.controller != null) {
+				body.controller.update(delta);
+			}
+		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
@@ -181,6 +181,7 @@ public class BitWorld {
 
 		if (resolution.x != 0 || resolution.y != 0) {
 			body.aabb.translate(resolution, true);
+			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
 			if (resolution.y > 0) {
 				// we resolved upward, so the feet must have hit something
 				grounded = true;
@@ -216,10 +217,6 @@ public class BitWorld {
 				&& (insec.width < insec.height || noUpDownSpace(checkObj)) && body.velocity.x < 0;
 	}
 
-	private boolean noSideSpace(LevelObject checkObj) {
-		return (checkObj.nValue & Neighbor.SIDES) == Neighbor.SIDES;
-	}
-
 	private boolean noUpDownSpace(LevelObject checkObj) {
 		return (checkObj.nValue & Neighbor.UPDOWN) == Neighbor.UPDOWN;
 	}
@@ -247,11 +244,6 @@ public class BitWorld {
 		}
 	}
 
-	//	private boolean validRightCollision() {
-	//		(checkObj.nValue & Neighbor.RIGHT) == 0 && body.velocity.x < 0 && insec.width != body.aabb.width
-	//				&& insec.xy.x == body.aabb.xy.x && (insec.width <= insec.height || noUpDownSpace(checkObj))
-	//	}
-
 	private void resolveLeft(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.x = Math.min(resolution.x, checkObj.rect.xy.x - (insec.xy.x + insec.width));
 	}
@@ -277,7 +269,6 @@ public class BitWorld {
 		body.aabb = new BitRectangle(x, y, width, height);
 		body.props = props.clone();
 		addBody(body);
-		System.out.println("start");
 		return body;
 	}
 

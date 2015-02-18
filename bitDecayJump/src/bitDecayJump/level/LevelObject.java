@@ -10,7 +10,6 @@ public class LevelObject {
 
 	public LevelObject(BitRectangle rect) {
 		this.rect = rect;
-		// TODO Auto-generated constructor stub
 	}
 
 	// will also need notion of material / path / style

@@ -6,7 +6,6 @@ public class JumperProps extends BitBodyProps {
 	public int jumpStrength = 0;
 	public float variableJumpWindow = 1;
 
-	public boolean doubleJump = true;
 	public int doubleJumpStrength = 0;
 	public float jumpGraceWindow = .2f;
 	public int jumpCount = 1;

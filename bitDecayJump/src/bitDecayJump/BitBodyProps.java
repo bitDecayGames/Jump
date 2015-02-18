@@ -8,6 +8,10 @@ public class BitBodyProps {
 	public int accelY = 0;
 	public int maxSpeedX = 0;
 	public int maxSpeedY = 0;
+
+	/**
+	 * A flag for whether or not gravity should affect this body
+	 */
 	public boolean gravitational = true;
 
 	public BitBodyProps() {
