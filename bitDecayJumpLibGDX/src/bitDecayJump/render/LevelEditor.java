@@ -43,13 +43,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private JumperProps playerProps;
 
-	private TextureRegion[] tiles;
+	private Map<String, TextureRegion[]> materialMap;
+	private TextureRegion[] fallbackTiles;
 	private TextureRegion fullSet;
 
 	private BitWorld world;
 	private LibGDXWorldRenderer worldRenderer;
 
+	private Map<LevelObject, BitBody> levelObjectMap = new HashMap<LevelObject, BitBody>();
 	private LevelBuilderListener levelListener = new LevelBuilderListener() {
+
 		@Override
 		public void levelChanged(Level level) {
 			world.setLevel(level);
@@ -57,6 +60,27 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			if (player != null) {
 				world.addBody(player);
 			}
+		}
+
+		//		@Override
+		//		public void objectsAdded(Collection<LevelObject> objects) {
+		//			for (LevelObject levelObject : objects) {
+		//				//				world.addLevelObject(levelObject);
+		//				levelObjectMap.put(levelObject, world.createBody(levelObject.rect, BitWorld.levelBodyProps));
+		//			}
+		//		}
+		//
+		//		@Override
+		//		public void objectsRemoved(Collection<LevelObject> objects) {
+		//			for (LevelObject levelObject : objects) {
+		//				world.removeBody(levelObjectMap.get(levelObject));
+		//			}
+		//		}
+
+		@Override
+		public void updateGrid(BitPointInt gridOffset, LevelObject[][] grid) {
+			world.setBodyOffset(gridOffset);
+			world.setGrid(grid);
 		}
 	};
 
@@ -71,14 +95,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		font.setColor(Color.YELLOW);
 
 		camera = new OrthographicCamera(1600, 900);
-		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
-		camera.update();
+		setCamToOrigin();
 
-		setLevelBuilder(new Level(32));
+		curLevelBuilder = new LevelBuilder(16);
+		curLevelBuilder.addListener(levelListener);
 
 		world = new BitWorld();
 		world.setGravity(0, -600);
-		world.setLevel(new Level(curLevelBuilder.level.tileSize));
+
+		world.setBodyOffset(curLevelBuilder.gridOffset);
+		world.setTileSize(curLevelBuilder.tileSize);
+		world.setGrid(curLevelBuilder.grid);
 
 		worldRenderer = new LibGDXWorldRenderer(world, camera);
 
@@ -107,8 +134,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		uiKeys.put(Keys.P, playerTweakDialog);
 
-		fullSet = new TextureRegion(new Texture(Gdx.files.internal("tileset.png")));
-		tiles = fullSet.split(16, 16)[0];
+		materialMap = new HashMap<String, TextureRegion[]>();
+		fullSet = new TextureRegion(new Texture(Gdx.files.internal("fallbacktileset.png")));
+		fallbackTiles = fullSet.split(16, 16)[0];
+	}
+
+	private void setCamToOrigin() {
+		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+		camera.update();
 	}
 
 	@Override
@@ -116,7 +149,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
+		//		mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.tileSize);
 
 		handleInput();
 		playerController.update();
@@ -126,6 +159,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		shaper.setProjectionMatrix(camera.combined);
 
 		drawGrid();
+		debugRender(shaper);
 		world.step(delta);
 		worldRenderer.render();
 		drawLevelEdit(spriteBatch);
@@ -135,6 +169,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		renderHotkeys();
 		renderMouseCoords();
+	}
+
+	private void debugRender(ShapeRenderer shaper2) {
+		shaper.begin(ShapeType.Line);
+		shaper.setColor(Color.OLIVE);
+		shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
+				curLevelBuilder.grid.length * curLevelBuilder.tileSize, curLevelBuilder.grid[0].length * curLevelBuilder.tileSize);
+		shaper.end();
 	}
 
 	private void renderHotkeys() {
@@ -164,8 +206,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private void drawLevelEdit(SpriteBatch sb) {
 		sb.begin();
+		sb.setColor(1, 1, 1, .3f);
 		for (LevelObject obj : curLevelBuilder.objects) {
-			sb.draw(tiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+			sb.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 		sb.end();
 
@@ -177,29 +220,40 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		shaper.end();
 
 		// TODO: Figure out how to better render these special aspects
-		shaper.begin(ShapeType.Filled);
-		BitPointInt spawn = curLevelBuilder.level.spawn;
-		if (spawn != null) {
-			shaper.setColor(Color.YELLOW);
-			shaper.circle(spawn.x, spawn.y, 7);
-			shaper.setColor(Color.RED);
-			shaper.circle(spawn.x, spawn.y, 4);
-		}
-		shaper.end();
+		//		shaper.begin(ShapeType.Filled);
+		//		BitPointInt spawn = curLevelBuilder.spawn;
+		//		if (spawn != null) {
+		//			shaper.setColor(Color.YELLOW);
+		//			shaper.circle(spawn.x, spawn.y, 7);
+		//			shaper.setColor(Color.RED);
+		//			shaper.circle(spawn.x, spawn.y, 4);
+		//		}
+		//		shaper.end();
+	}
+
+	private TextureRegion[] getMaterial(int material) {
+		//		String matLoc = curLevelBuilder.level.materials.get(material);
+		//		if (matLoc != null && !matLoc.isEmpty()) {
+		//			TextureRegion[] materialImages = materialMap.get(curLevelBuilder.level.baseMaterialDir + matLoc);
+		//			if (materialImages != null) {
+		//				return materialImages;
+		//			}
+		//		}
+		return fallbackTiles;
 	}
 
 	private void drawGrid() {
 		shaper.begin(ShapeType.Line);
 		shaper.setColor(.1f, .1f, .1f, 1f);
-		Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.level.tileSize, -curLevelBuilder.level.tileSize, 0));
-		BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.level.tileSize);
-		Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.level.tileSize, 0));
-		BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), curLevelBuilder.level.tileSize);
+		Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.tileSize, -curLevelBuilder.tileSize, 0));
+		BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.tileSize);
+		Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.tileSize, 0));
+		BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), curLevelBuilder.tileSize);
 
-		for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += curLevelBuilder.level.tileSize) {
+		for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += curLevelBuilder.tileSize) {
 			shaper.line(x, snapTopLeft.y, x, snapBottomRight.y);
 		}
-		for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += curLevelBuilder.level.tileSize) {
+		for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += curLevelBuilder.tileSize) {
 			shaper.line(snapTopLeft.x, y, snapBottomRight.x, y);
 		}
 		shaper.end();
@@ -208,7 +262,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private void drawOrigin() {
 		shaper.setColor(Color.MAROON);
 		shaper.begin(ShapeType.Filled);
-		shaper.circle(0, 0, camera.zoom * (curLevelBuilder.level.tileSize / 3));
+		shaper.circle(0, 0, camera.zoom * (curLevelBuilder.tileSize / 3));
 		shaper.end();
 	}
 
@@ -318,6 +372,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public void setMode(OptionsMode mode) {
 		if (mouseModes.containsKey(mode)) {
 			mouseMode = mouseModes.get(mode);
+		} else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
+			// set base directory. Allow textures to be loaded from it.
 		} else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
 			saveProps();
 		} else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
@@ -328,6 +384,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			Level loadLevel = LevelUtilities.loadLevel();
 			if (loadLevel != null) {
 				setLevelBuilder(loadLevel);
+				setCamToOrigin();
 			}
 		}
 	}
@@ -349,11 +406,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private void setLevelBuilder(Level level) {
 		if (level == null) {
-			level = new Level(16);
-		}
-		if (curLevelBuilder == null) {
-			curLevelBuilder = new LevelBuilder(level);
-			curLevelBuilder.addListener(levelListener);
+			curLevelBuilder.newLevel(16);
 		} else {
 			curLevelBuilder.setLevel(level);
 		}

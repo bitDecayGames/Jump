@@ -14,15 +14,16 @@ import bitDecayJump.level.*;
  *
  */
 public class BitWorld {
-
+	private int tileSize;
+	private BitPointInt bodyOffset;
+	private LevelObject[][] objects;
 	private List<BitBody> bodies;
-
-	private Level level;
 
 	private BitPoint gravity = new BitPoint(0, 0);
 
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
+	public List<BitRectangle> collisions;
 
 	public static final BitBodyProps levelBodyProps = new BitBodyProps();
 	static {
@@ -30,6 +31,7 @@ public class BitWorld {
 	}
 
 	public BitWorld() {
+		collisions = new ArrayList<BitRectangle>();
 		bodies = new ArrayList<BitBody>();
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
@@ -49,6 +51,7 @@ public class BitWorld {
 	}
 
 	public void step(float delta) {
+		collisions.clear();
 		while (delta > 1 / 120f) {
 			internalStep(1 / 120f);
 			delta -= 1 / 120f;
@@ -69,23 +72,19 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-			if (BodyType.DYNAMIC == body.props.bodyType) {
-				if (body.props.gravitational) {
-					body.velocity.add(gravity.getScaled(delta));
+				if (BodyType.DYNAMIC == body.props.bodyType) {
+					if (body.props.gravitational) {
+						body.velocity.add(gravity.getScaled(delta));
+					}
 				}
-				if (body.grounded) {
-					// move all grounded bodies down one unit to force the grounded flag to be consistent
-					body.aabb.xy.add(0, -1);
+				// move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.aabb.translate(body.velocity.getScaled(delta));
 				}
-			}
-			// move all of our non-static bodies
-			if (BodyType.STATIC != body.props.bodyType) {
-				body.aabb.translate(body.velocity.getScaled(delta));
-			}
-			if (body.controller != null) {
-				body.controller.update(delta);
-			}
-		});
+				if (body.controller != null) {
+					body.controller.update(delta);
+				}
+			});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
@@ -97,11 +96,11 @@ public class BitWorld {
 		boolean grounded = false;
 
 		// 1. determine tile that x,y lives in
-		BitPointInt startCell = body.aabb.xy.divideBy(level.tileSize, level.tileSize).minus(level.gridOffset);
+		BitPointInt startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(bodyOffset);
 
 		// 2. determine width/height in tiles
-		int endX = startCell.x + (int) Math.ceil(1.0 * body.aabb.width / level.tileSize);
-		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / level.tileSize);
+		int endX = startCell.x + (int) Math.ceil(1.0 * body.aabb.width / tileSize);
+		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / tileSize);
 
 		// 3. loop over those all occupied tiles
 		BitPointInt resolution = new BitPointInt(0, 0);
@@ -110,11 +109,12 @@ public class BitWorld {
 		for (int x = startCell.x; x <= endX; x++) {
 			for (int y = startCell.y; y <= endY; y++) {
 				// ensure valid cell
-				if (ArrayUtilities.onGrid(level.objects, x, y) && level.objects[x][y] != null) {
-					LevelObject checkObj = level.objects[x][y];
-					BitRectangle insec = GeomUtils.intersection(body.aabb, level.objects[x][y].rect);
+				if (ArrayUtilities.onGrid(objects, x, y) && objects[x][y] != null) {
+					LevelObject checkObj = objects[x][y];
+					BitRectangle insec = GeomUtils.intersection(body.aabb, objects[x][y].rect);
 					// first we check that we actually intersected with something
 					if (insec != null) {
+						collisions.add(insec);
 						final boolean xSpeedDominant = Math.abs(body.velocity.x) > Math.abs(body.velocity.y);
 						boolean validLeftCollision = validBodyLeftCollision(body, checkObj, insec);
 						boolean validRightCollision = validBodyRightCollision(body, checkObj, insec);
@@ -166,9 +166,9 @@ public class BitWorld {
 								}
 								haltY = true;
 							} else if (insec.width == body.aabb.width) {
-								if (body.velocity.x <= 0) {
+								if (body.velocity.x < 0) {
 									resolveRight(resolution, checkObj, insec);
-								} else {
+								} else if (body.velocity.x > 0) {
 									resolveLeft(resolution, checkObj, insec);
 								}
 								haltX = true;
@@ -180,6 +180,9 @@ public class BitWorld {
 		}
 
 		if (resolution.x != 0 || resolution.y != 0) {
+			if (resolution.x == tileSize) {
+				System.out.println("HowHappen?");
+			}
 			body.aabb.translate(resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
 			if (resolution.y > 0) {
@@ -197,7 +200,7 @@ public class BitWorld {
 		body.grounded = grounded;
 	}
 
-	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 comipared to velocity.x != 0 for left/right)
+	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 compared to velocity.x != 0 for left/right)
 	private boolean validBodyBottomCollisionLoose(BitBody body, LevelObject checkObj, BitRectangle insec) {
 		return (checkObj.nValue & Neighbor.UP) == 0 && insec.height != body.aabb.height && insec.xy.y == body.aabb.xy.y && body.velocity.y <= 0;
 	}
@@ -276,8 +279,20 @@ public class BitWorld {
 		return Collections.unmodifiableList(bodies);
 	}
 
+	public void setTileSize(int tileSize) {
+		this.tileSize = tileSize;
+	}
+
+	public void setBodyOffset(BitPointInt bodyOffset) {
+		this.bodyOffset = bodyOffset;
+	}
+
 	public void setLevel(Level level) {
-		this.level = level;
+		tileSize = level.tileSize;
+		bodyOffset = level.gridOffset;
+
+		objects = level.objects;
+
 		bodies.clear();
 
 		for (LevelObject object : level.getObjects()) {
@@ -285,5 +300,21 @@ public class BitWorld {
 		}
 		bodies.addAll(pendingAdds);
 		pendingAdds.clear();
+	}
+
+	public void setGrid(LevelObject[][] grid) {
+		objects = grid;
+	}
+
+	public LevelObject[][] getObjects() {
+		return objects;
+	}
+
+	public int getTileSize() {
+		return tileSize;
+	}
+
+	public BitPointInt getBodyOffset() {
+		return bodyOffset;
 	}
 }

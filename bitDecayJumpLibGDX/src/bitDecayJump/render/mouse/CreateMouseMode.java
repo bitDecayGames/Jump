@@ -15,18 +15,18 @@ public class CreateMouseMode extends BaseMouseMode {
 
 	@Override
 	public void mouseDown(BitPointInt point) {
-		startPoint = GeomUtils.snap(point, builder.level.tileSize);
+		startPoint = GeomUtils.snap(point, builder.tileSize);
 	}
 
 	@Override
 	public void mouseDragged(BitPointInt point) {
 		super.mouseDragged(point);
-		endPoint = GeomUtils.snap(point, builder.level.tileSize);
+		endPoint = GeomUtils.snap(point, builder.tileSize);
 	}
 
 	@Override
 	public void mouseUpLogic(BitPointInt point) {
-		endPoint = GeomUtils.snap(point, builder.level.tileSize);
+		endPoint = GeomUtils.snap(point, builder.tileSize);
 		builder.createObject(startPoint, endPoint);
 	}
 

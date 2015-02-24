@@ -56,10 +56,12 @@ public class BitRectangle {
 	public void translate(float x, float y) {
 		float totalX = xy.x + remainderX + x;
 		xy.x = (int) totalX;
+		xy.x = (int) Math.floor(totalX);
 		remainderX = totalX - xy.x;
 
 		float totalY = xy.y + remainderY + y;
 		xy.y = (int) totalY;
+		xy.y = (int) Math.floor(totalY);
 		remainderY = totalY - xy.y;
 	}
 

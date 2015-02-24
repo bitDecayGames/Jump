@@ -28,8 +28,8 @@ public class BitPointInt {
 		return "(" + x + ", " + y + ")";
 	}
 
-	public BitPointInt divideBy(int xDiv, int yDiv) {
-		return new BitPointInt(x / xDiv, y / yDiv);
+	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
+		return new BitPointInt(Math.floorDiv(x, xDiv), Math.floorDiv(y, yDiv));
 	}
 
 	public BitPointInt minus(BitPointInt point) {

@@ -15,40 +15,128 @@ import bitDecayJump.geom.*;
  * @author Monday
  */
 public class LevelBuilder {
+	private static final int START_SIZE = 20;
+
 	public Level level;
 
 	public List<LevelObject> selection;
 
 	public Collection<LevelObject> objects;
 
+	public int tileSize;
+	public LevelObject[][] grid;
+	public BitPointInt gridOffset;
+
 	public List<LevelBuilderListener> listeners;
 
-	public LevelBuilder(Level level) {
+	public LevelBuilder(int tileSize) {
+		newLevel(tileSize);
+	}
+
+	public void newLevel(int tileSize) {
+		this.tileSize = tileSize;
 		listeners = new ArrayList<LevelBuilderListener>();
+		grid = new LevelObject[START_SIZE][START_SIZE];
+		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
+		selection = new ArrayList<LevelObject>();
+		objects = new HashSet<LevelObject>();
+	}
+
+	public LevelBuilder(Level level) {
 		setLevel(level);
 	}
 
 	public void setLevel(Level level) {
 		this.level = level;
+		tileSize = level.tileSize;
+		grid = level.objects;
+		gridOffset = level.gridOffset;
+		tileSize = level.tileSize;
+		objects = level.getObjects();
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
-		objects = level.getObjects();
-		selection = new ArrayList<LevelObject>();
 	}
 
 	public void createObject(BitPointInt startPoint, BitPointInt endPoint) {
-		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), level.tileSize, level.tileSize)) {
+		List<LevelObject> newObjects = new ArrayList<LevelObject>();
+
+		BitPointInt objCell = new BitPointInt(0, 0);
+		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize)) {
 			LevelObject obj = new LevelObject(rect);
-			objects.add(obj);
+
+			objCell = getOccupiedCell(obj);
+			while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
+				LevelObject[][] newGrid = new LevelObject[grid.length * 2][grid[0].length * 2];
+				BitPointInt newCell = new BitPointInt(0, 0);
+				for (int i = 0; i < grid.length; i++) {
+					newCell.x = i + grid.length / 2;
+					for (int j = 0; j < grid[0].length; j++) {
+						newCell.y = j + grid[0].length / 2;
+						newGrid[newCell.x][newCell.y] = grid[i][j];
+					}
+				}
+				grid = newGrid;
+				gridOffset = new BitPointInt(gridOffset.x - newGrid.length / 4, gridOffset.y - newGrid[0].length / 4);
+
+				// rebuild our objCell now that we changed the grid
+				objCell = getOccupiedCell(obj);
+			}
+
+			if (grid[objCell.x][objCell.y] == null) {
+				newObjects.add(obj);
+				objects.remove(grid[objCell.x][objCell.y]);
+				grid[objCell.x][objCell.y] = obj;
+				updateNeighbors(objCell.x, objCell.y);
+				objects.add(obj);
+			}
 		}
-		refresh();
+
+		for (LevelBuilderListener listener : listeners) {
+			listener.updateGrid(gridOffset, grid);
+		}
+	}
+
+	private void updateNeighbors(int x, int y) {
+		// check right
+		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
+			grid[x][y].nValue |= Neighbor.RIGHT;
+			grid[x + 1][y].nValue |= Neighbor.LEFT;
+		}
+		// check left
+		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
+			grid[x][y].nValue |= Neighbor.LEFT;
+			grid[x - 1][y].nValue |= Neighbor.RIGHT;
+		}
+		// check up
+		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
+			grid[x][y].nValue |= Neighbor.UP;
+			grid[x][y + 1].nValue |= Neighbor.DOWN;
+		}
+		// check down
+		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
+			grid[x][y].nValue |= Neighbor.DOWN;
+			grid[x][y - 1].nValue |= Neighbor.UP;
+		}
+	}
+
+	private BitPointInt getOccupiedCell(LevelObject obj) {
+		BitPointInt objCell;
+		objCell = new BitPointInt(obj.rect.xy.x, obj.rect.xy.y);
+		objCell = objCell.floorDivideBy(tileSize, tileSize).minus(gridOffset);
+		return objCell;
 	}
 
 	public void deleteSelected() {
+		for (LevelObject obj : selection) {
+			grid[obj.rect.xy.x / tileSize][obj.rect.xy.y / tileSize] = null;
+		}
 		objects.removeAll(selection);
+		//		for (LevelBuilderListener listener : listeners) {
+		//			listener.updateGrid(gridOffset, grid);
+		//		}
 		selection.clear();
-		refresh();
+		//		refresh();
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
@@ -75,7 +163,9 @@ public class LevelBuilder {
 	}
 
 	private void refresh() {
+		long timer = System.currentTimeMillis();
 		setLevel(tilizeLevel());
+		System.out.println("Refresh took " + (System.currentTimeMillis() - timer) + "ms");
 	}
 
 	public String getJson() {
@@ -83,38 +173,27 @@ public class LevelBuilder {
 	}
 
 	public Level tilizeLevel() {
-		Level tillizedLevel = new Level(level.tileSize);
-		int xmin = Integer.MAX_VALUE;
-		int xmax = Integer.MIN_VALUE;
-		int ymin = Integer.MAX_VALUE;
-		int ymax = Integer.MIN_VALUE;
-		for (LevelObject obj : objects) {
-			xmin = Integer.min(xmin, obj.rect.xy.x);
-			xmax = Integer.max(xmax, obj.rect.xy.x + obj.rect.width);
-			ymin = Integer.min(ymin, obj.rect.xy.y);
-			ymax = Integer.max(ymax, obj.rect.xy.y + obj.rect.height);
-		}
+		Level tillizedLevel = new Level(tileSize);
+		BitPointInt min = getMinXY(objects);
+		BitPointInt max = getMaxXY(objects);
 
-		int xoffset = xmin;
-		int yoffset = ymin;
-
-		LevelObject[][] levelGrid = new LevelObject[(xmax - xmin) / level.tileSize][(ymax - ymin) / level.tileSize];
+		LevelObject[][] levelGrid = new LevelObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
 
 		for (int x = 0; x < levelGrid.length; x++) {
 			for (int y = 0; y < levelGrid[0].length; y++) {
-				int inX = x * level.tileSize + xoffset;
-				int inY = y * level.tileSize + yoffset;
+				int inX = x * tileSize + min.x;
+				int inY = y * tileSize + min.y;
 				boolean found = false;
 				for (LevelObject check : objects) {
 					// offset the check coordinate by half a tile to check the
 					// middle of the grid cell
-					if (check.rect.contains(inX + level.tileSize / 2, inY + level.tileSize / 2)) {
+					if (check.rect.contains(inX + tileSize / 2, inY + tileSize / 2)) {
 						found = true;
 						break;
 					}
 				}
 				if (found) {
-					levelGrid[x][y] = new LevelObject(new BitRectangle(inX, inY, level.tileSize, level.tileSize));
+					levelGrid[x][y] = new LevelObject(new BitRectangle(inX, inY, tileSize, tileSize));
 				} else {
 					levelGrid[x][y] = null;
 				}
@@ -124,7 +203,6 @@ public class LevelBuilder {
 		// now build out our neighbor values
 		for (int x = 0; x < levelGrid.length; x++) {
 			for (int y = 0; y < levelGrid[0].length; y++) {
-				// for (int y = levelGrid[0].length - 1; y >= 0; y--) {
 				if (levelGrid[x][y] != null) {
 					int value = 0;
 					// check right
@@ -156,11 +234,30 @@ public class LevelBuilder {
 			}
 		}
 
-		tillizedLevel.gridOffset = new BitPointInt(xoffset / level.tileSize, yoffset / level.tileSize);
+		tillizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
 		tillizedLevel.objects = levelGrid;
-		tillizedLevel.spawn = level.spawn;
 
 		return tillizedLevel;
+	}
+
+	private BitPointInt getMinXY(Collection<LevelObject> objects) {
+		int xmin = Integer.MAX_VALUE;
+		int ymin = Integer.MAX_VALUE;
+		for (LevelObject obj : objects) {
+			xmin = Integer.min(xmin, obj.rect.xy.x);
+			ymin = Integer.min(ymin, obj.rect.xy.y);
+		}
+		return new BitPointInt(xmin, ymin);
+	}
+
+	private BitPointInt getMaxXY(Collection<LevelObject> objects) {
+		int xmax = Integer.MIN_VALUE;
+		int ymax = Integer.MIN_VALUE;
+		for (LevelObject obj : objects) {
+			xmax = Integer.max(xmax, obj.rect.xy.x + obj.rect.width);
+			ymax = Integer.max(ymax, obj.rect.xy.y + obj.rect.height);
+		}
+		return new BitPointInt(xmax, ymax);
 	}
 
 	public void addListener(LevelBuilderListener levelListener) {
@@ -173,5 +270,9 @@ public class LevelBuilder {
 
 	public void setSpawn(BitPointInt point) {
 		level.spawn = point;
+	}
+
+	public void addMaterial(String mat) {
+		level.materials.put(level.materials.size(), mat);
 	}
 }

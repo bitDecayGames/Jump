@@ -40,14 +40,16 @@ public class PropModUI extends JDialog {
 				if (field.getType().equals(boolean.class)) {
 					// TODO: make check box
 				} else if (field.getType().equals(int.class) || field.getType().equals(float.class)) {
-					JSlider slider = new JSlider(0, 1000, 0);
-					slider.setMajorTickSpacing(100);
-					slider.setMinorTickSpacing(25);
-					slider.setPaintTicks(true);
-					slider.setPaintLabels(true);
-					slider.setBorder(BorderFactory.createEtchedBorder());
+					JSlider slider = null;
 					try {
 						if (field.getType().equals(float.class)) {
+							slider = new JSlider(0, 100, 0);
+							Hashtable labelTable = new Hashtable();
+							for (int i = 0; i <= 10; i++) {
+								labelTable.put(i * 10, new JLabel(Integer.toString(i)));
+							}
+							slider.setLabelTable(labelTable);
+							slider.setMajorTickSpacing(1);
 							slider.setValue((int) (field.getFloat(props) * 100));
 							slider.addChangeListener(new ChangeListener() {
 
@@ -57,6 +59,9 @@ public class PropModUI extends JDialog {
 								}
 							});
 						} else {
+							slider = new JSlider(0, 1000, 0);
+							slider.setMajorTickSpacing(100);
+							slider.setMinorTickSpacing(25);
 							slider.setValue(field.getInt(props));
 							slider.addChangeListener(new ChangeListener() {
 
@@ -66,6 +71,9 @@ public class PropModUI extends JDialog {
 								}
 							});
 						}
+						slider.setPaintTicks(true);
+						slider.setPaintLabels(true);
+						slider.setBorder(BorderFactory.createEtchedBorder());
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

@@ -11,3 +11,5 @@ Contains Properties for:
 	
 Still to do for physics engine:
 	- Add dynamic body collision DETECTION. I'm not worried about resolving those conflicts. Keep it simple. Just simple contact start/end type stuff.
+	
+Allow for selection of material. Render accordingly

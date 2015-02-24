@@ -8,6 +8,7 @@ public enum OptionsMode {
 	SAVE_PLAYER("Save Player Props", 1),
 	LOAD_PLAYER("Load Player Props", 1),
 	SET_SPAWN("Set Spawn Point", 2),
+	SET_MAT_DIR("Set Material Directory", 2),
 	SAVE_LEVEL("Save Level", 3),
 	LOAD_LEVEL("Load Level", 3);
 

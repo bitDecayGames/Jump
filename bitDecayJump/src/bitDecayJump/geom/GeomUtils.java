@@ -40,9 +40,11 @@ public class GeomUtils {
 	 * @return
 	 */
 	public static BitPointInt snap(int x, int y, int snapSize) {
-		int xSnap = (x + snapSize / 2) / snapSize;
+		int xSnapDir = x >= 0 ? 1 : -1;
+		int ySnapDir = y >= 0 ? 1 : -1;
+		int xSnap = (x + xSnapDir * snapSize / 2) / snapSize;
 		xSnap *= snapSize;
-		int ySnap = (y + snapSize / 2) / snapSize;
+		int ySnap = (y + ySnapDir * snapSize / 2) / snapSize;
 		ySnap *= snapSize;
 
 		return new BitPointInt(xSnap, ySnap);
