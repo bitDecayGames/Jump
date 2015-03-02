@@ -1,8 +1,10 @@
 package bitDecayJump.level;
 
+import java.awt.*;
+import java.awt.Dialog.ModalityType;
 import java.io.*;
 
-import javax.swing.JFileChooser;
+import javax.swing.*;
 
 import com.google.gson.*;
 
@@ -18,7 +20,16 @@ public class FileUtils {
 	}
 
 	public static String saveToFile(String json) {
-		JFileChooser fileChooser = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser() {
+			@Override
+			protected JDialog createDialog(Component parent) throws HeadlessException {
+				JDialog dialog = super.createDialog(parent);
+				dialog.setAlwaysOnTop(true);
+				dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+				dialog.setModal(true);
+				return dialog;
+			}
+		};
 		fileChooser.setDialogTitle("Save As");
 		fileChooser.setApproveButtonText("Save");
 		fileChooser.setCurrentDirectory(new File("."));

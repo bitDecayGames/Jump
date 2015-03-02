@@ -3,6 +3,7 @@ package bitDecayJump.render.mouse;
 import bitDecayJump.geom.BitPointInt;
 import bitDecayJump.level.LevelBuilder;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public abstract class BaseMouseMode implements MouseMode {
@@ -44,7 +45,7 @@ public abstract class BaseMouseMode implements MouseMode {
 	}
 
 	@Override
-	public void render(ShapeRenderer shaper) {
+	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 	}
 
 }

@@ -4,8 +4,8 @@ import bitDecayJump.geom.BitPointInt;
 import bitDecayJump.level.LevelBuilder;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.*;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class SpawnMouseMode extends BaseMouseMode {
 
@@ -19,15 +19,12 @@ public class SpawnMouseMode extends BaseMouseMode {
 	}
 
 	@Override
-	public void render(ShapeRenderer shaper) {
-		super.render(shaper);
+	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 		if (endPoint != null) {
-			shaper.begin(ShapeType.Filled);
 			shaper.setColor(Color.YELLOW);
 			shaper.circle(endPoint.x, endPoint.y, 7);
 			shaper.setColor(Color.RED);
 			shaper.circle(endPoint.x, endPoint.y, 4);
-			shaper.end();
 		}
 	}
 

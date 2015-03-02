@@ -62,11 +62,13 @@ public class LevelBuilder {
 		List<LevelObject> newObjects = new ArrayList<LevelObject>();
 
 		BitPointInt objCell = new BitPointInt(0, 0);
+		boolean resize = false;
 		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize)) {
 			LevelObject obj = new LevelObject(rect);
 
 			objCell = getOccupiedCell(obj);
 			while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
+				resize = true;
 				LevelObject[][] newGrid = new LevelObject[grid.length * 2][grid[0].length * 2];
 				BitPointInt newCell = new BitPointInt(0, 0);
 				for (int i = 0; i < grid.length; i++) {
@@ -92,31 +94,49 @@ public class LevelBuilder {
 			}
 		}
 
-		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid);
+		if (resize) {
+			for (LevelBuilderListener listener : listeners) {
+				listener.updateGrid(gridOffset, grid);
+			}
 		}
 	}
 
 	private void updateNeighbors(int x, int y) {
 		// check right
 		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
-			grid[x][y].nValue |= Neighbor.RIGHT;
-			grid[x + 1][y].nValue |= Neighbor.LEFT;
+			if (grid[x][y] == null) {
+				grid[x + 1][y].nValue &= Neighbor.NOT_LEFT;
+			} else {
+				grid[x][y].nValue |= Neighbor.RIGHT;
+				grid[x + 1][y].nValue |= Neighbor.LEFT;
+			}
 		}
 		// check left
 		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
-			grid[x][y].nValue |= Neighbor.LEFT;
-			grid[x - 1][y].nValue |= Neighbor.RIGHT;
+			if (grid[x][y] == null) {
+				grid[x - 1][y].nValue &= Neighbor.NOT_RIGHT;
+			} else {
+				grid[x][y].nValue |= Neighbor.LEFT;
+				grid[x - 1][y].nValue |= Neighbor.RIGHT;
+			}
 		}
 		// check up
 		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
-			grid[x][y].nValue |= Neighbor.UP;
-			grid[x][y + 1].nValue |= Neighbor.DOWN;
+			if (grid[x][y] == null) {
+				grid[x][y + 1].nValue &= Neighbor.NOT_DOWN;
+			} else {
+				grid[x][y].nValue |= Neighbor.UP;
+				grid[x][y + 1].nValue |= Neighbor.DOWN;
+			}
 		}
 		// check down
 		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
-			grid[x][y].nValue |= Neighbor.DOWN;
-			grid[x][y - 1].nValue |= Neighbor.UP;
+			if (grid[x][y] == null) {
+				grid[x][y - 1].nValue &= Neighbor.NOT_UP;
+			} else {
+				grid[x][y].nValue |= Neighbor.DOWN;
+				grid[x][y - 1].nValue |= Neighbor.UP;
+			}
 		}
 	}
 
@@ -129,7 +149,9 @@ public class LevelBuilder {
 
 	public void deleteSelected() {
 		for (LevelObject obj : selection) {
-			grid[obj.rect.xy.x / tileSize][obj.rect.xy.y / tileSize] = null;
+			BitPointInt gridCell = getOccupiedCell(obj);
+			grid[gridCell.x][gridCell.y] = null;
+			updateNeighbors(gridCell.x, gridCell.y);
 		}
 		objects.removeAll(selection);
 		//		for (LevelBuilderListener listener : listeners) {

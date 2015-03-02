@@ -6,8 +6,8 @@ import bitDecayJump.input.*;
 import bitDecayJump.level.LevelBuilder;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.*;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class SetPlayerMouseMode extends BaseMouseMode {
 
@@ -43,12 +43,10 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 	}
 
 	@Override
-	public void render(ShapeRenderer shaper) {
+	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 		if (startPoint != null && endPoint != null) {
 			shaper.setColor(Color.ORANGE);
-			shaper.begin(ShapeType.Line);
 			shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-			shaper.end();
 		}
 	}
 }

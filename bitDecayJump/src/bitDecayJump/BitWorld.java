@@ -77,12 +77,14 @@ public class BitWorld {
 						body.velocity.add(gravity.getScaled(delta));
 					}
 				}
-				// move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.aabb.translate(body.velocity.getScaled(delta));
-				}
+				// then let controller handle the body
 				if (body.controller != null) {
 					body.controller.update(delta);
+				}
+				// then move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.aabb.translate(body.velocity.getScaled(delta));
+				System.out.println(body.velocity.getScaled(delta));
 				}
 			});
 
@@ -290,16 +292,7 @@ public class BitWorld {
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
 		bodyOffset = level.gridOffset;
-
 		objects = level.objects;
-
-		bodies.clear();
-
-		for (LevelObject object : level.getObjects()) {
-			createBody(object.rect, levelBodyProps);
-		}
-		bodies.addAll(pendingAdds);
-		pendingAdds.clear();
 	}
 
 	public void setGrid(LevelObject[][] grid) {

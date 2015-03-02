@@ -13,6 +13,7 @@ import bitDecayJump.ui.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
@@ -20,6 +21,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
+
+	public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
 
 	private static final int CAM_SPEED = 5;
 
@@ -61,21 +64,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				world.addBody(player);
 			}
 		}
-
-		//		@Override
-		//		public void objectsAdded(Collection<LevelObject> objects) {
-		//			for (LevelObject levelObject : objects) {
-		//				//				world.addLevelObject(levelObject);
-		//				levelObjectMap.put(levelObject, world.createBody(levelObject.rect, BitWorld.levelBodyProps));
-		//			}
-		//		}
-		//
-		//		@Override
-		//		public void objectsRemoved(Collection<LevelObject> objects) {
-		//			for (LevelObject levelObject : objects) {
-		//				world.removeBody(levelObjectMap.get(levelObject));
-		//			}
-		//		}
 
 		@Override
 		public void updateGrid(BitPointInt gridOffset, LevelObject[][] grid) {
@@ -135,7 +123,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		uiKeys.put(Keys.P, playerTweakDialog);
 
 		materialMap = new HashMap<String, TextureRegion[]>();
-		fullSet = new TextureRegion(new Texture(Gdx.files.internal("fallbacktileset.png")));
+
+		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
+		if (!editorAssets.exists()) {
+			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
+					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
+		}
+		fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
+
 		fallbackTiles = fullSet.split(16, 16)[0];
 	}
 
@@ -159,19 +154,23 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		shaper.setProjectionMatrix(camera.combined);
 
 		drawGrid();
-		debugRender(shaper);
+		debugRender();
 		world.step(delta);
 		worldRenderer.render();
-		drawLevelEdit(spriteBatch);
+		drawLevelEdit();
 		drawOrigin();
 
-		mouseMode.render(shaper);
+		spriteBatch.begin();
+		shaper.begin(ShapeType.Line);
+		mouseMode.render(shaper, spriteBatch);
+		spriteBatch.end();
+		shaper.end();
 
 		renderHotkeys();
 		renderMouseCoords();
 	}
 
-	private void debugRender(ShapeRenderer shaper2) {
+	private void debugRender() {
 		shaper.begin(ShapeType.Line);
 		shaper.setColor(Color.OLIVE);
 		shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
@@ -204,13 +203,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		uiBatch.end();
 	}
 
-	private void drawLevelEdit(SpriteBatch sb) {
-		sb.begin();
-		sb.setColor(1, 1, 1, .3f);
+	private void drawLevelEdit() {
+		spriteBatch.begin();
+		spriteBatch.setColor(1, 1, 1, .3f);
 		for (LevelObject obj : curLevelBuilder.objects) {
-			sb.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+			spriteBatch.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
-		sb.end();
+		spriteBatch.end();
 
 		shaper.begin(ShapeType.Line);
 		shaper.setColor(Color.GREEN);
@@ -365,6 +364,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	@Override
 	public void show() {
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.input.setInputProcessor(this);
 	}
 

@@ -2,6 +2,7 @@ package bitDecayJump.render.mouse;
 
 import bitDecayJump.geom.BitPointInt;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public interface MouseMode {
@@ -23,5 +24,5 @@ public interface MouseMode {
 	 */
 	public void mouseMoved(BitPointInt point);
 
-	public void render(ShapeRenderer shaper);
+	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch);
 }
