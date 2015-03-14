@@ -6,7 +6,7 @@ import bitDecayJump.geom.BitPointInt;
 
 public class Level {
 	public int tileSize = 16;
-	public LevelObject[][] objects;
+	public TileObject[][] objects;
 	public String baseMaterialDir;
 	public Map<Integer, String> materials;
 	/**
@@ -19,7 +19,7 @@ public class Level {
 
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
-		objects = new LevelObject[10][10];
+		objects = new TileObject[10][10];
 		materials = new HashMap<Integer, String>();
 	}
 
@@ -32,8 +32,8 @@ public class Level {
 		spawn = level.spawn;
 	}
 
-	public Collection<LevelObject> getObjects() {
-		ArrayList<LevelObject> list = new ArrayList<LevelObject>();
+	public Collection<TileObject> getObjects() {
+		ArrayList<TileObject> list = new ArrayList<TileObject>();
 		if (objects != null) {
 			for (int i = 0; i < objects.length; i++) {
 				for (int j = 0; j < objects[0].length; j++) {

@@ -16,7 +16,7 @@ import bitDecayJump.level.*;
 public class BitWorld {
 	private int tileSize;
 	private BitPointInt bodyOffset;
-	private LevelObject[][] objects;
+	private TileObject[][] objects;
 	private List<BitBody> bodies;
 
 	private BitPoint gravity = new BitPoint(0, 0);
@@ -26,6 +26,7 @@ public class BitWorld {
 	public List<BitRectangle> collisions;
 
 	public static final BitBodyProps levelBodyProps = new BitBodyProps();
+	public static final String VERSION = "0.1.1";
 	static {
 		levelBodyProps.bodyType = BodyType.STATIC;
 	}
@@ -84,7 +85,6 @@ public class BitWorld {
 				// then move all of our non-static bodies
 				if (BodyType.STATIC != body.props.bodyType) {
 					body.aabb.translate(body.velocity.getScaled(delta));
-				System.out.println(body.velocity.getScaled(delta));
 				}
 			});
 
@@ -112,7 +112,7 @@ public class BitWorld {
 			for (int y = startCell.y; y <= endY; y++) {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(objects, x, y) && objects[x][y] != null) {
-					LevelObject checkObj = objects[x][y];
+					TileObject checkObj = objects[x][y];
 					BitRectangle insec = GeomUtils.intersection(body.aabb, objects[x][y].rect);
 					// first we check that we actually intersected with something
 					if (insec != null) {
@@ -203,26 +203,26 @@ public class BitWorld {
 	}
 
 	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 compared to velocity.x != 0 for left/right)
-	private boolean validBodyBottomCollisionLoose(BitBody body, LevelObject checkObj, BitRectangle insec) {
+	private boolean validBodyBottomCollisionLoose(BitBody body, TileObject checkObj, BitRectangle insec) {
 		return (checkObj.nValue & Neighbor.UP) == 0 && insec.height != body.aabb.height && insec.xy.y == body.aabb.xy.y && body.velocity.y <= 0;
 	}
 
-	private boolean validBodyTopCollisionLoose(BitBody body, LevelObject checkObj, BitRectangle insec) {
+	private boolean validBodyTopCollisionLoose(BitBody body, TileObject checkObj, BitRectangle insec) {
 		return (checkObj.nValue & Neighbor.DOWN) == 0 && insec.height != body.aabb.height && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
 				&& body.velocity.y >= 0;
 	}
 
-	private boolean validBodyRightCollision(BitBody body, LevelObject checkObj, BitRectangle insec) {
+	private boolean validBodyRightCollision(BitBody body, TileObject checkObj, BitRectangle insec) {
 		return (checkObj.nValue & Neighbor.LEFT) == 0 && insec.width != body.aabb.width && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
 				&& (insec.width < insec.height || noUpDownSpace(checkObj)) && body.velocity.x > 0;
 	}
 
-	private boolean validBodyLeftCollision(BitBody body, LevelObject checkObj, BitRectangle insec) {
+	private boolean validBodyLeftCollision(BitBody body, TileObject checkObj, BitRectangle insec) {
 		return (checkObj.nValue & Neighbor.RIGHT) == 0 && insec.width != body.aabb.width && insec.xy.x == body.aabb.xy.x
 				&& (insec.width < insec.height || noUpDownSpace(checkObj)) && body.velocity.x < 0;
 	}
 
-	private boolean noUpDownSpace(LevelObject checkObj) {
+	private boolean noUpDownSpace(TileObject checkObj) {
 		return (checkObj.nValue & Neighbor.UPDOWN) == Neighbor.UPDOWN;
 	}
 
@@ -231,7 +231,7 @@ public class BitWorld {
 
 	}
 
-	private void resolveBodyInside(BitPointInt resolution, BitBody body, LevelObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
+	private void resolveBodyInside(BitPointInt resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
 		if (xSpeedDominant && body.velocity.x <= 0 && (checkObj.nValue & Neighbor.RIGHT) == 0) {
@@ -295,11 +295,11 @@ public class BitWorld {
 		objects = level.objects;
 	}
 
-	public void setGrid(LevelObject[][] grid) {
+	public void setGrid(TileObject[][] grid) {
 		objects = grid;
 	}
 
-	public LevelObject[][] getObjects() {
+	public TileObject[][] getObjects() {
 		return objects;
 	}
 

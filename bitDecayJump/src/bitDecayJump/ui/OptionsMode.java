@@ -1,22 +1,28 @@
 package bitDecayJump.ui;
 
 public enum OptionsMode {
-	SELECT("Select", 0),
-	CREATE("Create", 0),
-	DELETE("Delete", 0),
-	SET_TEST_PLAYER("Set Test Player", 1),
-	SAVE_PLAYER("Save Player Props", 1),
-	LOAD_PLAYER("Load Player Props", 1),
-	SET_SPAWN("Set Spawn Point", 2),
-	SET_MAT_DIR("Set Material Directory", 2),
-	SAVE_LEVEL("Save Level", 3),
-	LOAD_LEVEL("Load Level", 3);
+	SELECT("Select", ModeType.MOUSE, 0),
+	CREATE("Create", ModeType.MOUSE, 0),
+	MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
+	DELETE("Delete", ModeType.MOUSE, 0),
+
+	SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 1),
+	SAVE_PLAYER("Save Player Props", ModeType.ACTION, 1),
+	LOAD_PLAYER("Load Player Props", ModeType.ACTION, 1),
+
+	SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 2),
+	SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
+
+	SAVE_LEVEL("Save Level", ModeType.ACTION, 3),
+	LOAD_LEVEL("Load Level", ModeType.ACTION, 3);
 
 	public final String label;
+	public final ModeType type;
 	public final int group;
 
-	private OptionsMode(String label, int group) {
+	private OptionsMode(String label, ModeType type, int group) {
 		this.label = label;
+		this.type = type;
 		this.group = group;
 	}
 }

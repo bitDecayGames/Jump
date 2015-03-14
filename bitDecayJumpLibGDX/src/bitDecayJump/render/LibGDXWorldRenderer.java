@@ -24,12 +24,12 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 		renderer.setProjectionMatrix(cam.combined);
 		renderer.begin(ShapeType.Line);
 		renderer.setColor(Color.WHITE);
-		LevelObject[][] objects = world.getObjects();
+		TileObject[][] objects = world.getObjects();
 		for (int x = 0; x < objects.length; x++) {
-			LevelObject[] column = objects[x];
+			TileObject[] column = objects[x];
 			for (int y = 0; y < column.length; y++) {
 				if (column[y] != null) {
-					LevelObject levelObject = column[y];
+					TileObject levelObject = column[y];
 					int leftX = levelObject.rect.xy.x;
 					int rightX = levelObject.rect.xy.x + levelObject.rect.width;
 					int bottomY = levelObject.rect.xy.y;

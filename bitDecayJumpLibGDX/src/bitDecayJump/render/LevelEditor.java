@@ -26,9 +26,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private static final int CAM_SPEED = 5;
 
+	public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);;
+
+	private String jumpVersion = "Jump v" + BitWorld.VERSION;
+	private String renderVersion = "Render v" + BitWorld.VERSION;
+	private BitPoint jumpSize = new BitPoint(font.getBounds(jumpVersion).width, font.getBounds(jumpVersion).height);
+	private BitPoint renderSize = new BitPoint(font.getBounds(renderVersion).width, font.getBounds(renderVersion).height);
+
 	public SpriteBatch spriteBatch;
 	public SpriteBatch uiBatch;
-	public BitmapFont font;
 
 	public BitPointInt mouseDown;
 	public BitPointInt mouseRelease;
@@ -66,7 +72,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		@Override
-		public void updateGrid(BitPointInt gridOffset, LevelObject[][] grid) {
+		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid) {
 			world.setBodyOffset(gridOffset);
 			world.setGrid(grid);
 		}
@@ -79,7 +85,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		uiBatch = new SpriteBatch();
 		shaper = new ShapeRenderer();
 
-		font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
 		font.setColor(Color.YELLOW);
 
 		camera = new OrthographicCamera(1600, 900);
@@ -105,6 +110,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
 
 		playerController = new PlayerController();
 		mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
@@ -125,10 +131,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		materialMap = new HashMap<String, TextureRegion[]>();
 
 		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
-		if (!editorAssets.exists()) {
-			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
-					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
-		}
+		//		if (!editorAssets.exists()) {
+		//			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
+		//					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
+		//		}
 		fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
 
 		fallbackTiles = fullSet.split(16, 16)[0];
@@ -166,8 +172,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		spriteBatch.end();
 		shaper.end();
 
+		uiBatch.begin();
 		renderHotkeys();
 		renderMouseCoords();
+		renderVersion();
+		uiBatch.end();
 	}
 
 	private void debugRender() {
@@ -183,7 +192,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		int spacing = 200;
 		int row = 0;
 		int rowSpacing = 200;
-		uiBatch.begin();
 		uiBatch.setColor(Color.BLUE);
 		for (Integer menuKey : uiKeys.keySet()) {
 			JDialog menu = uiKeys.get(menuKey);
@@ -194,19 +202,21 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			}
 			font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, camera.viewportHeight - row * rowSpacing);
 		}
-		uiBatch.end();
 	}
 
 	private void renderMouseCoords() {
-		uiBatch.begin();
 		font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
-		uiBatch.end();
+	}
+
+	private void renderVersion() {
+		font.draw(uiBatch, jumpVersion, Gdx.graphics.getWidth() - jumpSize.x, jumpSize.y);
+		font.draw(uiBatch, renderVersion, Gdx.graphics.getWidth() - renderSize.x, jumpSize.y + renderSize.y);
 	}
 
 	private void drawLevelEdit() {
 		spriteBatch.begin();
 		spriteBatch.setColor(1, 1, 1, .3f);
-		for (LevelObject obj : curLevelBuilder.objects) {
+		for (TileObject obj : curLevelBuilder.tileObjects) {
 			spriteBatch.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 		spriteBatch.end();
@@ -217,17 +227,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
 		}
 		shaper.end();
-
-		// TODO: Figure out how to better render these special aspects
-		//		shaper.begin(ShapeType.Filled);
-		//		BitPointInt spawn = curLevelBuilder.spawn;
-		//		if (spawn != null) {
-		//			shaper.setColor(Color.YELLOW);
-		//			shaper.circle(spawn.x, spawn.y, 7);
-		//			shaper.setColor(Color.RED);
-		//			shaper.circle(spawn.x, spawn.y, 4);
-		//		}
-		//		shaper.end();
 	}
 
 	private TextureRegion[] getMaterial(int material) {

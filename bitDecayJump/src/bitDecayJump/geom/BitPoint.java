@@ -33,6 +33,10 @@ public class BitPoint {
 		return new BitPoint(x + point.x, y + point.y);
 	}
 
+	public BitPoint minus(BitPoint point) {
+		return new BitPoint(x - point.x, y - point.y);
+	}
+
 	public BitPoint getScaled(float scale) {
 		return new BitPoint(x * scale, y * scale);
 	}
@@ -40,5 +44,9 @@ public class BitPoint {
 	@Override
 	public String toString() {
 		return "(" + x + ", " + y + ")";
+	}
+
+	public BitPoint dividedBy(float divisor) {
+		return new BitPoint(x / divisor, y / divisor);
 	}
 }
