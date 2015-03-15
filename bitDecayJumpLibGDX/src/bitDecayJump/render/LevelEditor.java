@@ -26,7 +26,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private static final int CAM_SPEED = 5;
 
-	public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);;
+	public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
 
 	private String jumpVersion = "Jump v" + BitWorld.VERSION;
 	private String renderVersion = "Render v" + BitWorld.VERSION;
@@ -110,7 +110,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
-		mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
 
 		playerController = new PlayerController();
 		mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
