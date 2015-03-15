@@ -199,7 +199,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				menuIndex = 0;
 				row++;
 			}
-			font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, camera.viewportHeight - row * rowSpacing);
+			font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, Gdx.graphics.getHeight() - row * rowSpacing);
 		}
 	}
 
