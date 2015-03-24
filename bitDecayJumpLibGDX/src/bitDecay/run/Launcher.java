@@ -1,8 +1,6 @@
 package bitDecay.run;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl.*;
 
 public class Launcher {
 

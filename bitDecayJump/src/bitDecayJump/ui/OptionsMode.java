@@ -13,8 +13,8 @@ public enum OptionsMode {
 	SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 2),
 	SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
 
-	SAVE_LEVEL("Save Level", ModeType.ACTION, 3),
-	LOAD_LEVEL("Load Level", ModeType.ACTION, 3);
+	SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
+	LOAD_LEVEL("Load Level", ModeType.ACTION, -1);
 
 	public final String label;
 	public final ModeType type;

@@ -38,4 +38,8 @@ public class CreateMouseMode extends BaseMouseMode {
 		}
 	}
 
+	@Override
+	public String getToolTip() {
+		return "Create";
+	}
 }

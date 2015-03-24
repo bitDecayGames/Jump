@@ -18,4 +18,9 @@ public class DeleteMouseMode extends BaseMouseMode {
 		}
 	}
 
+	@Override
+	public String getToolTip() {
+		return "Delete";
+	}
+
 }

@@ -49,4 +49,9 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 			shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 		}
 	}
+
+	@Override
+	public String getToolTip() {
+		return "Drop a player object into the level";
+	}
 }

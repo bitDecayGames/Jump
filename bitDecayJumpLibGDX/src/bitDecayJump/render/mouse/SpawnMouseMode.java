@@ -28,4 +28,9 @@ public class SpawnMouseMode extends BaseMouseMode {
 		}
 	}
 
+	@Override
+	public String getToolTip() {
+		return "Set the spawn point for the level";
+	}
+
 }

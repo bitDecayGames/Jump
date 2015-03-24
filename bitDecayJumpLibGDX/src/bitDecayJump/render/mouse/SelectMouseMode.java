@@ -46,4 +46,9 @@ public class SelectMouseMode extends BaseMouseMode {
 		}
 	}
 
+	@Override
+	public String getToolTip() {
+		return "Select";
+	}
+
 }

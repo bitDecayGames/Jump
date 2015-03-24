@@ -2,11 +2,14 @@ package bitDecayJump.render.mouse;
 
 import bitDecayJump.geom.BitPointInt;
 import bitDecayJump.level.LevelBuilder;
+import bitDecayJump.tools.ToolAction;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public abstract class BaseMouseMode implements MouseMode {
+public abstract class BaseMouseMode implements MouseMode, ToolAction {
 
 	public LevelBuilder builder;
 	public BitPointInt startPoint;
@@ -48,4 +51,8 @@ public abstract class BaseMouseMode implements MouseMode {
 	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 	}
 
+	@Override
+	public TextureRegion getIcon() {
+		return new TextureRegion(new Texture(Gdx.files.internal("editorAssets/fill.png")));
+	}
 }
