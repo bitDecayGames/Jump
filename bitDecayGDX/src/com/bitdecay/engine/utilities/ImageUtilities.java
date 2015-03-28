@@ -1,8 +1,6 @@
 package com.bitdecay.engine.utilities;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,21 +9,23 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.bitdecay.engine.GameFactory;
 
 /**
- * Will look for a <b>texture.properties</b> file in <b>assets/props</b>. The props file should be formatted as ${atlasName}=${directory} where atlasName is the
- * atlas grouping reference to be used in code. <br>
+ * Will look for a <b>texture.properties</b> file in <b>assets/props</b>. The
+ * props file should be formatted as ${atlasName}=${directory} where atlasName
+ * is the atlas grouping reference to be used in code. <br>
  * <br>
  * Ex.<br>
  * sprites=/images/mySprites<br>
  * ImageUtilities.getTextureRegion("sprites", "logo")<br>
  * <br>
- * <b>NOTE:</b> Automatically packs all images into atlases when run from the desktop. This is known to potentially take a while. This aspect should be removed
- * from release version of the software
+ * <b>NOTE:</b> Automatically packs all images into atlases when run from the
+ * desktop. This is known to potentially take a while. This aspect should be
+ * removed from release version of the software
  * 
  * @author Monday
  * @version 0.1 (March 2014)
  */
 public class ImageUtilities {
-	
+
 	private static boolean initialized = false;
 
 	private static final String atlasLocation = "images/textures/images.atlas";
@@ -58,7 +58,8 @@ public class ImageUtilities {
 	 *            the folder the image lives in in the repository
 	 * @param image
 	 *            the name of the image to get
-	 * @return The TextureRegion that corresponds to the image, pulled from the image atlas
+	 * @return The TextureRegion that corresponds to the image, pulled from the
+	 *         image atlas
 	 */
 	public static TextureRegion getTextureRegion(String folder, String image) {
 		AtlasRegion region = getAtlas().findRegion(folder + "." + image);
@@ -82,8 +83,10 @@ public class ImageUtilities {
 	 * @param image
 	 *            the name of the image to get
 	 * @param row
-	 *            the row of the image to get (useful for getting a specific animation)
-	 * @return a TextureRegion[] of {@link Cubicle#SPRITE_SIZE} tiles from the corresponding row of the image
+	 *            the row of the image to get (useful for getting a specific
+	 *            animation)
+	 * @return a TextureRegion[] of {@link Cubicle#SPRITE_SIZE} tiles from the
+	 *         corresponding row of the image
 	 */
 	public static TextureRegion[] getImageRow(String folder, String image, int row) {
 		return getImageRow(folder, image, row, -1);
@@ -96,10 +99,13 @@ public class ImageUtilities {
 	 * @param image
 	 *            the name of the image to get
 	 * @param row
-	 *            the row of the image to get (useful for getting a specific animation)
+	 *            the row of the image to get (useful for getting a specific
+	 *            animation)
 	 * @param frames
 	 *            the number of frames from that row to fetch
-	 * @return a TextureRegion[] with length <b>frames</b> of {@link Cubicle#SPRITE_SIZE} tiles from the corresponding row of the image
+	 * @return a TextureRegion[] with length <b>frames</b> of
+	 *         {@link Cubicle#SPRITE_SIZE} tiles from the corresponding row of
+	 *         the image
 	 */
 	public static TextureRegion[] getImageRow(String folder, String image, int row, int frames) {
 		// TODO: need to make this smarter -- or change how we get certain animations (maybe just make them different files? that'd be easy enough.
@@ -124,6 +130,10 @@ public class ImageUtilities {
 			}
 		} catch (Exception e) {
 			//ignore
+		}
+		if (frames.size() == 0) {
+			// check for just one image with no numeric suffix
+			frames.add(getTextureRegion(folder, prefix));
 		}
 		if (frames.size() == 0) {
 			throw new RuntimeException("No images found with prefix " + prefix + " in folder " + folder);
