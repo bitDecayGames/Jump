@@ -1,16 +1,22 @@
 package bitDecayJump.ui;
 
+import java.awt.Image;
 import java.awt.event.*;
+import java.util.Map.Entry;
 
 import javax.swing.*;
+
+import bitDecayJump.setup.*;
 
 public class OptionsUI extends JDialog {
 	private static final long serialVersionUID = 1L;
 	OptionsUICallback callback;
 	private JPanel items;
+	private EditorToolbox toolBox;
 
-	public OptionsUI(OptionsUICallback callback) {
+	public OptionsUI(OptionsUICallback callback, EditorToolbox toolBox) {
 		super();
+		this.toolBox = toolBox;
 		items = new JPanel();
 		items.setLayout(new BoxLayout(items, BoxLayout.Y_AXIS));
 		this.callback = callback;
@@ -35,6 +41,16 @@ public class OptionsUI extends JDialog {
 
 				addButton(option);
 			}
+		}
+
+		for (Entry<Image, Class<? extends EditorObject>> uiThing : toolBox.tiles.entrySet()) {
+			items.add(new JButton(new ImageIcon(uiThing.getKey())));
+		}
+		for (Entry<Image, Class<? extends EditorObject>> uiThing : toolBox.pathedObject.entrySet()) {
+			items.add(new JButton(new ImageIcon(uiThing.getKey())));
+		}
+		for (Entry<Image, Class<? extends EditorObject>> uiThing : toolBox.placableObject.entrySet()) {
+			items.add(new JButton(new ImageIcon(uiThing.getKey())));
 		}
 
 		add(items);

@@ -127,7 +127,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		uiKeys = new HashMap<Integer, JDialog>();
 
-		JDialog buttonsDialog = new OptionsUI(this);
+		JDialog buttonsDialog = new OptionsUI(this, toolBox);
 		buttonsDialog.setTitle("Tools");
 
 		uiKeys.put(Keys.T, buttonsDialog);
@@ -139,7 +139,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		materialMap = new HashMap<String, TextureRegion[]>();
 
-		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
+		//		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
 		//		if (!editorAssets.exists()) {
 		//			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
 		//					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
