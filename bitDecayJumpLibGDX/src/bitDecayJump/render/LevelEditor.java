@@ -356,6 +356,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				camera.zoom += .032f;
 			}
 		}
+		
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE))
+		{
+			Gdx.app.exit();
+		}
 
 		if (Gdx.input.isKeyPressed(Keys.DEL) || Gdx.input.isKeyPressed(Keys.BACKSPACE)) {
 			curLevelBuilder.deleteSelected();
