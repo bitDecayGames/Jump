@@ -4,6 +4,7 @@ import bitDecayJump.*;
 import bitDecayJump.geom.*;
 import bitDecayJump.input.*;
 import bitDecayJump.level.LevelBuilder;
+import bitDecayJump.state.JumperStateWatcher;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -38,6 +39,7 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 			}
 			// TODO: figure out why this isn't bringing over the jumperprops values
 			lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
+			lastPlayer.stateWatcher = new JumperStateWatcher(lastPlayer);
 			playerController.setBody(lastPlayer, controls);
 		}
 	}

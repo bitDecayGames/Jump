@@ -1,6 +1,7 @@
 package bitDecayJump.input;
 
-import bitDecayJump.*;
+import bitDecayJump.BitBody;
+import bitDecayJump.controller.JumperController;
 
 import com.badlogic.gdx.Gdx;
 

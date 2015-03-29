@@ -1,4 +1,6 @@
-package bitDecayJump;
+package bitDecayJump.controller;
+
+import bitDecayJump.BitBody;
 
 public abstract class BitBodyController {
 

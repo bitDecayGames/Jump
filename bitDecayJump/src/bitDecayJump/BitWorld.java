@@ -14,6 +14,9 @@ import bitDecayJump.level.*;
  *
  */
 public class BitWorld {
+	private static final float STEP_SIZE = 1 / 120f;
+	private float extraStepTime = 0;
+
 	private int tileSize;
 	private BitPointInt bodyOffset;
 	private TileObject[][] objects;
@@ -51,16 +54,25 @@ public class BitWorld {
 		pendingRemoves.add(body);
 	}
 
+	/**
+	 * steps the physics world in {@link BitWorld#STEP_SIZE} time steps. Any
+	 * left over will be rolled over in to the next call to this method.
+	 * 
+	 * @param delta
+	 */
 	public void step(float delta) {
 		collisions.clear();
-		while (delta > 1 / 120f) {
-			internalStep(1 / 120f);
-			delta -= 1 / 120f;
+		//add any left over time from last call to step();
+		delta += extraStepTime;
+		while (delta > STEP_SIZE) {
+			internalStep(STEP_SIZE);
+			delta -= STEP_SIZE;
 		}
-		internalStep(delta);
+		// store off our leftover so it can be added in next time
+		extraStepTime = delta;
 	}
 
-	private void internalStep(float delta) {
+	private void internalStep(final float delta) {
 		if (delta <= 0) {
 			return;
 		}
@@ -75,7 +87,8 @@ public class BitWorld {
 			// apply gravity to DYNAMIC bodies
 			if (BodyType.DYNAMIC == body.props.bodyType) {
 				if (body.props.gravitational) {
-					body.velocity.add(gravity.getScaled(delta));
+					BitPoint stepGravity = gravity.getScaled(delta);
+					body.velocity.add(stepGravity);
 				}
 			}
 			// then let controller handle the body
@@ -184,9 +197,9 @@ public class BitWorld {
 		}
 
 		if (resolution.x != 0 || resolution.y != 0) {
-			if (resolution.x == tileSize) {
-				System.out.println("HowHappen?");
-			}
+			//			if (resolution.x == tileSize) {
+			//				System.out.println("HowHappen?");
+			//			}
 			body.aabb.translate(resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
 			if (resolution.y > 0) {
@@ -201,6 +214,7 @@ public class BitWorld {
 			body.velocity.y = 0;
 		}
 
+		body.lastResolution = resolution;
 		body.grounded = grounded;
 	}
 

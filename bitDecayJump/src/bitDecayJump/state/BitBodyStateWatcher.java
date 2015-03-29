@@ -1,4 +1,4 @@
-package bitDecayJump;
+package bitDecayJump.state;
 
 public interface BitBodyStateWatcher {
 	public void update();

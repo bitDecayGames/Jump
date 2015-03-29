@@ -1,6 +1,8 @@
 package bitDecayJump;
 
+import bitDecayJump.controller.BitBodyController;
 import bitDecayJump.geom.*;
+import bitDecayJump.state.BitBodyStateWatcher;
 
 public class BitBody {
 	public BitRectangle aabb;
@@ -28,4 +30,10 @@ public class BitBody {
 	 * relative to the physics world
 	 */
 	public BitBodyStateWatcher stateWatcher;
+
+	/**
+	 * Tracks what the physics world <b>last</b> did to resolve any collisions
+	 * that may have happened
+	 */
+	public BitPointInt lastResolution;
 }

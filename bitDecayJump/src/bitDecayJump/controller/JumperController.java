@@ -1,4 +1,6 @@
-package bitDecayJump;
+package bitDecayJump.controller;
+
+import bitDecayJump.*;
 
 public class JumperController extends BasicBodyController {
 	// state stuff
