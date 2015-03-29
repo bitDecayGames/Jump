@@ -1,6 +1,6 @@
 package bitDecayJump;
 
-public class JumperController extends BitBodyController {
+public class JumperController extends BasicBodyController {
 	// state stuff
 	boolean requestJump = false;
 
@@ -22,6 +22,7 @@ public class JumperController extends BitBodyController {
 
 	@Override
 	public void update(float delta) {
+		super.update(delta);
 		if (body.props instanceof JumperProps) {
 			JumperProps props = (JumperProps) body.props;
 			if (!body.grounded) {
@@ -76,15 +77,6 @@ public class JumperController extends BitBodyController {
 				jumping = false;
 			}
 		}
-	}
-
-	public void goLeft() {
-		body.velocity.x = -body.props.maxSpeedX;
-	}
-
-	public void goRight() {
-		body.velocity.x = body.props.maxSpeedX;
-
 	}
 
 	public void startJump() {

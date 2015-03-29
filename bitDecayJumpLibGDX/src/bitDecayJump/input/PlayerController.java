@@ -25,11 +25,14 @@ public class PlayerController {
 				bodyController.stopJump();
 			}
 			if (Gdx.input.isKeyPressed(controls.get(PlayerAction.LEFT))) {
-				bodyController.goLeft();
-			} else if (Gdx.input.isKeyPressed(controls.get(PlayerAction.RIGHT))) {
-				bodyController.goRight();
+				bodyController.goLeft(true);
 			} else {
-				body.velocity.x = 0;
+				bodyController.goLeft(false);
+			}
+			if (Gdx.input.isKeyPressed(controls.get(PlayerAction.RIGHT))) {
+				bodyController.goRight(true);
+			} else {
+				bodyController.goRight(false);
 			}
 		}
 	}
