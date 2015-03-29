@@ -58,7 +58,15 @@ public class JumperController extends BitBodyController {
 					jumping = true;
 					jumpVariableHeightWindow = 0;
 					requestJump = false;
-				} else {
+				} else if (jumpsPerformed == 0 && jumpsRemaining > 1 && jumpGracePeriod > props.jumpGraceWindow) {
+					/*
+					 * This case handles when a player misses the jump window,
+					 * but still has extra jumps they can use. (They lose their
+					 * first jump for missing the window, but can use any
+					 * remaining jumps)
+					 */
+					jumpsPerformed++;
+					jumpsRemaining--;
 				}
 			}
 
