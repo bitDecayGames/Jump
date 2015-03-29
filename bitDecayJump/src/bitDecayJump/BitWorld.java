@@ -73,23 +73,25 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						body.velocity.add(gravity.getScaled(delta));
-					}
+			if (BodyType.DYNAMIC == body.props.bodyType) {
+				if (body.props.gravitational) {
+					body.velocity.add(gravity.getScaled(delta));
 				}
-				// then let controller handle the body
-				if (body.controller != null) {
-					body.controller.update(delta);
-				}
-				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.aabb.translate(body.velocity.getScaled(delta));
-				}
-			});
+			}
+			// then let controller handle the body
+			if (body.controller != null) {
+				body.controller.update(delta);
+			}
+			// then move all of our non-static bodies
+			if (BodyType.STATIC != body.props.bodyType) {
+				body.aabb.translate(body.velocity.getScaled(delta));
+			}
+		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
+
+		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
