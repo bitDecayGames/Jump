@@ -1,6 +1,6 @@
 package bitDecayJump.controller;
 
-import bitDecayJump.BitBody;
+import bitDecayJump.*;
 
 public class BasicBodyController extends BitBodyController {
 
@@ -14,6 +14,7 @@ public class BasicBodyController extends BitBodyController {
 	@Override
 	public void update(float delta) {
 		if (requestLeft || requestRight) {
+			body.facing = requestLeft ? Facing.LEFT : Facing.RIGHT;
 			if (requestLeft) {
 				body.velocity.x = Math.max(-body.props.maxSpeedX, body.velocity.x - body.props.accelX * delta);
 			} else {
