@@ -59,17 +59,21 @@ public class BitWorld {
 	 * left over will be rolled over in to the next call to this method.
 	 * 
 	 * @param delta
+	 * @return true if the world stepped, false otherwise
 	 */
-	public void step(float delta) {
+	public boolean step(float delta) {
+		boolean stepped = false;
 		collisions.clear();
 		//add any left over time from last call to step();
 		delta += extraStepTime;
 		while (delta > STEP_SIZE) {
+			stepped = true;
 			internalStep(STEP_SIZE);
 			delta -= STEP_SIZE;
 		}
 		// store off our leftover so it can be added in next time
 		extraStepTime = delta;
+		return stepped;
 	}
 
 	private void internalStep(final float delta) {
@@ -85,22 +89,22 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						BitPoint stepGravity = gravity.getScaled(delta);
-						body.velocity.add(stepGravity);
-					}
+			if (BodyType.DYNAMIC == body.props.bodyType) {
+				if (body.props.gravitational) {
+					BitPoint stepGravity = gravity.getScaled(delta);
+					body.velocity.add(stepGravity);
 				}
-				// then let controller handle the body
-				if (body.controller != null) {
-					body.controller.update(delta);
-				}
-				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.lastAttempt = body.velocity.getScaled(delta);
-					body.aabb.translate(body.lastAttempt);
-				}
-			});
+			}
+			// then let controller handle the body
+			if (body.controller != null) {
+				body.controller.update(delta);
+			}
+			// then move all of our non-static bodies
+			if (BodyType.STATIC != body.props.bodyType) {
+				body.lastAttempt = body.velocity.getScaled(delta);
+				body.aabb.translate(body.lastAttempt);
+			}
+		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));

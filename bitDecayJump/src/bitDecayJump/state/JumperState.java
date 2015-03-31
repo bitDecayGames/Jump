@@ -1,6 +1,6 @@
 package bitDecayJump.state;
 
-public enum JumperState {
+public enum JumperState implements State {
 	RIGHT_STANDING,
 	LEFT_STANDING,
 	RIGHT_RUNNING,

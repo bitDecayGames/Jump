@@ -1,56 +1,56 @@
 package bitDecay.jump.game;
 
-import java.util.*;
+import bitDecayJump.BitWorld;
+import bitDecayJump.entity.Player;
+import bitDecayJump.level.LevelUtilities;
+import bitDecayJump.render.LibGDXWorldRenderer;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
-import com.bitdecay.engine.animation.AnimationState;
-import com.bitdecay.engine.utilities.ImageUtilities;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class GameScreen implements Screen {
 
+	BitWorld world;
+	LibGDXWorldRenderer worldRenderer;
+
+	OrthographicCamera camera;
+
+	Player player;
 	SpriteBatch batch = new SpriteBatch();
-	float elapsed = 0;
-	private AnimationState animState;
-	private List<String> states = Arrays.asList("WALK", "PICKUP", "FLOAT");
 
 	@Override
 	public void show() {
-		animState = new AnimationState();
-		Animation running = new Animation(.1f, ImageUtilities.getImagesByPrefix("yellow", "walk"));
-		running.setPlayMode(PlayMode.LOOP);
-		animState.addState("WALK", running);
+		world = new BitWorld();
+		world.setLevel(LevelUtilities.loadLevel("levels/kenney.level"));
+		world.setGravity(0, -900);
 
-		Animation pickup = new Animation(.5f, ImageUtilities.getImagesByPrefix("yellow", "pickup"));
-		pickup.setPlayMode(PlayMode.LOOP);
-		animState.addState("PICKUP", pickup);
+		camera = new OrthographicCamera(1600, 900);
 
-		Animation floating = new Animation(.5f, ImageUtilities.getImagesByPrefix("yellow", "float"));
-		floating.setPlayMode(PlayMode.LOOP);
-		animState.addState("FLOAT", floating);
-
-		newState();
+		worldRenderer = new LibGDXWorldRenderer(world, camera);
+		player = new Player(world);
 	}
 
 	@Override
 	public void render(float delta) {
-		elapsed += delta;
-		if (elapsed > 2) {
-			newState();
+		if (!world.step(delta)) {
+			return;
 		}
+		player.update(delta);
+
 		Gdx.gl.glClearColor(0.0f, 0.8f, 0.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		batch.begin();
-		batch.draw(animState.getNextKeyFrame(delta), 100, 100);
-		batch.end();
-	}
+		camera.position.x = player.playerBody.aabb.xy.x;
+		camera.position.y = player.playerBody.aabb.xy.y;
+		camera.update();
 
-	private void newState() {
-		elapsed = 0;
-		animState.setState(states.get((int) (Math.random() * states.size())));
+		worldRenderer.render();
+
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		player.render(batch);
+		batch.end();
 	}
 
 	@Override

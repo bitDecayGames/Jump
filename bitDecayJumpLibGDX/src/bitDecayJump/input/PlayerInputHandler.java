@@ -5,7 +5,7 @@ import bitDecayJump.controller.JumperController;
 
 import com.badlogic.gdx.Gdx;
 
-public class PlayerController {
+public class PlayerInputHandler {
 	private BitBody body;
 	private ControlMap controls;
 	private JumperController bodyController;

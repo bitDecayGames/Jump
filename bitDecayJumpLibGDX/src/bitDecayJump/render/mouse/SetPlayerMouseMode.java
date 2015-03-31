@@ -16,10 +16,10 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 	private JumperProps props;
 
 	public BitBody lastPlayer;
-	private PlayerController playerController;
+	private PlayerInputHandler playerController;
 	private ControlMap controls;
 
-	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerController playerController, JumperProps props) {
+	public SetPlayerMouseMode(LevelBuilder builder, BitWorld world, PlayerInputHandler playerController, JumperProps props) {
 		super(builder);
 		this.world = world;
 		this.playerController = playerController;

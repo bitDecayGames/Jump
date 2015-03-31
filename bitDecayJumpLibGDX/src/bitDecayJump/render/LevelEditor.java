@@ -12,7 +12,7 @@ import org.reflections.Reflections;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
-import bitDecayJump.input.PlayerController;
+import bitDecayJump.input.PlayerInputHandler;
 import bitDecayJump.level.*;
 import bitDecayJump.render.mouse.*;
 import bitDecayJump.setup.*;
@@ -84,7 +84,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 	};
 
-	private PlayerController playerController;
+	private PlayerInputHandler playerController;
 
 	private EditorToolbox toolBox = new EditorToolbox();
 
@@ -121,7 +121,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
-		playerController = new PlayerController();
+		playerController = new PlayerInputHandler();
 		mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
 		mouseMode = mouseModes.get(OptionsMode.SELECT);
 
