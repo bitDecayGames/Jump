@@ -89,27 +89,37 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-			if (BodyType.DYNAMIC == body.props.bodyType) {
-				if (body.props.gravitational) {
-					BitPoint stepGravity = gravity.getScaled(delta);
-					body.velocity.add(stepGravity);
+				if (BodyType.DYNAMIC == body.props.bodyType) {
+					if (body.props.gravitational) {
+						BitPoint stepGravity = gravity.getScaled(delta);
+						body.velocity.add(stepGravity);
+					}
 				}
-			}
-			// then let controller handle the body
-			if (body.controller != null) {
-				body.controller.update(delta);
-			}
-			// then move all of our non-static bodies
-			if (BodyType.STATIC != body.props.bodyType) {
-				body.lastAttempt = body.velocity.getScaled(delta);
-				body.aabb.translate(body.lastAttempt);
-			}
-		});
+				// then let controller handle the body
+				if (body.controller != null) {
+					body.controller.update(delta);
+				}
+				// then move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.lastAttempt = body.velocity.getScaled(delta);
+					enforceMinSpeed(body.lastAttempt);
+					body.aabb.translate(body.lastAttempt);
+					//				System.out.println(body.lastAttempt);
+				}
+			});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 
 		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
+	}
+
+	private void enforceMinSpeed(BitPoint velocity) {
+		//		if (velocity.x > 0 && velocity.x < 1) {
+		//			velocity.x = 1;
+		//		} else if (velocity.x < 0 && velocity.x > -1) {
+		//			velocity.x = -1;
+		//		}
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
@@ -125,7 +135,7 @@ public class BitWorld {
 		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / tileSize);
 
 		// 3. loop over those all occupied tiles
-		BitPointInt resolution = new BitPointInt(0, 0);
+		BitPoint resolution = new BitPoint(0, 0);
 		Boolean haltX = false;
 		Boolean haltY = false;
 		for (int x = startCell.x; x <= endX; x++) {
@@ -252,7 +262,7 @@ public class BitWorld {
 
 	}
 
-	private void resolveBodyInside(BitPointInt resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
+	private void resolveBodyInside(BitPoint resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
 		if (xSpeedDominant && body.velocity.x <= 0 && (checkObj.nValue & Neighbor.RIGHT) == 0) {
@@ -270,19 +280,19 @@ public class BitWorld {
 		}
 	}
 
-	private void resolveLeft(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveLeft(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.x = Math.min(resolution.x, checkObj.rect.xy.x - (insec.xy.x + insec.width));
 	}
 
-	private void resolveDown(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveDown(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.y = Math.min(resolution.y, checkObj.rect.xy.y - (insec.xy.y + insec.height));
 	}
 
-	private void resolveUp(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveUp(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.y = Math.max(resolution.y, checkObj.rect.xy.y + checkObj.rect.height - insec.xy.y);
 	}
 
-	private void resolveRight(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveRight(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.x = Math.max(resolution.x, checkObj.rect.xy.x + checkObj.rect.width - insec.xy.x);
 	}
 
@@ -290,7 +300,7 @@ public class BitWorld {
 		return createBody(rect.xy.x, rect.xy.y, rect.width, rect.height, props);
 	}
 
-	public BitBody createBody(int x, int y, int width, int height, BitBodyProps props) {
+	public BitBody createBody(float x, float y, float width, float height, BitBodyProps props) {
 		BitBody body = new BitBody();
 		body.aabb = new BitRectangle(x, y, width, height);
 		body.props = props.clone();

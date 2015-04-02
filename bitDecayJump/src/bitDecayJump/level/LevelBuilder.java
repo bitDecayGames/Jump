@@ -157,7 +157,7 @@ public class LevelBuilder {
 
 	private BitPointInt getOccupiedCell(LevelObject obj) {
 		BitPointInt objCell;
-		objCell = new BitPointInt(obj.rect.xy.x, obj.rect.xy.y);
+		objCell = new BitPointInt((int) obj.rect.xy.x, (int) obj.rect.xy.y);
 		objCell = objCell.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 		return objCell;
 	}
@@ -277,8 +277,8 @@ public class LevelBuilder {
 		int xmin = Integer.MAX_VALUE;
 		int ymin = Integer.MAX_VALUE;
 		for (LevelObject obj : objects) {
-			xmin = Integer.min(xmin, obj.rect.xy.x);
-			ymin = Integer.min(ymin, obj.rect.xy.y);
+			xmin = Integer.min(xmin, (int) obj.rect.xy.x);
+			ymin = Integer.min(ymin, (int) obj.rect.xy.y);
 		}
 		return new BitPointInt(xmin, ymin);
 	}
@@ -287,8 +287,8 @@ public class LevelBuilder {
 		int xmax = Integer.MIN_VALUE;
 		int ymax = Integer.MIN_VALUE;
 		for (LevelObject obj : objects) {
-			xmax = Integer.max(xmax, obj.rect.xy.x + obj.rect.width);
-			ymax = Integer.max(ymax, obj.rect.xy.y + obj.rect.height);
+			xmax = Integer.max(xmax, (int) (obj.rect.xy.x + obj.rect.width));
+			ymax = Integer.max(ymax, (int) (obj.rect.xy.y + obj.rect.height));
 		}
 		return new BitPointInt(xmax, ymax);
 	}

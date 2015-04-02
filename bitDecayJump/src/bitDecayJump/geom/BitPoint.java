@@ -49,4 +49,8 @@ public class BitPoint {
 	public BitPoint dividedBy(float divisor) {
 		return new BitPoint(x / divisor, y / divisor);
 	}
+
+	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
+		return new BitPointInt(Math.floorDiv((int) x, xDiv), Math.floorDiv((int) y, yDiv));
+	}
 }

@@ -42,10 +42,10 @@ public class CollisionTest {
 		upLeftCorner.velocity.x = -1;
 		world.step(.01f);
 		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.equals(new BitPointInt(32, 32)));
-		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt(64 - downRightCorner.aabb.width, 32)));
+		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt((int) (64 - downRightCorner.aabb.width), 32)));
 		assertTrue("Up Right Internal corner resolution",
-				upRightCorner.aabb.xy.equals(new BitPointInt(64 - upRightCorner.aabb.width, 64 - upRightCorner.aabb.height)));
-		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, 64 - upLeftCorner.aabb.height)));
+				upRightCorner.aabb.xy.equals(new BitPointInt((int) (64 - upRightCorner.aabb.width), (int) (64 - upRightCorner.aabb.height))));
+		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, (int) (64 - upLeftCorner.aabb.height))));
 	}
 
 	/**
@@ -66,10 +66,10 @@ public class CollisionTest {
 		upLeftCorner.velocity.x = -1;
 		world.step(.01f);
 		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.equals(new BitPointInt(32, 32)));
-		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt(96 - downRightCorner.aabb.width, 32)));
+		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt((int) (96 - downRightCorner.aabb.width), 32)));
 		assertTrue("Up Right Internal corner resolution",
-				upRightCorner.aabb.xy.equals(new BitPointInt(96 - upRightCorner.aabb.width, 96 - upRightCorner.aabb.height)));
-		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, 96 - upLeftCorner.aabb.height)));
+				upRightCorner.aabb.xy.equals(new BitPointInt((int) (96 - upRightCorner.aabb.width), (int) (96 - upRightCorner.aabb.height))));
+		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, (int) (96 - upLeftCorner.aabb.height))));
 	}
 
 	@Test
