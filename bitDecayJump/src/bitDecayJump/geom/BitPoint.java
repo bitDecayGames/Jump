@@ -53,4 +53,25 @@ public class BitPoint {
 	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
 		return new BitPointInt(Math.floorDiv((int) x, xDiv), Math.floorDiv((int) y, yDiv));
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof BitPoint) {
+			return ((BitPoint) other).x == this.x && ((BitPoint) other).y == this.y;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Allows for being within 1/10,000th tolerance before being considered not
+	 * equal.
+	 * 
+	 * @param other
+	 * @return true if the other point is within 1/10,000th in both the x and y
+	 *         coordinate
+	 */
+	public boolean looseEquals(BitPoint other) {
+		return Math.abs(this.x - other.x) < .0001 && Math.abs(this.y - other.y) < .0001;
+	}
 }
