@@ -1,5 +1,7 @@
 package bitDecayJump.state;
 
+import com.bitdecay.common.State;
+
 public enum JumperState implements State {
 	RIGHT_STANDING,
 	LEFT_STANDING,

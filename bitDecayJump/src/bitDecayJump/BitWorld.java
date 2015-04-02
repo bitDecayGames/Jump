@@ -41,6 +41,10 @@ public class BitWorld {
 		pendingRemoves = new ArrayList<BitBody>();
 	}
 
+	public BitPoint getGravity() {
+		return gravity;
+	}
+
 	public void setGravity(float x, float y) {
 		this.gravity.x = x;
 		this.gravity.y = y;
@@ -102,9 +106,7 @@ public class BitWorld {
 				// then move all of our non-static bodies
 				if (BodyType.STATIC != body.props.bodyType) {
 					body.lastAttempt = body.velocity.getScaled(delta);
-					enforceMinSpeed(body.lastAttempt);
 					body.aabb.translate(body.lastAttempt);
-					//				System.out.println(body.lastAttempt);
 				}
 			});
 
@@ -112,14 +114,6 @@ public class BitWorld {
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 
 		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
-	}
-
-	private void enforceMinSpeed(BitPoint velocity) {
-		//		if (velocity.x > 0 && velocity.x < 1) {
-		//			velocity.x = 1;
-		//		} else if (velocity.x < 0 && velocity.x > -1) {
-		//			velocity.x = -1;
-		//		}
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
@@ -212,13 +206,11 @@ public class BitWorld {
 		}
 
 		if (resolution.x != 0 || resolution.y != 0) {
-			//			if (resolution.x == tileSize) {
-			//				System.out.println("HowHappen?");
-			//			}
 			body.aabb.translate(resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
-			if (resolution.y > 0) {
-				// we resolved upward, so the feet must have hit something
+			if (Math.abs(gravity.y - resolution.y) > Math.abs(gravity.y)) {
+				// if the body was resolved against the gravity's y, we assume grounded.
+				// CONSIDER: 4-directional gravity might become a possibility.
 				grounded = true;
 			}
 		}

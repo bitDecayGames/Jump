@@ -16,10 +16,8 @@ public class BasicBodyController extends BitBodyController {
 		if (requestLeft || requestRight) {
 			body.facing = requestLeft ? Facing.LEFT : Facing.RIGHT;
 			if (requestLeft) {
-				//				body.velocity.x = -body.props.maxSpeedX;
 				body.velocity.x = Math.max(-body.props.maxSpeedX, body.velocity.x - body.props.accelX * delta);
 			} else {
-				//				body.velocity.x = body.props.maxSpeedX;
 				body.velocity.x = Math.min(body.props.maxSpeedX, body.velocity.x + body.props.accelX * delta);
 			}
 		} else {

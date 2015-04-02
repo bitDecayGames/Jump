@@ -5,27 +5,19 @@ import java.util.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.bitdecay.common.*;
 
-public class AnimationState<T> {
+public class AnimationState implements StateListener {
 	private static final TextureRegion EMPTY_REGION = new TextureRegion(new Texture(new Pixmap(10, 10, Format.RGBA8888)));
-	private Map<T, Animation> animations = new HashMap<T, Animation>();
-	private T currentState;
+	private Map<State, Animation> animations = new HashMap<State, Animation>();
+	private State currentState;
 	private float elapsed;
 
 	public AnimationState() {
 	}
 
-	public void addState(T state, Animation animation) {
+	public void addState(State state, Animation animation) {
 		animations.put(state, animation);
-	}
-
-	public void setState(T state) {
-		if (!animations.containsKey(state)) {
-			currentState = null;
-		} else if (!state.equals(currentState)) {
-			currentState = state;
-			elapsed = 0;
-		}
 	}
 
 	public TextureRegion getKeyFrame() {
@@ -38,5 +30,15 @@ public class AnimationState<T> {
 
 	public void update(float delta) {
 		elapsed += delta;
+	}
+
+	@Override
+	public void stateChanged(State state) {
+		if (!animations.containsKey(state)) {
+			currentState = null;
+		} else if (!state.equals(currentState)) {
+			currentState = state;
+			elapsed = 0;
+		}
 	}
 }

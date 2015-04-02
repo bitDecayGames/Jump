@@ -17,7 +17,7 @@ public class Player implements Updatable, Renderable {
 
 	public BitBody playerBody;
 	public PlayerInputHandler inputHandler;
-	public AnimationState<JumperState> animations = new AnimationState<JumperState>();
+	public AnimationState animations = new AnimationState();
 
 	public Player(BitWorld world) {
 		buildBody(world);
@@ -29,6 +29,7 @@ public class Player implements Updatable, Renderable {
 		playerBody.aabb = new BitRectangle(50, 50, 46, 46);
 		playerBody.props = FileUtils.loadFileAs(JumperProps.class, Gdx.files.internal("props/graceProps").readString());
 		playerBody.stateWatcher = new JumperStateWatcher(playerBody);
+		playerBody.stateWatcher.addListener(animations);
 		world.addBody(playerBody);
 
 		inputHandler = new PlayerInputHandler();
@@ -69,7 +70,6 @@ public class Player implements Updatable, Renderable {
 	public void update(float delta) {
 		inputHandler.update();
 		animations.update(delta);
-		animations.setState((JumperState) playerBody.stateWatcher.getState());
 	}
 
 	@Override

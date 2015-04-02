@@ -31,5 +31,6 @@
 	<classpathentry kind="lib" path="/bitDecayGDX/jars/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="/bitDecayGDX/jars/gdx.jar" sourcepath="/bitDecayGDX/jars/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="/bitDecayGDX/jars/gdx-backend-gwt.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bitDecayCommon"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
