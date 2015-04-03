@@ -216,8 +216,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		//		mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.tileSize);
-
 		handleInput();
 		playerController.update();
 
@@ -348,12 +346,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		if (Gdx.input.isKeyPressed(Keys.NUM_2)) {
-			if (camera.zoom > .3) {
-				camera.zoom -= .032f;
+			if (camera.zoom > 5) {
+				camera.zoom -= .2f;
+			} else if (camera.zoom > .2) {
+				camera.zoom -= .05f;
 			}
 		} else if (Gdx.input.isKeyPressed(Keys.NUM_1)) {
 			if (camera.zoom < 5) {
-				camera.zoom += .032f;
+				camera.zoom += .05f;
+			} else if (camera.zoom < 20) {
+				camera.zoom += .2f;
 			}
 		}
 

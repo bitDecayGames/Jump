@@ -195,12 +195,6 @@ public class LevelBuilder {
 		}
 	}
 
-	private void refresh() {
-		long timer = System.currentTimeMillis();
-		setLevel(tilizeLevel());
-		System.out.println("Refresh took " + (System.currentTimeMillis() - timer) + "ms");
-	}
-
 	public String getJson() {
 		return FileUtils.toJson(tilizeLevel());
 	}

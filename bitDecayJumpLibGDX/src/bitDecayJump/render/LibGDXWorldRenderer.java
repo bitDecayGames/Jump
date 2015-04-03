@@ -1,12 +1,13 @@
 package bitDecayJump.render;
 
 import bitDecayJump.*;
-import bitDecayJump.geom.BitRectangle;
+import bitDecayJump.geom.*;
 import bitDecayJump.level.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
 
 public class LibGDXWorldRenderer implements BitWorldRenderer {
 	private BitWorld world;
@@ -21,6 +22,9 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 
 	@Override
 	public void render() {
+		Vector3 sub = cam.position.cpy().sub(cam.viewportWidth / 2, cam.viewportHeight / 2, 0);
+		BitRectangle view = new BitRectangle(cam.position.x, cam.position.y, cam.viewportWidth * cam.zoom, cam.viewportHeight * cam.zoom);
+		view.translate(-view.width / 2, -view.height / 2);
 		renderer.setProjectionMatrix(cam.combined);
 		renderer.begin(ShapeType.Line);
 		renderer.setColor(Color.WHITE);
@@ -30,6 +34,10 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 			for (int y = 0; y < column.length; y++) {
 				if (column[y] != null) {
 					TileObject levelObject = column[y];
+					if (GeomUtils.intersection(view, levelObject.rect) == null) {
+						// don't even attempt to draw if not on camera
+						continue;
+					}
 					float leftX = levelObject.rect.xy.x;
 					float rightX = levelObject.rect.xy.x + levelObject.rect.width;
 					float bottomY = levelObject.rect.xy.y;
@@ -50,8 +58,6 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 						renderer.setColor(Color.WHITE);
 						renderer.line(rightX, bottomY, rightX, topY);
 					}
-					//					renderer.rect((x + world.getBodyOffset().x) * world.getTileSize(), (y + world.getBodyOffset().y) * world.getTileSize(),
-					//							world.getTileSize(), world.getTileSize());
 				}
 			}
 		}
