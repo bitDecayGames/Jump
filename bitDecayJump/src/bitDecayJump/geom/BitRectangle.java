@@ -1,33 +1,31 @@
 package bitDecayJump.geom;
 
 public class BitRectangle {
-	public BitPointInt xy;
-	public float remainderX;
-	public float remainderY;
-	public int width;
-	public int height;
+	public BitPoint xy;
+	public float width;
+	public float height;
 
-	public BitRectangle(int x, int y, int width, int height) {
-		xy = new BitPointInt(x, y);
-		this.width = width;
-		this.height = height;
+	public BitRectangle(float x, float y, float f, float g) {
+		xy = new BitPoint(x, y);
+		this.width = f;
+		this.height = g;
 
-		if (width < 0) {
-			xy.x += width;
+		if (f < 0) {
+			xy.x += f;
 			this.width *= -1;
 		}
 
-		if (height < 0) {
-			xy.y += height;
+		if (g < 0) {
+			xy.y += g;
 			this.height *= -1;
 		}
 	}
 
-	public int getWidth() {
+	public float getWidth() {
 		return width;
 	}
 
-	public int getHeight() {
+	public float getHeight() {
 		return height;
 	}
 
@@ -38,31 +36,16 @@ public class BitRectangle {
 	/**
 	 * resets any axis the body is translated along (for resolving collisions)
 	 * 
-	 * @param point
+	 * @param resolution
 	 * @param reset
 	 */
-	public void translate(BitPointInt point, boolean reset) {
-		if (reset) {
-			if (point.x != 0) {
-				remainderX = 0;
-			}
-			if (point.y != 0) {
-				remainderY = 0;
-			}
-		}
-		translate(point.x, point.y);
+	public void translate(BitPoint resolution, boolean reset) {
+		translate(resolution.x, resolution.y);
 	}
 
 	public void translate(float x, float y) {
-		float totalX = xy.x + remainderX + x;
-		xy.x = (int) totalX;
-		xy.x = (int) Math.floor(totalX);
-		remainderX = totalX - xy.x;
-
-		float totalY = xy.y + remainderY + y;
-		xy.y = (int) totalY;
-		xy.y = (int) Math.floor(totalY);
-		remainderY = totalY - xy.y;
+		xy.x += x;
+		xy.y += y;
 	}
 
 	public BitPoint center() {

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.*;
 
 import bitDecayJump.*;
-import bitDecayJump.geom.BitPointInt;
+import bitDecayJump.geom.BitPoint;
 import bitDecayJump.level.*;
 
 public class CollisionTest {
@@ -41,11 +41,11 @@ public class CollisionTest {
 		BitBody upLeftCorner = world.createBody(20, 57, 16, 18, props);
 		upLeftCorner.velocity.x = -1;
 		world.step(.01f);
-		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.equals(new BitPointInt(32, 32)));
-		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt(64 - downRightCorner.aabb.width, 32)));
+		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.looseEquals(new BitPoint(32, 32)));
+		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.looseEquals(new BitPoint(64 - downRightCorner.aabb.width, 32)));
 		assertTrue("Up Right Internal corner resolution",
-				upRightCorner.aabb.xy.equals(new BitPointInt(64 - upRightCorner.aabb.width, 64 - upRightCorner.aabb.height)));
-		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, 64 - upLeftCorner.aabb.height)));
+				upRightCorner.aabb.xy.looseEquals(new BitPoint(64 - upRightCorner.aabb.width, 64 - upRightCorner.aabb.height)));
+		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.looseEquals(new BitPoint(32, 64 - upLeftCorner.aabb.height)));
 	}
 
 	/**
@@ -65,11 +65,11 @@ public class CollisionTest {
 		BitBody upLeftCorner = world.createBody(22, 50, 54, 57, props);
 		upLeftCorner.velocity.x = -1;
 		world.step(.01f);
-		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.equals(new BitPointInt(32, 32)));
-		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.equals(new BitPointInt(96 - downRightCorner.aabb.width, 32)));
+		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.looseEquals(new BitPoint(32, 32)));
+		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.looseEquals(new BitPoint(96 - downRightCorner.aabb.width, 32)));
 		assertTrue("Up Right Internal corner resolution",
-				upRightCorner.aabb.xy.equals(new BitPointInt(96 - upRightCorner.aabb.width, 96 - upRightCorner.aabb.height)));
-		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.equals(new BitPointInt(32, 96 - upLeftCorner.aabb.height)));
+				upRightCorner.aabb.xy.looseEquals(new BitPoint(96 - upRightCorner.aabb.width, 96 - upRightCorner.aabb.height)));
+		assertTrue("Up Left Internal corner resolution", upLeftCorner.aabb.xy.looseEquals(new BitPoint(32, 96 - upLeftCorner.aabb.height)));
 	}
 
 	@Test

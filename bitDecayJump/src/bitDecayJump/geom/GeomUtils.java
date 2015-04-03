@@ -10,9 +10,9 @@ public class GeomUtils {
 	public static List<BitRectangle> split(BitRectangle rect, int splitWidth, int splitHeight) {
 		List<BitRectangle> list = new ArrayList<BitRectangle>();
 		if (rect.width >= splitWidth && rect.height >= splitHeight) {
-			int xPoint = rect.xy.x;
+			float xPoint = rect.xy.x;
 			while (xPoint + splitWidth <= rect.xy.x + rect.width) {
-				int yPoint = rect.xy.y;
+				float yPoint = rect.xy.y;
 				while (yPoint + splitHeight <= rect.xy.y + rect.height) {
 					BitRectangle subRect = new BitRectangle(xPoint, yPoint, splitWidth, splitHeight);
 					list.add(subRect);
@@ -51,10 +51,10 @@ public class GeomUtils {
 	}
 
 	public static BitRectangle intersection(BitRectangle rec1, BitRectangle rec2) {
-		int x1 = Math.max(rec1.xy.x, rec2.xy.x);
-		int y1 = Math.max(rec1.xy.y, rec2.xy.y);
-		int x2 = Math.min(rec1.xy.x + rec1.width, rec2.xy.x + rec2.width);
-		int y2 = Math.min(rec1.xy.y + rec1.height, rec2.xy.y + rec2.height);
+		float x1 = Math.max(rec1.xy.x, rec2.xy.x);
+		float y1 = Math.max(rec1.xy.y, rec2.xy.y);
+		float x2 = Math.min(rec1.xy.x + rec1.width, rec2.xy.x + rec2.width);
+		float y2 = Math.min(rec1.xy.y + rec1.height, rec2.xy.y + rec2.height);
 
 		if (x1 >= x2 || y1 >= y2) {
 			return null;

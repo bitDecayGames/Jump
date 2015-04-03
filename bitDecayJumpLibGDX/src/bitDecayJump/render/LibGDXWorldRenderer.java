@@ -30,10 +30,10 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 			for (int y = 0; y < column.length; y++) {
 				if (column[y] != null) {
 					TileObject levelObject = column[y];
-					int leftX = levelObject.rect.xy.x;
-					int rightX = levelObject.rect.xy.x + levelObject.rect.width;
-					int bottomY = levelObject.rect.xy.y;
-					int topY = levelObject.rect.xy.y + levelObject.rect.height;
+					float leftX = levelObject.rect.xy.x;
+					float rightX = levelObject.rect.xy.x + levelObject.rect.width;
+					float bottomY = levelObject.rect.xy.y;
+					float topY = levelObject.rect.xy.y + levelObject.rect.height;
 					if ((levelObject.nValue & Neighbor.UP) == 0) {
 						renderer.setColor(Color.WHITE);
 						renderer.line(leftX, topY, rightX, topY);

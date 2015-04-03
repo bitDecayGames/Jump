@@ -47,5 +47,5 @@ public class BitBody {
 	 * Tracks what the physics world <b>last</b> did to resolve any collisions
 	 * that may have happened
 	 */
-	public BitPointInt lastResolution;
+	public BitPoint lastResolution;
 }

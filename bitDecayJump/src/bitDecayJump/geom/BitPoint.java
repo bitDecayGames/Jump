@@ -37,6 +37,10 @@ public class BitPoint {
 		return new BitPoint(x - point.x, y - point.y);
 	}
 
+	public BitPoint minus(BitPointInt point) {
+		return new BitPoint(x - point.x, y - point.y);
+	}
+
 	public BitPoint getScaled(float scale) {
 		return new BitPoint(x * scale, y * scale);
 	}
@@ -48,5 +52,30 @@ public class BitPoint {
 
 	public BitPoint dividedBy(float divisor) {
 		return new BitPoint(x / divisor, y / divisor);
+	}
+
+	public BitPoint floorDivideBy(int xDiv, int yDiv) {
+		return new BitPoint(Math.floorDiv((int) Math.floor(x), xDiv), Math.floorDiv((int) Math.floor(y), yDiv));
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof BitPoint) {
+			return ((BitPoint) other).x == this.x && ((BitPoint) other).y == this.y;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Allows for being within 1/10,000th tolerance before being considered not
+	 * equal.
+	 * 
+	 * @param other
+	 * @return true if the other point is within 1/10,000th in both the x and y
+	 *         coordinate
+	 */
+	public boolean looseEquals(BitPoint other) {
+		return Math.abs(this.x - other.x) < .0001 && Math.abs(this.y - other.y) < .0001;
 	}
 }

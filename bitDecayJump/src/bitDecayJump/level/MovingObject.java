@@ -14,6 +14,6 @@ public class MovingObject extends LevelObject implements Updatable {
 
 	@Override
 	public void update(float delta) {
-		rect.xy = path.update(delta, speed);
+		//		rect.xy = path.update(delta, speed);
 	}
 }

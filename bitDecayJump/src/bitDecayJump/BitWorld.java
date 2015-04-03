@@ -18,7 +18,7 @@ public class BitWorld {
 	private float extraStepTime = 0;
 
 	private int tileSize;
-	private BitPointInt bodyOffset;
+	private BitPointInt gridOffset;
 	private TileObject[][] objects;
 	private List<BitBody> bodies;
 
@@ -39,6 +39,10 @@ public class BitWorld {
 		bodies = new ArrayList<BitBody>();
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
+	}
+
+	public BitPoint getGravity() {
+		return gravity;
 	}
 
 	public void setGravity(float x, float y) {
@@ -118,18 +122,18 @@ public class BitWorld {
 		boolean grounded = false;
 
 		// 1. determine tile that x,y lives in
-		BitPointInt startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(bodyOffset);
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
 		// 2. determine width/height in tiles
-		int endX = startCell.x + (int) Math.ceil(1.0 * body.aabb.width / tileSize);
-		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / tileSize);
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
-		BitPointInt resolution = new BitPointInt(0, 0);
+		BitPoint resolution = new BitPoint(0, 0);
 		Boolean haltX = false;
 		Boolean haltY = false;
-		for (int x = startCell.x; x <= endX; x++) {
-			for (int y = startCell.y; y <= endY; y++) {
+		for (int x = (int) startCell.x; x <= endX; x++) {
+			for (int y = (int) startCell.y; y <= endY; y++) {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(objects, x, y) && objects[x][y] != null) {
 					TileObject checkObj = objects[x][y];
@@ -202,14 +206,14 @@ public class BitWorld {
 		}
 
 		if (resolution.x != 0 || resolution.y != 0) {
-			//			if (resolution.x == tileSize) {
-			//				System.out.println("HowHappen?");
-			//			}
 			body.aabb.translate(resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
-			if (resolution.y > 0) {
-				// we resolved upward, so the feet must have hit something
+			if (Math.abs(gravity.y - resolution.y) > Math.abs(gravity.y)) {
+				// if the body was resolved against the gravity's y, we assume grounded.
+				// CONSIDER: 4-directional gravity might become a possibility.
 				grounded = true;
+			} else {
+				grounded = false;
 			}
 		}
 		if (haltX) {
@@ -252,7 +256,7 @@ public class BitWorld {
 
 	}
 
-	private void resolveBodyInside(BitPointInt resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
+	private void resolveBodyInside(BitPoint resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
 		if (xSpeedDominant && body.velocity.x <= 0 && (checkObj.nValue & Neighbor.RIGHT) == 0) {
@@ -270,19 +274,19 @@ public class BitWorld {
 		}
 	}
 
-	private void resolveLeft(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveLeft(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.x = Math.min(resolution.x, checkObj.rect.xy.x - (insec.xy.x + insec.width));
 	}
 
-	private void resolveDown(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveDown(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.y = Math.min(resolution.y, checkObj.rect.xy.y - (insec.xy.y + insec.height));
 	}
 
-	private void resolveUp(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveUp(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.y = Math.max(resolution.y, checkObj.rect.xy.y + checkObj.rect.height - insec.xy.y);
 	}
 
-	private void resolveRight(BitPointInt resolution, LevelObject checkObj, BitRectangle insec) {
+	private void resolveRight(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
 		resolution.x = Math.max(resolution.x, checkObj.rect.xy.x + checkObj.rect.width - insec.xy.x);
 	}
 
@@ -290,7 +294,7 @@ public class BitWorld {
 		return createBody(rect.xy.x, rect.xy.y, rect.width, rect.height, props);
 	}
 
-	public BitBody createBody(int x, int y, int width, int height, BitBodyProps props) {
+	public BitBody createBody(float x, float y, float width, float height, BitBodyProps props) {
 		BitBody body = new BitBody();
 		body.aabb = new BitRectangle(x, y, width, height);
 		body.props = props.clone();
@@ -306,13 +310,13 @@ public class BitWorld {
 		this.tileSize = tileSize;
 	}
 
-	public void setBodyOffset(BitPointInt bodyOffset) {
-		this.bodyOffset = bodyOffset;
+	public void setGridOffset(BitPointInt bodyOffset) {
+		this.gridOffset = bodyOffset;
 	}
 
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
-		bodyOffset = level.gridOffset;
+		gridOffset = level.gridOffset;
 		objects = level.objects;
 	}
 
@@ -329,6 +333,6 @@ public class BitWorld {
 	}
 
 	public BitPointInt getBodyOffset() {
-		return bodyOffset;
+		return gridOffset;
 	}
 }

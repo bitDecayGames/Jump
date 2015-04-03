@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="jars/gdx-backend-gwt.jar"/>
 	<classpathentry kind="lib" path="jars/thirdparty/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="jars/gdx-tools.jar"/>
+	<classpathentry kind="src" path="/bitDecayCommon"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
