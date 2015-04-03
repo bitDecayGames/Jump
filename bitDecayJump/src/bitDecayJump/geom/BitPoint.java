@@ -37,6 +37,10 @@ public class BitPoint {
 		return new BitPoint(x - point.x, y - point.y);
 	}
 
+	public BitPoint minus(BitPointInt point) {
+		return new BitPoint(x - point.x, y - point.y);
+	}
+
 	public BitPoint getScaled(float scale) {
 		return new BitPoint(x * scale, y * scale);
 	}
@@ -50,8 +54,8 @@ public class BitPoint {
 		return new BitPoint(x / divisor, y / divisor);
 	}
 
-	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
-		return new BitPointInt(Math.floorDiv((int) x, xDiv), Math.floorDiv((int) y, yDiv));
+	public BitPoint floorDivideBy(int xDiv, int yDiv) {
+		return new BitPoint(Math.floorDiv((int) Math.floor(x), xDiv), Math.floorDiv((int) Math.floor(y), yDiv));
 	}
 
 	@Override

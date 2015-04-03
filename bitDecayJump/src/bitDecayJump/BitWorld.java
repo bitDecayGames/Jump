@@ -18,7 +18,7 @@ public class BitWorld {
 	private float extraStepTime = 0;
 
 	private int tileSize;
-	private BitPointInt bodyOffset;
+	private BitPointInt gridOffset;
 	private TileObject[][] objects;
 	private List<BitBody> bodies;
 
@@ -93,22 +93,22 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						BitPoint stepGravity = gravity.getScaled(delta);
-						body.velocity.add(stepGravity);
-					}
+			if (BodyType.DYNAMIC == body.props.bodyType) {
+				if (body.props.gravitational) {
+					BitPoint stepGravity = gravity.getScaled(delta);
+					body.velocity.add(stepGravity);
 				}
-				// then let controller handle the body
-				if (body.controller != null) {
-					body.controller.update(delta);
-				}
-				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.lastAttempt = body.velocity.getScaled(delta);
-					body.aabb.translate(body.lastAttempt);
-				}
-			});
+			}
+			// then let controller handle the body
+			if (body.controller != null) {
+				body.controller.update(delta);
+			}
+			// then move all of our non-static bodies
+			if (BodyType.STATIC != body.props.bodyType) {
+				body.lastAttempt = body.velocity.getScaled(delta);
+				body.aabb.translate(body.lastAttempt);
+			}
+		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
 		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
@@ -122,18 +122,18 @@ public class BitWorld {
 		boolean grounded = false;
 
 		// 1. determine tile that x,y lives in
-		BitPointInt startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(bodyOffset);
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
 		// 2. determine width/height in tiles
-		int endX = startCell.x + (int) Math.ceil(1.0 * body.aabb.width / tileSize);
-		int endY = startCell.y + (int) Math.ceil(1.0 * body.aabb.height / tileSize);
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
 		BitPoint resolution = new BitPoint(0, 0);
 		Boolean haltX = false;
 		Boolean haltY = false;
-		for (int x = startCell.x; x <= endX; x++) {
-			for (int y = startCell.y; y <= endY; y++) {
+		for (int x = (int) startCell.x; x <= endX; x++) {
+			for (int y = (int) startCell.y; y <= endY; y++) {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(objects, x, y) && objects[x][y] != null) {
 					TileObject checkObj = objects[x][y];
@@ -212,6 +212,8 @@ public class BitWorld {
 				// if the body was resolved against the gravity's y, we assume grounded.
 				// CONSIDER: 4-directional gravity might become a possibility.
 				grounded = true;
+			} else {
+				grounded = false;
 			}
 		}
 		if (haltX) {
@@ -308,13 +310,13 @@ public class BitWorld {
 		this.tileSize = tileSize;
 	}
 
-	public void setBodyOffset(BitPointInt bodyOffset) {
-		this.bodyOffset = bodyOffset;
+	public void setGridOffset(BitPointInt bodyOffset) {
+		this.gridOffset = bodyOffset;
 	}
 
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
-		bodyOffset = level.gridOffset;
+		gridOffset = level.gridOffset;
 		objects = level.objects;
 	}
 
@@ -331,6 +333,6 @@ public class BitWorld {
 	}
 
 	public BitPointInt getBodyOffset() {
-		return bodyOffset;
+		return gridOffset;
 	}
 }

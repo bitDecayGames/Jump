@@ -79,7 +79,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		@Override
 		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid) {
-			world.setBodyOffset(gridOffset);
+			world.setGridOffset(gridOffset);
 			world.setGrid(grid);
 		}
 	};
@@ -104,9 +104,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		curLevelBuilder.addListener(levelListener);
 
 		world = new BitWorld();
-		world.setGravity(0, -600);
+		world.setGravity(0, -900);
 
-		world.setBodyOffset(curLevelBuilder.gridOffset);
+		world.setGridOffset(curLevelBuilder.gridOffset);
 		world.setTileSize(curLevelBuilder.tileSize);
 		world.setGrid(curLevelBuilder.grid);
 
@@ -356,9 +356,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				camera.zoom += .032f;
 			}
 		}
-		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE))
-		{
+
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
 			Gdx.app.exit();
 		}
 
