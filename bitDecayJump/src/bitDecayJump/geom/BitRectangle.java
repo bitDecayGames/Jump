@@ -22,7 +22,7 @@ public class BitRectangle {
 	}
 
 	public BitRectangle(BitPointInt startPoint, BitPointInt endPoint) {
-		this(startPoint.x, endPoint.x, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+		this(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 	}
 
 	public float getWidth() {

@@ -30,6 +30,7 @@ public class BitWorld {
 	 * A map of x to y to an occupying body.
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
+	private Map<BitBody, BitResolution> pendingResolutions;
 
 	private BitPoint gravity = new BitPoint(0, 0);
 
@@ -49,6 +50,7 @@ public class BitWorld {
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
 		occupiedSpaces = new HashMap<Integer, Map<Integer, Set<BitBody>>>();
+		pendingResolutions = new HashMap<BitBody, BitResolution>();
 	}
 
 	public BitPoint getGravity() {
@@ -77,11 +79,11 @@ public class BitWorld {
 	 */
 	public boolean step(float delta) {
 		boolean stepped = false;
-		collisions.clear();
 		//add any left over time from last call to step();
 		delta += extraStepTime;
 		while (delta > STEP_SIZE) {
 			stepped = true;
+			collisions.clear();
 			internalStep(STEP_SIZE);
 			delta -= STEP_SIZE;
 		}
@@ -105,56 +107,70 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						BitPoint stepGravity = gravity.getScaled(delta);
-						body.velocity.add(stepGravity);
-					}
+			if (BodyType.DYNAMIC == body.props.bodyType) {
+				if (body.props.gravitational) {
+					BitPoint stepGravity = gravity.getScaled(delta);
+					body.velocity.add(stepGravity);
 				}
-				// then let controller handle the body
-				if (body.controller != null) {
-					body.controller.update(delta);
-				}
-				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.lastAttempt = body.velocity.getScaled(delta);
-					body.aabb.translate(body.lastAttempt);
-				}
-			});
+			} else if (BodyType.KINETIC == body.props.bodyType) {
+				body.velocity.x = 5;
+			}
+			// then let controller handle the body
+			if (body.controller != null) {
+				body.controller.update(delta);
+			}
+			// then move all of our non-static bodies
+			if (BodyType.STATIC != body.props.bodyType) {
+				body.lastAttempt = body.velocity.getScaled(delta);
+				body.aabb.translate(body.lastAttempt);
+			}
+		});
 
-		// resolve collisions for DYNAMIC bodies against Level bodies
+		// resolve collisions for DYNAMIC bodies against Level bodies-
 		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
 		bodies.stream().filter(body -> BodyType.KINETIC == body.props.bodyType).forEach(body -> reolveKineticCollections(body));
+		applyPendingResolutions();
 
 		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
 	}
 
-	private Object reolveKineticCollections(BitBody body) {
+	private void applyPendingResolutions() {
+		for (BitBody body : pendingResolutions.keySet()) {
+			applyResolution(body, pendingResolutions.get(body));
+		}
+		pendingResolutions.clear();
+	}
+
+	private void reolveKineticCollections(BitBody kineticBody) {
 		// 1. determine tile that x,y lives in
-		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
+		BitPoint startCell = kineticBody.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
 		// 2. determine width/height in tiles
-		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
-		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
-
-		BitPoint resolution = new BitPoint(0, 0);
+		int endX = (int) (startCell.x + Math.ceil(1.0 * kineticBody.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * kineticBody.aabb.height / tileSize));
 
 		for (int x = (int) startCell.x; x <= endX; x++) {
+			if (!occupiedSpaces.containsKey(x)) {
+				continue;
+			}
 			for (int y = (int) startCell.y; y <= endY; y++) {
+				if (!occupiedSpaces.get(x).containsKey(y)) {
+					continue;
+				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					//					BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
+					if (!pendingResolutions.containsKey(otherBody)) {
+						pendingResolutions.put(otherBody, new BitResolution());
+					}
+					resolve(pendingResolutions.get(otherBody), otherBody, kineticBody.aabb, 0);
 				}
 			}
 		}
-
-		return null;
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
-		// we will always assume a body is not grounded unless it collides
-		// against something on a per-step basis
-		boolean grounded = false;
-
+		if (!pendingResolutions.containsKey(body)) {
+			pendingResolutions.put(body, new BitResolution());
+		}
 		// 1. determine tile that x,y lives in
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -163,7 +179,7 @@ public class BitWorld {
 		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
-		BitResolution resolution = new BitResolution();
+		//		BitResolution resolution = new BitResolution();
 		for (int x = (int) startCell.x; x <= endX; x++) {
 			if (!occupiedSpaces.containsKey(x)) {
 				occupiedSpaces.put(x, new HashMap<Integer, Set<BitBody>>());
@@ -177,21 +193,24 @@ public class BitWorld {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					TileObject checkObj = gridObjects[x][y];
-					BitRectangle insec = GeomUtils.intersection(body.aabb, gridObjects[x][y].rect);
-					resolve(resolution, body, checkObj.rect, checkObj.nValue, insec);
+					resolve(pendingResolutions.get(body), body, checkObj.rect, checkObj.nValue);
 				}
 			}
 		}
 
+		//		applyResolution(body, resolution);
+	}
+
+	private void applyResolution(BitBody body, BitResolution resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
 			if (Math.abs(gravity.y - resolution.resolution.y) > Math.abs(gravity.y)) {
 				// if the body was resolved against the gravity's y, we assume grounded.
 				// CONSIDER: 4-directional gravity might become a possibility.
-				grounded = true;
+				body.grounded = true;
 			} else {
-				grounded = false;
+				body.grounded = false;
 			}
 		}
 		if (resolution.haltX) {
@@ -202,7 +221,6 @@ public class BitWorld {
 		}
 
 		body.lastResolution = resolution.resolution;
-		body.grounded = grounded;
 	}
 
 	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 compared to velocity.x != 0 for left/right)
@@ -313,11 +331,13 @@ public class BitWorld {
 		return gridOffset;
 	}
 
-	public void setObjects(Collection<LevelObject> otherObjects) {
-		//		this.bodies = otherObjects;
+	public void setObjects(Collection<BitBody> otherObjects) {
+		pendingRemoves.addAll(bodies);
+		pendingAdds.addAll(otherObjects);
 	}
 
-	private void resolve(BitResolution resolution, BitBody body, BitRectangle against, int nValue, BitRectangle insec) {
+	private void resolve(BitResolution resolution, BitBody body, BitRectangle against, int nValue) {
+		BitRectangle insec = GeomUtils.intersection(body.aabb, against);
 		if (insec != null) {
 			collisions.add(insec);
 			final boolean xSpeedDominant = Math.abs(body.velocity.x) > Math.abs(body.velocity.y);

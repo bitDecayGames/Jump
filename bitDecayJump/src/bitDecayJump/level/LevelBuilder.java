@@ -50,6 +50,7 @@ public class LevelBuilder {
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<LevelObject>();
 		tileObjects = new HashSet<TileObject>();
+		otherObjects = new ArrayList<LevelObject>();
 	}
 
 	public LevelBuilder(Level level) {
@@ -63,7 +64,7 @@ public class LevelBuilder {
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		tileObjects = level.getGridObjectsAsCollection();
-		otherObjects = level.otherObjects;
+		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<LevelObject>();
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
@@ -72,7 +73,9 @@ public class LevelBuilder {
 	public void createKineticObject(BitPointInt startPoint, BitPointInt endPoint) {
 		MovingObject kObj = new MovingObject(new BitRectangle(startPoint, endPoint), new BitPath(), 0);
 		otherObjects.add(kObj);
-		//		otherObjects
+		for (LevelBuilderListener listener : listeners) {
+			listener.updateGrid(gridOffset, grid, otherObjects);
+		}
 	}
 
 	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint) {

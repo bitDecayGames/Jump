@@ -12,7 +12,7 @@ public class Level {
 	public Map<Integer, String> materials;
 	/**
 	 * This offset is to compensate from how far from the origin the 2d array
-	 * sits. This is needed due to the array being 'shrink wrapped' to the level
+	 * sits. This is needed due to the array being 'shrink wrapped' to the grid
 	 * objects.
 	 */
 	public BitPointInt gridOffset;

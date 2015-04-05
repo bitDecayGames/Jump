@@ -81,7 +81,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
 			world.setGridOffset(gridOffset);
 			world.setGrid(grid);
-			world.setObjects(otherObjects);
+			BitBody player = maybeGetPlayer();
+			world.setObjects(buildBodies(otherObjects));
+			if (player != null) {
+				world.addBody(player);
+			}
 		}
 	};
 
@@ -119,6 +123,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes = new HashMap<OptionsMode, MouseMode>();
 		mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
@@ -148,6 +153,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
 
 		fallbackTiles = fullSet.split(16, 16)[0];
+	}
+
+	private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
+		ArrayList<BitBody> bodies = new ArrayList<BitBody>();
+		for (LevelObject levelObject : otherObjects) {
+			bodies.add(levelObject.getBody());
+		}
+		return bodies;
 	}
 
 	private void initializeToolbox() {

@@ -1,5 +1,6 @@
 package bitDecayJump.level;
 
+import bitDecayJump.BitBody;
 import bitDecayJump.geom.BitRectangle;
 
 public abstract class LevelObject {
@@ -8,6 +9,8 @@ public abstract class LevelObject {
 	public LevelObject(BitRectangle rect) {
 		this.rect = rect;
 	}
+
+	public abstract BitBody getBody();
 
 	// will also need notion of material / path / style
 }
