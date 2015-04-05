@@ -59,18 +59,20 @@ public class LevelBuilder {
 	public void setLevel(Level level) {
 		this.level = level;
 		tileSize = level.tileSize;
-		grid = level.objects;
+		grid = level.gridObjects;
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
-		tileObjects = level.getObjects();
+		tileObjects = level.getGridObjectsAsCollection();
+		otherObjects = level.otherObjects;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
 	}
 
 	public void createKineticObject(BitPointInt startPoint, BitPointInt endPoint) {
-		// TODO Auto-generated method stub
-
+		MovingObject kObj = new MovingObject(new BitRectangle(startPoint, endPoint), new BitPath(), 0);
+		otherObjects.add(kObj);
+		//		otherObjects
 	}
 
 	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint) {
@@ -111,7 +113,7 @@ public class LevelBuilder {
 
 		if (resize) {
 			for (LevelBuilderListener listener : listeners) {
-				listener.updateGrid(gridOffset, grid);
+				listener.updateGrid(gridOffset, grid, otherObjects);
 			}
 		}
 	}
@@ -262,7 +264,7 @@ public class LevelBuilder {
 		}
 
 		tillizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
-		tillizedLevel.objects = levelGrid;
+		tillizedLevel.gridObjects = levelGrid;
 
 		return tillizedLevel;
 	}

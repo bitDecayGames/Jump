@@ -1,6 +1,6 @@
 {
   "tileSize": 32,
-  "objects": [
+  "gridObjects": [
     [
       {
         "rect": {

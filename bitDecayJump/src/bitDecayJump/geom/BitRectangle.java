@@ -5,20 +5,24 @@ public class BitRectangle {
 	public float width;
 	public float height;
 
-	public BitRectangle(float x, float y, float f, float g) {
+	public BitRectangle(float x, float y, float width, float height) {
 		xy = new BitPoint(x, y);
-		this.width = f;
-		this.height = g;
+		this.width = width;
+		this.height = height;
 
-		if (f < 0) {
-			xy.x += f;
+		if (width < 0) {
+			xy.x += width;
 			this.width *= -1;
 		}
 
-		if (g < 0) {
-			xy.y += g;
+		if (height < 0) {
+			xy.y += height;
 			this.height *= -1;
 		}
+	}
+
+	public BitRectangle(BitPointInt startPoint, BitPointInt endPoint) {
+		this(startPoint.x, endPoint.x, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 	}
 
 	public float getWidth() {

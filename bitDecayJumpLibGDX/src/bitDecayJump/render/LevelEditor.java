@@ -78,9 +78,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		@Override
-		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid) {
+		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
 			world.setGridOffset(gridOffset);
 			world.setGrid(grid);
+			world.setObjects(otherObjects);
 		}
 	};
 

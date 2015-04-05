@@ -15,12 +15,21 @@ import bitDecayJump.level.*;
  */
 public class BitWorld {
 	private static final float STEP_SIZE = 1 / 120f;
+	/**
+	 * Holds left-over time when there isn't enough time for a full
+	 * {@link #STEP_SIZE}
+	 */
 	private float extraStepTime = 0;
 
 	private int tileSize;
 	private BitPointInt gridOffset;
-	private TileObject[][] objects;
+	private TileObject[][] gridObjects;
 	private List<BitBody> bodies;
+
+	/**
+	 * A map of x to y to an occupying body.
+	 */
+	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
 
 	private BitPoint gravity = new BitPoint(0, 0);
 
@@ -39,6 +48,7 @@ public class BitWorld {
 		bodies = new ArrayList<BitBody>();
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
+		occupiedSpaces = new HashMap<Integer, Map<Integer, Set<BitBody>>>();
 	}
 
 	public BitPoint getGravity() {
@@ -90,30 +100,54 @@ public class BitWorld {
 		bodies.removeAll(pendingRemoves);
 		pendingRemoves.clear();
 
+		occupiedSpaces.clear();
+
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-			if (BodyType.DYNAMIC == body.props.bodyType) {
-				if (body.props.gravitational) {
-					BitPoint stepGravity = gravity.getScaled(delta);
-					body.velocity.add(stepGravity);
+				if (BodyType.DYNAMIC == body.props.bodyType) {
+					if (body.props.gravitational) {
+						BitPoint stepGravity = gravity.getScaled(delta);
+						body.velocity.add(stepGravity);
+					}
 				}
-			}
-			// then let controller handle the body
-			if (body.controller != null) {
-				body.controller.update(delta);
-			}
-			// then move all of our non-static bodies
-			if (BodyType.STATIC != body.props.bodyType) {
-				body.lastAttempt = body.velocity.getScaled(delta);
-				body.aabb.translate(body.lastAttempt);
-			}
-		});
+				// then let controller handle the body
+				if (body.controller != null) {
+					body.controller.update(delta);
+				}
+				// then move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.lastAttempt = body.velocity.getScaled(delta);
+					body.aabb.translate(body.lastAttempt);
+				}
+			});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies
-		bodies.parallelStream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
+		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
+		bodies.stream().filter(body -> BodyType.KINETIC == body.props.bodyType).forEach(body -> reolveKineticCollections(body));
 
 		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
+	}
+
+	private Object reolveKineticCollections(BitBody body) {
+		// 1. determine tile that x,y lives in
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
+
+		// 2. determine width/height in tiles
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
+
+		BitPoint resolution = new BitPoint(0, 0);
+
+		for (int x = (int) startCell.x; x <= endX; x++) {
+			for (int y = (int) startCell.y; y <= endY; y++) {
+				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
+					//					BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private void resolveLevelCollisions(BitBody body) {
@@ -129,86 +163,30 @@ public class BitWorld {
 		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
-		BitPoint resolution = new BitPoint(0, 0);
-		Boolean haltX = false;
-		Boolean haltY = false;
+		BitResolution resolution = new BitResolution();
 		for (int x = (int) startCell.x; x <= endX; x++) {
+			if (!occupiedSpaces.containsKey(x)) {
+				occupiedSpaces.put(x, new HashMap<Integer, Set<BitBody>>());
+			}
 			for (int y = (int) startCell.y; y <= endY; y++) {
+				if (!occupiedSpaces.get(x).containsKey(y)) {
+					occupiedSpaces.get(x).put(y, new HashSet<BitBody>());
+				}
+				// mark the body as occupying the current grid coordinate
+				occupiedSpaces.get(x).get(y).add(body);
 				// ensure valid cell
-				if (ArrayUtilities.onGrid(objects, x, y) && objects[x][y] != null) {
-					TileObject checkObj = objects[x][y];
-					BitRectangle insec = GeomUtils.intersection(body.aabb, objects[x][y].rect);
-					// first we check that we actually intersected with something
-					if (insec != null) {
-						collisions.add(insec);
-						final boolean xSpeedDominant = Math.abs(body.velocity.x) > Math.abs(body.velocity.y);
-						boolean validLeftCollision = validBodyLeftCollision(body, checkObj, insec);
-						boolean validRightCollision = validBodyRightCollision(body, checkObj, insec);
-						boolean validTopCollision = validBodyTopCollisionLoose(body, checkObj, insec);
-						boolean validBottomCollision = validBodyBottomCollisionLoose(body, checkObj, insec);
-						if (insec.equals(body.aabb)) {
-							// check if the body covers the object entirely
-							resolveBodyInside(resolution, body, checkObj, insec, xSpeedDominant);
-							if (xSpeedDominant) {
-								haltX = true;
-							} else {
-								haltY = true;
-							}
-						} else if (insec.equals(checkObj.rect)) {
-							// handle where another object is entirely inside the body
-							resolveBodySurround();
-							if (xSpeedDominant) {
-								haltX = true;
-							} else {
-								haltY = true;
-							}
-						} else if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
-							// body collided on its top side
-							resolution.y = Math.max(resolution.y, insec.height);
-							haltY = true;
-						} else if (validLeftCollision) {
-							// body collided on its left side
-							resolution.x = Math.max(resolution.x, insec.width);
-							haltX = true;
-						} else if (validRightCollision) {
-							// body collided on its right side
-							resolution.x = Math.min(resolution.x, -insec.width);
-							haltX = true;
-						} else if (validTopCollision) {
-							// body collided on its top side
-							resolution.y = Math.min(resolution.y, -insec.height);
-							haltY = true;
-						} else if (validBottomCollision) {
-							// body collided on its bottom side
-							resolution.y = Math.max(resolution.y, insec.height);
-							haltY = true;
-						} else {
-							// handle where the body is partially inside a box that was not resolvable with the basic checks
-							if (insec.height == body.aabb.height) {
-								if (body.velocity.y <= 0) {
-									resolveUp(resolution, checkObj, insec);
-								} else {
-									resolveDown(resolution, checkObj, insec);
-								}
-								haltY = true;
-							} else if (insec.width == body.aabb.width) {
-								if (body.velocity.x < 0) {
-									resolveRight(resolution, checkObj, insec);
-								} else if (body.velocity.x > 0) {
-									resolveLeft(resolution, checkObj, insec);
-								}
-								haltX = true;
-							}
-						}
-					}
+				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
+					TileObject checkObj = gridObjects[x][y];
+					BitRectangle insec = GeomUtils.intersection(body.aabb, gridObjects[x][y].rect);
+					resolve(resolution, body, checkObj.rect, checkObj.nValue, insec);
 				}
 			}
 		}
 
-		if (resolution.x != 0 || resolution.y != 0) {
-			body.aabb.translate(resolution, true);
+		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
+			body.aabb.translate(resolution.resolution, true);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
-			if (Math.abs(gravity.y - resolution.y) > Math.abs(gravity.y)) {
+			if (Math.abs(gravity.y - resolution.resolution.y) > Math.abs(gravity.y)) {
 				// if the body was resolved against the gravity's y, we assume grounded.
 				// CONSIDER: 4-directional gravity might become a possibility.
 				grounded = true;
@@ -216,78 +194,77 @@ public class BitWorld {
 				grounded = false;
 			}
 		}
-		if (haltX) {
+		if (resolution.haltX) {
 			body.velocity.x = 0;
 		}
-		if (haltY) {
+		if (resolution.haltY) {
 			body.velocity.y = 0;
 		}
 
-		body.lastResolution = resolution;
+		body.lastResolution = resolution.resolution;
 		body.grounded = grounded;
 	}
 
 	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 compared to velocity.x != 0 for left/right)
-	private boolean validBodyBottomCollisionLoose(BitBody body, TileObject checkObj, BitRectangle insec) {
-		return (checkObj.nValue & Neighbor.UP) == 0 && insec.height != body.aabb.height && insec.xy.y == body.aabb.xy.y && body.velocity.y <= 0;
+	private boolean validBodyBottomCollisionLoose(BitBody body, int nValue, BitRectangle insec) {
+		return (nValue & Neighbor.UP) == 0 && insec.height != body.aabb.height && insec.xy.y == body.aabb.xy.y && body.velocity.y <= 0;
 	}
 
-	private boolean validBodyTopCollisionLoose(BitBody body, TileObject checkObj, BitRectangle insec) {
-		return (checkObj.nValue & Neighbor.DOWN) == 0 && insec.height != body.aabb.height && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
+	private boolean validBodyTopCollisionLoose(BitBody body, int nValue, BitRectangle insec) {
+		return (nValue & Neighbor.DOWN) == 0 && insec.height != body.aabb.height && insec.xy.y + insec.height == body.aabb.xy.y + body.aabb.height
 				&& body.velocity.y >= 0;
 	}
 
-	private boolean validBodyRightCollision(BitBody body, TileObject checkObj, BitRectangle insec) {
-		return (checkObj.nValue & Neighbor.LEFT) == 0 && insec.width != body.aabb.width && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
-				&& (insec.width < insec.height || noUpDownSpace(checkObj)) && body.velocity.x > 0;
+	private boolean validBodyRightCollision(BitBody body, int nValue, BitRectangle insec) {
+		return (nValue & Neighbor.LEFT) == 0 && insec.width != body.aabb.width && insec.xy.x + insec.width == body.aabb.xy.x + body.aabb.width
+				&& (insec.width < insec.height || noUpDownSpace(nValue)) && body.velocity.x > 0;
 	}
 
-	private boolean validBodyLeftCollision(BitBody body, TileObject checkObj, BitRectangle insec) {
-		return (checkObj.nValue & Neighbor.RIGHT) == 0 && insec.width != body.aabb.width && insec.xy.x == body.aabb.xy.x
-				&& (insec.width < insec.height || noUpDownSpace(checkObj)) && body.velocity.x < 0;
+	private boolean validBodyLeftCollision(BitBody body, int nValue, BitRectangle insec) {
+		return (nValue & Neighbor.RIGHT) == 0 && insec.width != body.aabb.width && insec.xy.x == body.aabb.xy.x
+				&& (insec.width < insec.height || noUpDownSpace(nValue)) && body.velocity.x < 0;
 	}
 
-	private boolean noUpDownSpace(TileObject checkObj) {
-		return (checkObj.nValue & Neighbor.UPDOWN) == Neighbor.UPDOWN;
+	private boolean noUpDownSpace(int nValue) {
+		return (nValue & Neighbor.UPDOWN) == Neighbor.UPDOWN;
 	}
 
 	private void resolveBodySurround() {
 		// TODO Auto-generated method stub
-
 	}
 
-	private void resolveBodyInside(BitPoint resolution, BitBody body, TileObject checkObj, BitRectangle insec, boolean xSpeedDominant) {
+	private void resolveBodyInside(BitResolution resolution, BitBody body, BitRectangle against, int nValue, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
-		if (xSpeedDominant && body.velocity.x <= 0 && (checkObj.nValue & Neighbor.RIGHT) == 0) {
+		if (xSpeedDominant && body.velocity.x <= 0 && (nValue & Neighbor.RIGHT) == 0) {
 			//push them out to the right
-			resolveRight(resolution, checkObj, insec);
-		} else if (xSpeedDominant && body.velocity.x > 0 && (checkObj.nValue & Neighbor.LEFT) == 0) {
+			resolveRight(resolution, against, insec);
+		} else if (xSpeedDominant && body.velocity.x > 0 && (nValue & Neighbor.LEFT) == 0) {
 			// push them out to the left
-			resolveLeft(resolution, checkObj, insec);
-		} else if (!xSpeedDominant && body.velocity.y <= 0 && (checkObj.nValue & Neighbor.UP) == 0) {
+			resolveLeft(resolution, against, insec);
+		} else if (!xSpeedDominant && body.velocity.y <= 0 && (nValue & Neighbor.UP) == 0) {
 			// push them out to the top
-			resolveUp(resolution, checkObj, insec);
-		} else if (!xSpeedDominant && body.velocity.y > 0 && (checkObj.nValue & Neighbor.DOWN) == 0) {
+			resolveUp(resolution, against, insec);
+		} else if (!xSpeedDominant && body.velocity.y > 0 && (nValue & Neighbor.DOWN) == 0) {
 			// push them out to the bottom
-			resolveDown(resolution, checkObj, insec);
+			resolveDown(resolution, against, insec);
 		}
 	}
 
-	private void resolveLeft(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
-		resolution.x = Math.min(resolution.x, checkObj.rect.xy.x - (insec.xy.x + insec.width));
+	private void resolveLeft(BitResolution resolution, BitRectangle against, BitRectangle insec) {
+		resolution.resolution.x = Math.min(resolution.resolution.x, against.xy.x - (insec.xy.x + insec.width));
 	}
 
-	private void resolveDown(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
-		resolution.y = Math.min(resolution.y, checkObj.rect.xy.y - (insec.xy.y + insec.height));
+	private void resolveDown(BitResolution resolution, BitRectangle against, BitRectangle insec) {
+		resolution.resolution.y = Math.min(resolution.resolution.y, against.xy.y - (insec.xy.y + insec.height));
 	}
 
-	private void resolveUp(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
-		resolution.y = Math.max(resolution.y, checkObj.rect.xy.y + checkObj.rect.height - insec.xy.y);
+	private void resolveUp(BitResolution resolution, BitRectangle against, BitRectangle insec) {
+		resolution.resolution.y = Math.max(resolution.resolution.y, against.xy.y + against.height - insec.xy.y);
 	}
 
-	private void resolveRight(BitPoint resolution, LevelObject checkObj, BitRectangle insec) {
-		resolution.x = Math.max(resolution.x, checkObj.rect.xy.x + checkObj.rect.width - insec.xy.x);
+	private void resolveRight(BitResolution resolution, BitRectangle against, BitRectangle insec) {
+		resolution.resolution.x = Math.max(resolution.resolution.x, against.xy.x + against.width - insec.xy.x);
 	}
 
 	public BitBody createBody(BitRectangle rect, BitBodyProps props) {
@@ -317,15 +294,15 @@ public class BitWorld {
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
 		gridOffset = level.gridOffset;
-		objects = level.objects;
+		gridObjects = level.gridObjects;
 	}
 
 	public void setGrid(TileObject[][] grid) {
-		objects = grid;
+		gridObjects = grid;
 	}
 
-	public TileObject[][] getObjects() {
-		return objects;
+	public TileObject[][] getGrid() {
+		return gridObjects;
 	}
 
 	public int getTileSize() {
@@ -334,5 +311,74 @@ public class BitWorld {
 
 	public BitPointInt getBodyOffset() {
 		return gridOffset;
+	}
+
+	public void setObjects(Collection<LevelObject> otherObjects) {
+		//		this.bodies = otherObjects;
+	}
+
+	private void resolve(BitResolution resolution, BitBody body, BitRectangle against, int nValue, BitRectangle insec) {
+		if (insec != null) {
+			collisions.add(insec);
+			final boolean xSpeedDominant = Math.abs(body.velocity.x) > Math.abs(body.velocity.y);
+			boolean validLeftCollision = validBodyLeftCollision(body, nValue, insec);
+			boolean validRightCollision = validBodyRightCollision(body, nValue, insec);
+			boolean validTopCollision = validBodyTopCollisionLoose(body, nValue, insec);
+			boolean validBottomCollision = validBodyBottomCollisionLoose(body, nValue, insec);
+			if (insec.equals(body.aabb)) {
+				// check if the body covers the object entirely
+				resolveBodyInside(resolution, body, against, nValue, insec, xSpeedDominant);
+				if (xSpeedDominant) {
+					resolution.haltX = true;
+				} else {
+					resolution.haltY = true;
+				}
+			} else if (insec.equals(against)) {
+				// handle where another object is entirely inside the body
+				resolveBodySurround();
+				if (xSpeedDominant) {
+					resolution.haltX = true;
+				} else {
+					resolution.haltY = true;
+				}
+			} else if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
+				// body collided on its top side
+				resolution.resolution.y = Math.max(resolution.resolution.y, insec.height);
+				resolution.haltY = true;
+			} else if (validLeftCollision) {
+				// body collided on its left side
+				resolution.resolution.x = Math.max(resolution.resolution.x, insec.width);
+				resolution.haltX = true;
+			} else if (validRightCollision) {
+				// body collided on its right side
+				resolution.resolution.x = Math.min(resolution.resolution.x, -insec.width);
+				resolution.haltX = true;
+			} else if (validTopCollision) {
+				// body collided on its top side
+				resolution.resolution.y = Math.min(resolution.resolution.y, -insec.height);
+				resolution.haltY = true;
+			} else if (validBottomCollision) {
+				// body collided on its bottom side
+				resolution.resolution.y = Math.max(resolution.resolution.y, insec.height);
+				resolution.haltY = true;
+			} else {
+				// handle where the body is partially inside a box that was not resolvable with the basic checks
+				if (insec.height == body.aabb.height) {
+					if (body.velocity.y <= 0) {
+						resolveUp(resolution, against, insec);
+					} else {
+						resolveDown(resolution, against, insec);
+					}
+					resolution.haltY = true;
+				} else if (insec.width == body.aabb.width) {
+					if (body.velocity.x < 0) {
+						resolveRight(resolution, against, insec);
+					} else if (body.velocity.x > 0) {
+						resolveLeft(resolution, against, insec);
+					}
+					resolution.haltX = true;
+				}
+			}
+		}
 	}
 }

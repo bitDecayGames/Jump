@@ -1,5 +1,7 @@
 package bitDecayJump.level;
 
+import java.util.Collection;
+
 import bitDecayJump.geom.BitPointInt;
 
 /**
@@ -17,5 +19,5 @@ public interface LevelBuilderListener {
 	//
 	//	public void objectsRemoved(Collection<LevelObject> objects);
 
-	public void updateGrid(BitPointInt gridOffset, TileObject[][] grid);
+	public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects);
 }
