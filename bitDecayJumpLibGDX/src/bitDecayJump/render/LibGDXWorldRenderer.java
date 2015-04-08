@@ -26,33 +26,37 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 		renderer.setProjectionMatrix(cam.combined);
 		renderer.begin(ShapeType.Line);
 		renderer.setColor(Color.WHITE);
-		TileObject[][] gridObjects = world.getGrid();
+		BitBody[][] gridObjects = world.getGrid();
 		for (int x = 0; x < gridObjects.length; x++) {
-			TileObject[] column = gridObjects[x];
+			BitBody[] column = gridObjects[x];
 			for (int y = 0; y < column.length; y++) {
 				if (column[y] != null) {
-					TileObject levelObject = column[y];
-					if (GeomUtils.intersection(view, levelObject.rect) == null) {
+					BitBody levelObject = column[y];
+					if (GeomUtils.intersection(view, levelObject.aabb) == null) {
 						// don't even attempt to draw if not on camera
 						continue;
 					}
-					float leftX = levelObject.rect.xy.x;
-					float rightX = levelObject.rect.xy.x + levelObject.rect.width;
-					float bottomY = levelObject.rect.xy.y;
-					float topY = levelObject.rect.xy.y + levelObject.rect.height;
-					if ((levelObject.nValue & Neighbor.UP) == 0) {
+					float leftX = levelObject.aabb.xy.x;
+					float rightX = levelObject.aabb.xy.x + levelObject.aabb.width;
+					float bottomY = levelObject.aabb.xy.y;
+					float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
+					int nValue = 0;
+					if (levelObject.props instanceof TileBodyProps) {
+						nValue = ((TileBodyProps) levelObject.props).nValue;
+					}
+					if ((nValue & Direction.UP) == 0) {
 						renderer.setColor(Color.WHITE);
 						renderer.line(leftX, topY, rightX, topY);
 					}
-					if ((levelObject.nValue & Neighbor.DOWN) == 0) {
+					if ((nValue & Direction.DOWN) == 0) {
 						renderer.setColor(Color.WHITE);
 						renderer.line(leftX, bottomY, rightX, bottomY);
 					}
-					if ((levelObject.nValue & Neighbor.LEFT) == 0) {
+					if ((nValue & Direction.LEFT) == 0) {
 						renderer.setColor(Color.WHITE);
 						renderer.line(leftX, bottomY, leftX, topY);
 					}
-					if ((levelObject.nValue & Neighbor.RIGHT) == 0) {
+					if ((nValue & Direction.RIGHT) == 0) {
 						renderer.setColor(Color.WHITE);
 						renderer.line(rightX, bottomY, rightX, topY);
 					}
@@ -75,6 +79,12 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 				break;
 			}
 			renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
+			if (body.velocity.x != 0 || body.velocity.y != 0) {
+				float x = body.aabb.xy.x + body.aabb.width / 2;
+				float y = body.aabb.xy.y + body.aabb.height / 2;
+				renderer.setColor(Color.PINK);
+				renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
+			}
 		}
 
 		renderer.setColor(Color.RED);

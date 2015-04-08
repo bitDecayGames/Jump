@@ -76,6 +76,6 @@ public class BitPoint {
 	 *         coordinate
 	 */
 	public boolean looseEquals(BitPoint other) {
-		return Math.abs(this.x - other.x) < .0001 && Math.abs(this.y - other.y) < .0001;
+		return MathUtils.close(this.x, other.x) && MathUtils.close(this.y, other.y);
 	}
 }

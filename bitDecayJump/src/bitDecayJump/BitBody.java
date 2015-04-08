@@ -1,5 +1,7 @@
 package bitDecayJump;
 
+import java.util.*;
+
 import bitDecayJump.controller.BitBodyController;
 import bitDecayJump.geom.*;
 import bitDecayJump.state.BitBodyStateWatcher;
@@ -7,6 +9,13 @@ import bitDecayJump.state.BitBodyStateWatcher;
 public class BitBody {
 	public BitRectangle aabb;
 	public BitPoint velocity = new BitPoint(0, 0);
+
+	public BitBody parent;
+	/**
+	 * Holds children bodies of this body. Allows for 'attaching' bodies to each
+	 * other
+	 */
+	public Set<BitBody> children = new HashSet<BitBody>();
 
 	/**
 	 * Simple flag to determine if a body is grounded. Specific to platformer
@@ -41,7 +50,7 @@ public class BitBody {
 	 * Tracks the <b>last</b> movement the body <b>tried</b> to make. This does
 	 * not mean the body did move.
 	 */
-	public BitPoint lastAttempt;
+	public BitPoint lastAttempt = new BitPoint(0, 0);
 
 	/**
 	 * Tracks what the physics world <b>last</b> did to resolve any collisions

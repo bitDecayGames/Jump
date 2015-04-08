@@ -19,8 +19,10 @@ public class TileObject extends LevelObject {
 		// CONSIDER: we might want to just put the collision shit (nValue) onto the body
 		BitBody body = new BitBody();
 		body.aabb = rect;
-		body.props = new BitBodyProps();
-		body.props.bodyType = BodyType.STATIC;
+		TileBodyProps props = new TileBodyProps(this);
+		props.nValue = nValue;
+		props.bodyType = BodyType.STATIC;
+		body.props = props;
 		return body;
 	}
 }

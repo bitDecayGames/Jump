@@ -30,7 +30,9 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
 	@Override
 	public void mouseUpLogic(BitPointInt point) {
 		endPoint = GeomUtils.snap(point, builder.tileSize);
-		builder.createKineticObject(startPoint, endPoint);
+		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
+			builder.createKineticObject(startPoint, endPoint);
+		}
 	}
 
 	@Override

@@ -37,16 +37,6 @@ public class BitRectangle {
 		translate(point.x, point.y);
 	}
 
-	/**
-	 * resets any axis the body is translated along (for resolving collisions)
-	 * 
-	 * @param resolution
-	 * @param reset
-	 */
-	public void translate(BitPoint resolution, boolean reset) {
-		translate(resolution.x, resolution.y);
-	}
-
 	public void translate(float x, float y) {
 		xy.x += x;
 		xy.y += y;
@@ -97,7 +87,7 @@ public class BitRectangle {
 			if (other.xy != null) {
 				return false;
 			}
-		} else if (!xy.equals(other.xy)) {
+		} else if (!xy.looseEquals(other.xy)) {
 			return false;
 		}
 		return true;

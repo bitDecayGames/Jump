@@ -114,48 +114,48 @@ public class LevelBuilder {
 			}
 		}
 
-		if (resize) {
-			for (LevelBuilderListener listener : listeners) {
-				listener.updateGrid(gridOffset, grid, otherObjects);
-			}
+		//		if (resize) {
+		for (LevelBuilderListener listener : listeners) {
+			listener.updateGrid(gridOffset, grid, otherObjects);
 		}
+		//		}
 	}
 
 	private void updateNeighbors(int x, int y) {
 		// check right
 		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
 			if (grid[x][y] == null) {
-				grid[x + 1][y].nValue &= Neighbor.NOT_LEFT;
+				grid[x + 1][y].nValue &= Direction.NOT_LEFT;
 			} else {
-				grid[x][y].nValue |= Neighbor.RIGHT;
-				grid[x + 1][y].nValue |= Neighbor.LEFT;
+				grid[x][y].nValue |= Direction.RIGHT;
+				grid[x + 1][y].nValue |= Direction.LEFT;
 			}
 		}
 		// check left
 		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
 			if (grid[x][y] == null) {
-				grid[x - 1][y].nValue &= Neighbor.NOT_RIGHT;
+				grid[x - 1][y].nValue &= Direction.NOT_RIGHT;
 			} else {
-				grid[x][y].nValue |= Neighbor.LEFT;
-				grid[x - 1][y].nValue |= Neighbor.RIGHT;
+				grid[x][y].nValue |= Direction.LEFT;
+				grid[x - 1][y].nValue |= Direction.RIGHT;
 			}
 		}
 		// check up
 		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
 			if (grid[x][y] == null) {
-				grid[x][y + 1].nValue &= Neighbor.NOT_DOWN;
+				grid[x][y + 1].nValue &= Direction.NOT_DOWN;
 			} else {
-				grid[x][y].nValue |= Neighbor.UP;
-				grid[x][y + 1].nValue |= Neighbor.DOWN;
+				grid[x][y].nValue |= Direction.UP;
+				grid[x][y + 1].nValue |= Direction.DOWN;
 			}
 		}
 		// check down
 		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
 			if (grid[x][y] == null) {
-				grid[x][y - 1].nValue &= Neighbor.NOT_UP;
+				grid[x][y - 1].nValue &= Direction.NOT_UP;
 			} else {
-				grid[x][y].nValue |= Neighbor.DOWN;
-				grid[x][y - 1].nValue |= Neighbor.UP;
+				grid[x][y].nValue |= Direction.DOWN;
+				grid[x][y - 1].nValue |= Direction.UP;
 			}
 		}
 	}
@@ -240,25 +240,25 @@ public class LevelBuilder {
 					// check right
 					if (ArrayUtilities.onGrid(levelGrid, x + 1, y) && levelGrid[x + 1][y] != null) {
 						if (levelGrid[x + 1][y].nValue != -1) {
-							value |= Neighbor.RIGHT;
+							value |= Direction.RIGHT;
 						}
 					}
 					// check left
 					if (ArrayUtilities.onGrid(levelGrid, x - 1, y) && levelGrid[x - 1][y] != null) {
 						if (levelGrid[x - 1][y].nValue != -1) {
-							value |= Neighbor.LEFT;
+							value |= Direction.LEFT;
 						}
 					}
 					// check up
 					if (ArrayUtilities.onGrid(levelGrid, x, y + 1) && levelGrid[x][y + 1] != null) {
 						if (levelGrid[x][y + 1].nValue != -1) {
-							value |= Neighbor.UP;
+							value |= Direction.UP;
 						}
 					}
 					// check down
 					if (ArrayUtilities.onGrid(levelGrid, x, y - 1) && levelGrid[x][y - 1] != null) {
 						if (levelGrid[x][y - 1].nValue != -1) {
-							value |= Neighbor.DOWN;
+							value |= Direction.DOWN;
 						}
 					}
 					levelGrid[x][y].nValue = value;
