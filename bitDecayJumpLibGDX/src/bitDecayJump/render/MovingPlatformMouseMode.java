@@ -1,7 +1,7 @@
 package bitDecayJump.render;
 
 import bitDecayJump.geom.*;
-import bitDecayJump.level.LevelBuilder;
+import bitDecayJump.level.*;
 import bitDecayJump.render.mouse.BaseMouseMode;
 
 import com.badlogic.gdx.graphics.Color;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class MovingPlatformMouseMode extends BaseMouseMode {
 	private LevelBuilder builder;
+	public static int direction = Direction.UP;
 
 	public MovingPlatformMouseMode(LevelBuilder builder) {
 		super(builder);
@@ -31,7 +32,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
 	public void mouseUpLogic(BitPointInt point) {
 		endPoint = GeomUtils.snap(point, builder.tileSize);
 		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
-			builder.createKineticObject(startPoint, endPoint);
+			builder.createKineticObject(startPoint, endPoint, direction, 20);
 		}
 	}
 

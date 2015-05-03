@@ -56,5 +56,10 @@ public class BitBody {
 	 * Tracks what the physics world <b>last</b> did to resolve any collisions
 	 * that may have happened
 	 */
-	public BitPoint lastResolution;
+	public BitPoint lastResolution = new BitPoint(0, 0);
+
+	/**
+	 * Only active bodies are updated in the world
+	 */
+	public boolean active = true;
 }

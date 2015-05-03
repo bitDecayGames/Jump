@@ -458,6 +458,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public void setMode(OptionsMode mode) {
 		if (mouseModes.containsKey(mode)) {
 			mouseMode = mouseModes.get(mode);
+		} else if (OptionsMode.UP.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.UP;
+		} else if (OptionsMode.DOWN.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.DOWN;
+		} else if (OptionsMode.LEFT.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.LEFT;
+		} else if (OptionsMode.RIGHT.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.RIGHT;
 		} else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
 			// set base directory. Allow textures to be loaded from it.
 		} else if (OptionsMode.SAVE_PLAYER.equals(mode)) {

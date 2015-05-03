@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.*;
 
 import bitDecayJump.*;
-import bitDecayJump.geom.BitPoint;
+import bitDecayJump.geom.*;
 import bitDecayJump.level.*;
 
 public class CollisionTest {
@@ -40,6 +40,7 @@ public class CollisionTest {
 		upRightCorner.velocity.x = 1;
 		BitBody upLeftCorner = world.createBody(20, 57, 16, 18, props);
 		upLeftCorner.velocity.x = -1;
+		upLeftCorner.velocity.y = 1;
 		world.step(.01f);
 		assertTrue("Down Left Internal corner resolution", downLeftCorner.aabb.xy.looseEquals(new BitPoint(32, 32)));
 		assertTrue("Down Right Internal corner resolution", downRightCorner.aabb.xy.looseEquals(new BitPoint(64 - downRightCorner.aabb.width, 32)));
@@ -183,7 +184,7 @@ public class CollisionTest {
 		world.step(.01f);
 
 		assertTrue("Body dropping onto edge of platform", fallingBody.aabb.xy.y == 32);
-		assertTrue("Body ascending into edge of platform", ascendingBody.aabb.xy.y == -ascendingBody.aabb.height);
+		assertTrue("Body ascending into edge of platform", MathUtils.close(ascendingBody.aabb.xy.y, -ascendingBody.aabb.height));
 	}
 
 	public static Level loadTestLevel(String levelName) {

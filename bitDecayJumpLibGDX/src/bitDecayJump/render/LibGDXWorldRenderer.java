@@ -64,19 +64,23 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 			}
 		}
 		for (BitBody body : world.getBodies()) {
-			switch (body.props.bodyType) {
-			case DYNAMIC:
-				renderer.setColor(Color.CYAN);
-				break;
-			case KINETIC:
-				renderer.setColor(Color.BLUE);
-				break;
-			case STATIC:
-				renderer.setColor(Color.TEAL);
-				break;
-			default:
-				renderer.setColor(Color.WHITE);
-				break;
+			if (!body.active) {
+				renderer.setColor(Color.GRAY);
+			} else {
+				switch (body.props.bodyType) {
+				case DYNAMIC:
+					renderer.setColor(Color.CYAN);
+					break;
+				case KINETIC:
+					renderer.setColor(Color.BLUE);
+					break;
+				case STATIC:
+					renderer.setColor(Color.TEAL);
+					break;
+				default:
+					renderer.setColor(Color.WHITE);
+					break;
+				}
 			}
 			renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
 			if (body.velocity.x != 0 || body.velocity.y != 0) {

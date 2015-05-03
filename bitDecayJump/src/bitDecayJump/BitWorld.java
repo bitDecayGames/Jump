@@ -14,6 +14,7 @@ import bitDecayJump.level.*;
  *
  */
 public class BitWorld {
+	private long stepCount = 0;
 	private static final float STEP_SIZE = 1 / 120f;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
@@ -77,6 +78,7 @@ public class BitWorld {
 	 * @return true if the world stepped, false otherwise
 	 */
 	public boolean step(float delta) {
+		//		delta *= .05f;
 		boolean stepped = false;
 		//add any left over time from last call to step();
 		delta += extraStepTime;
@@ -95,6 +97,7 @@ public class BitWorld {
 		if (delta <= 0) {
 			return;
 		}
+		//		System.out.println("\t" + (++stepCount));
 		// make sure world contains everything it should
 		bodies.removeAll(pendingRemoves);
 		pendingRemoves.clear();
@@ -106,13 +109,12 @@ public class BitWorld {
 
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
-			// apply gravity to DYNAMIC bodies
+			if (body.active) {
+				// apply gravity to DYNAMIC bodies
 				if (BodyType.DYNAMIC == body.props.bodyType) {
 					if (body.props.gravitational) {
 						body.velocity.add(gravity.getScaled(delta));
 					}
-				} else if (BodyType.KINETIC == body.props.bodyType) {
-					body.velocity.x = 30;
 				}
 				// then let controller handle the body
 				if (body.controller != null) {
@@ -124,11 +126,9 @@ public class BitWorld {
 					body.aabb.translate(body.lastAttempt);
 					if (BodyType.KINETIC == body.props.bodyType) {
 						for (BitBody child : body.children) {
-						child.aabb.translate(body.lastAttempt);
-						// the child did attempt to move this additional amount according to our engine
-						child.lastAttempt.add(body.lastAttempt);
-						}
-						for (BitBody child : body.children) {
+							child.aabb.translate(body.lastAttempt);
+							// the child did attempt to move this additional amount according to our engine
+							child.lastAttempt.add(body.lastAttempt);
 							child.parent = null;
 						}
 						body.children.clear();
@@ -136,16 +136,16 @@ public class BitWorld {
 				}
 				// all bodies are assumed to be not grounded unless a collision happens this step.
 				body.grounded = false;
-			});
+			}
+		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies-
-		pendingResolutions.clear();
-		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> buildLevelCollisions(body));
+		bodies.stream().filter(body -> body.active && BodyType.DYNAMIC == body.props.bodyType).forEach(body -> buildLevelCollisions(body));
 		//		applyPendingResolutions();
-		bodies.stream().filter(body -> BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
+		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
 		resolveAndApplyPendingResolutions();
 
-		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
+		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
 	}
 
 	private void resolveAndApplyPendingResolutions() {
@@ -173,19 +173,13 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					if (!pendingResolutions.containsKey(otherBody)) {
-						pendingResolutions.put(otherBody, new BitResolution(otherBody));
-					}
-					checkForCollision(pendingResolutions.get(otherBody), otherBody, kineticBody);
+					checkForNewCollision(otherBody, kineticBody);
 				}
 			}
 		}
 	}
 
 	private void buildLevelCollisions(BitBody body) {
-		if (!pendingResolutions.containsKey(body)) {
-			pendingResolutions.put(body, new BitResolution(body));
-		}
 		// 1. determine tile that x,y lives in
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -208,7 +202,7 @@ public class BitWorld {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
-					checkForCollision(pendingResolutions.get(body), body, checkObj);
+					checkForNewCollision(body, checkObj);
 				}
 			}
 		}
@@ -239,13 +233,22 @@ public class BitWorld {
 	 * {@link BitResolution} as something that needs to be handled at the time
 	 * of resolution.
 	 * 
-	 * @param resolution
 	 * @param body
 	 * @param against
 	 */
-	private void checkForCollision(BitResolution resolution, BitBody body, BitBody against) {
+	private void checkForNewCollision(BitBody body, BitBody against) {
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
 		if (insec != null) {
+			if (!pendingResolutions.containsKey(body)) {
+				pendingResolutions.put(body, new BitResolution(body));
+			}
+			BitResolution resolution = pendingResolutions.get(body);
+			//TODO: This can definitely be made more efficient via a hash map or something of the like
+			for (BitCollision collision : resolution.collisions) {
+				if (collision.otherBody == against) {
+					return;
+				}
+			}
 			resolution.collisions.add(new BitCollision(insec, against));
 		}
 	}
