@@ -65,6 +65,12 @@ public class BitResolution {
 		// set final resolution values
 		resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
 		resolution.y = resolvedPosition.xy.y - body.aabb.xy.y;
+		if (resolution.y != 0) {
+			haltY = true;
+		}
+		if (resolution.x != 0) {
+			haltX = true;
+		}
 	}
 
 	private int resolve(BitPoint resolution, BitBody body, BitBody against) {
