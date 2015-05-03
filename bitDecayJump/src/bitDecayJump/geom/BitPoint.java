@@ -9,6 +9,10 @@ public class BitPoint {
 		this.y = y;
 	}
 
+	public BitPoint(BitPoint other) {
+		this(other.x, other.y);
+	}
+
 	/**
 	 * adds point's values to this object
 	 * 

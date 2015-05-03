@@ -1,9 +1,205 @@
 package bitDecayJump;
 
-import bitDecayJump.geom.BitPoint;
+import java.util.PriorityQueue;
 
+import bitDecayJump.geom.*;
+import bitDecayJump.level.*;
+
+/**
+ * A class to contain all logic and information about a single resolution plan.
+ * Each instance of this class will resolve collisions against a single body.
+ * 
+ * @author Monday
+ *
+ */
 public class BitResolution {
+	/**
+	 * A priority queue that resolves the LARGEST collisions first. Larger
+	 * collisions (by area) are easier to determine accurate resolutions for.
+	 */
+	PriorityQueue<BitCollision> collisions = new PriorityQueue<BitCollision>();
+	BitRectangle resolvedPosition;
 	BitPoint resolution = new BitPoint(0, 0);
 	boolean haltX;
 	boolean haltY;
+	private BitBody body;
+
+	// Some simple state stuff for tracking what direction we've been resolved in
+	int leftRight = Direction.NONE;
+	int upDown = Direction.NONE;
+
+	public BitResolution(BitBody body) {
+		this.body = body;
+		resolvedPosition = new BitRectangle(body.aabb);
+	}
+
+	/**
+	 * Processes the list of collisions. {@link #resolution} will be ready to
+	 * use once this method has returned.
+	 */
+	public void satisfy() {
+		BitPoint tempResolution = new BitPoint(0, 0);
+		for (BitCollision collision : collisions) {
+			if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
+				// only deal with this if we are still needing to resolve
+				int resoDirection = resolve(tempResolution, body, collision.otherBody);
+				// Some simple state stuff to find when we are resolved in conflicting directions
+				if ((resoDirection & Direction.SIDES) != 0) {
+					if (leftRight != 0 && resoDirection != leftRight) {
+						// resolved left and right in same resolution phase
+					}
+					leftRight = resoDirection;
+				}
+				if ((resoDirection & Direction.UPDOWN) != 0) {
+					if (upDown != 0 && resoDirection != upDown) {
+						// resolved up and own in same resolution phase
+					}
+					upDown = resoDirection;
+				}
+			}
+			resolvedPosition.xy.x += tempResolution.x;
+			resolvedPosition.xy.y += tempResolution.y;
+			tempResolution.x = 0;
+			tempResolution.y = 0;
+		}
+		// set final resolution values
+		resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
+		resolution.y = resolvedPosition.xy.y - body.aabb.xy.y;
+	}
+
+	private int resolve(BitPoint resolution, BitBody body, BitBody against) {
+		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
+		if (insec != null) {
+			if (insec.width < MathUtils.COLLISION_PRECISION && insec.height < MathUtils.COLLISION_PRECISION) {
+				return Direction.NONE;
+			}
+			int nValue = 0;
+			if (against.props instanceof TileBodyProps) {
+				nValue = ((TileBodyProps) against.props).nValue;
+			}
+			BitWorld.collisions.add(insec);
+			BitPoint relativeVelocity = body.lastAttempt.minus(against.lastAttempt);
+			final boolean xSpeedDominant = Math.abs(relativeVelocity.x) > Math.abs(relativeVelocity.y);
+
+			if (insec.equals(body.aabb)) {
+				// body is entirely inside another object
+				return resolveBodyInside(resolution, body, against, nValue, insec, xSpeedDominant);
+			} else if (insec.equals(against)) {
+				// against is entirely inside the body
+				return resolveBodyInside(resolution, body, against, nValue, insec, xSpeedDominant);
+			}
+
+			boolean validLeftCollision = validBodyLeftCollision(body, nValue, insec, relativeVelocity);
+			boolean validRightCollision = validBodyRightCollision(body, nValue, insec, relativeVelocity);
+			boolean validTopCollision = validBodyTopCollisionLoose(body, nValue, insec, relativeVelocity);
+			boolean validBottomCollision = validBodyBottomCollisionLoose(body, nValue, insec, relativeVelocity);
+			if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
+				// body collided on its top side
+				resolution.y = Math.max(resolution.y, insec.height);
+				return Direction.UP;
+			} else if (validLeftCollision) {
+				// body collided on its left side
+				resolution.x = Math.max(resolution.x, insec.width);
+				return Direction.RIGHT;
+			} else if (validRightCollision) {
+				// body collided on its right side
+				resolution.x = Math.min(resolution.x, -insec.width);
+				return Direction.LEFT;
+			} else if (validTopCollision) {
+				// body collided on its top side
+				resolution.y = Math.min(resolution.y, -insec.height);
+				return Direction.DOWN;
+			} else if (validBottomCollision) {
+				// body collided on its bottom side
+				resolution.y = Math.max(resolution.y, insec.height);
+				return Direction.UP;
+			} else {
+				// handle where the body is partially inside a box that was not resolvable with the basic checks
+				if (insec.height == body.aabb.height) {
+					if (body.velocity.y <= 0) {
+						return resolveUp(resolution, against, insec);
+					} else {
+						return resolveDown(resolution, against, insec);
+					}
+				} else if (insec.width == body.aabb.width) {
+					if (body.velocity.x < 0) {
+						return resolveRight(resolution, against, insec);
+					} else if (body.velocity.x > 0) {
+						return resolveLeft(resolution, against, insec);
+					}
+				}
+			}
+			System.out.println("Unhandled Collision");
+		}
+		return Direction.NONE;
+	}
+
+	private void resolveBodySurround() {
+		// TODO Auto-generated method stub
+	}
+
+	private int resolveBodyInside(BitPoint resolution, BitBody body, BitBody against, int nValue, BitRectangle insec, boolean xSpeedDominant) {
+		// handle where a body is entirely inside another object
+		// check speed and move the character straight out based on the dominant vector axis
+		if (xSpeedDominant && body.velocity.x <= 0 && (nValue & Direction.RIGHT) == 0) {
+			//push them out to the right
+			return resolveRight(resolution, against, insec);
+		} else if (xSpeedDominant && body.velocity.x > 0 && (nValue & Direction.LEFT) == 0) {
+			// push them out to the left
+			return resolveLeft(resolution, against, insec);
+		} else if (!xSpeedDominant && body.velocity.y <= 0 && (nValue & Direction.UP) == 0) {
+			// push them out to the top
+			return resolveUp(resolution, against, insec);
+		} else if (!xSpeedDominant && body.velocity.y > 0 && (nValue & Direction.DOWN) == 0) {
+			// push them out to the bottom
+			return resolveDown(resolution, against, insec);
+		}
+		return Direction.NONE;
+	}
+
+	private int resolveLeft(BitPoint resolution, BitBody against, BitRectangle insec) {
+		resolution.x = Math.min(resolution.x, against.aabb.xy.x - (insec.xy.x + insec.width));
+		return Direction.LEFT;
+	}
+
+	private int resolveDown(BitPoint resolution, BitBody against, BitRectangle insec) {
+		resolution.y = Math.min(resolution.y, against.aabb.xy.y - (insec.xy.y + insec.height));
+		return Direction.DOWN;
+	}
+
+	private int resolveUp(BitPoint resolution, BitBody against, BitRectangle insec) {
+		resolution.y = Math.max(resolution.y, against.aabb.xy.y + against.aabb.height - insec.xy.y);
+		return Direction.UP;
+	}
+
+	private int resolveRight(BitPoint resolution, BitBody against, BitRectangle insec) {
+		resolution.x = Math.max(resolution.x, against.aabb.xy.x + against.aabb.width - insec.xy.x);
+		return Direction.RIGHT;
+	}
+
+	// top/bottom collisions are slightly more lenient on velocity restrictions (velocity.y can = 0 compared to velocity.x != 0 for left/right)
+	private boolean validBodyBottomCollisionLoose(BitBody body, int nValue, BitRectangle insec, BitPoint relativeVelocity) {
+		return (nValue & Direction.UP) == 0 && !MathUtils.close(insec.height, body.aabb.height) && MathUtils.close(insec.xy.y, body.aabb.xy.y)
+				&& relativeVelocity.y <= 0;
+	}
+
+	private boolean validBodyTopCollisionLoose(BitBody body, int nValue, BitRectangle insec, BitPoint relativeVelocity) {
+		return (nValue & Direction.DOWN) == 0 && !MathUtils.close(insec.height, body.aabb.height)
+				&& MathUtils.close(insec.xy.y + insec.height, body.aabb.xy.y + body.aabb.height) && relativeVelocity.y >= 0;
+	}
+
+	private boolean validBodyRightCollision(BitBody body, int nValue, BitRectangle insec, BitPoint relativeVelocity) {
+		return (nValue & Direction.LEFT) == 0 && !MathUtils.close(insec.width, body.aabb.width)
+				&& MathUtils.close(insec.xy.x + insec.width, body.aabb.xy.x + body.aabb.width) && (insec.width < insec.height || noUpDownSpace(nValue))
+				&& relativeVelocity.x > MathUtils.FLOAT_PRECISION;
+	}
+
+	private boolean validBodyLeftCollision(BitBody body, int nValue, BitRectangle insec, BitPoint relativeVelocity) {
+		return (nValue & Direction.RIGHT) == 0 && !MathUtils.close(insec.width, body.aabb.width) && MathUtils.close(insec.xy.x, body.aabb.xy.x)
+				&& (insec.width < insec.height || noUpDownSpace(nValue)) && relativeVelocity.x < -MathUtils.FLOAT_PRECISION;
+	}
+
+	private boolean noUpDownSpace(int nValue) {
+		return (nValue & Direction.UPDOWN) == Direction.UPDOWN;
+	}
 }

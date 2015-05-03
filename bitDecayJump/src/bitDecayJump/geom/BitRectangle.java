@@ -5,6 +5,10 @@ public class BitRectangle {
 	public float width;
 	public float height;
 
+	public BitRectangle(BitRectangle other) {
+		this(other.xy.x, other.xy.y, other.width, other.height);
+	}
+
 	public BitRectangle(float x, float y, float width, float height) {
 		xy = new BitPoint(x, y);
 		this.width = width;

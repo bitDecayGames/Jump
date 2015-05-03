@@ -50,6 +50,13 @@ public class GeomUtils {
 		return new BitPointInt(xSnap, ySnap);
 	}
 
+	/**
+	 * @param rec1
+	 * @param rec2
+	 * @return a {@link BitRectangle} of the overlapping area of rec1 and rec2.
+	 *         If they are not overlapping or they are just touching, this
+	 *         returns null.
+	 */
 	public static BitRectangle intersection(BitRectangle rec1, BitRectangle rec2) {
 		float x1 = Math.max(rec1.xy.x, rec2.xy.x);
 		float y1 = Math.max(rec1.xy.y, rec2.xy.y);
