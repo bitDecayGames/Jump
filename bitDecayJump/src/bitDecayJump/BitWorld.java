@@ -107,42 +107,42 @@ public class BitWorld {
 		// first, move everything
 		bodies.parallelStream().forEach(body -> {
 			// apply gravity to DYNAMIC bodies
-			if (BodyType.DYNAMIC == body.props.bodyType) {
-				if (body.props.gravitational) {
-					body.velocity.add(gravity.getScaled(delta));
-				}
-			} else if (BodyType.KINETIC == body.props.bodyType) {
-				body.velocity.x = 30;
-			}
-			// then let controller handle the body
-			if (body.controller != null) {
-				body.controller.update(delta);
-			}
-			// then move all of our non-static bodies
-			if (BodyType.STATIC != body.props.bodyType) {
-				body.lastAttempt = body.velocity.getScaled(delta);
-				body.aabb.translate(body.lastAttempt);
-				if (BodyType.KINETIC == body.props.bodyType) {
-					for (BitBody child : body.children) {
-							child.aabb.translate(body.lastAttempt);
-							// the child did attempt to move this additional amount according to our engine
-							child.lastAttempt.add(body.lastAttempt);
+				if (BodyType.DYNAMIC == body.props.bodyType) {
+					if (body.props.gravitational) {
+						body.velocity.add(gravity.getScaled(delta));
 					}
-					for (BitBody child : body.children) {
-						child.parent = null;
-					}
-					body.children.clear();
+				} else if (BodyType.KINETIC == body.props.bodyType) {
+					body.velocity.x = 30;
 				}
-			}
-			// all bodies are assumed to be not grounded unless a collision happens this step.
-			body.grounded = false;
-		});
+				// then let controller handle the body
+				if (body.controller != null) {
+					body.controller.update(delta);
+				}
+				// then move all of our non-static bodies
+				if (BodyType.STATIC != body.props.bodyType) {
+					body.lastAttempt = body.velocity.getScaled(delta);
+					body.aabb.translate(body.lastAttempt);
+					if (BodyType.KINETIC == body.props.bodyType) {
+						for (BitBody child : body.children) {
+						child.aabb.translate(body.lastAttempt);
+						// the child did attempt to move this additional amount according to our engine
+						child.lastAttempt.add(body.lastAttempt);
+						}
+						for (BitBody child : body.children) {
+							child.parent = null;
+						}
+						body.children.clear();
+					}
+				}
+				// all bodies are assumed to be not grounded unless a collision happens this step.
+				body.grounded = false;
+			});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies-
 		pendingResolutions.clear();
-		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> resolveLevelCollisions(body));
+		bodies.stream().filter(body -> BodyType.DYNAMIC == body.props.bodyType).forEach(body -> buildLevelCollisions(body));
 		//		applyPendingResolutions();
-		//		bodies.stream().filter(body -> BodyType.KINETIC == body.props.bodyType).forEach(body -> resolveKineticCollections(body));
+		bodies.stream().filter(body -> BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
 		resolveAndApplyPendingResolutions();
 
 		bodies.parallelStream().filter(body -> body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
@@ -156,7 +156,7 @@ public class BitWorld {
 		pendingResolutions.clear();
 	}
 
-	private void resolveKineticCollections(BitBody kineticBody) {
+	private void buildKineticCollections(BitBody kineticBody) {
 		// 1. determine tile that x,y lives in
 		BitPoint startCell = kineticBody.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -176,28 +176,13 @@ public class BitWorld {
 					if (!pendingResolutions.containsKey(otherBody)) {
 						pendingResolutions.put(otherBody, new BitResolution(otherBody));
 					}
-					//					int resolve = resolve(pendingResolutions.get(otherBody), otherBody, kineticBody);
-					int resolve = 0;
-					if (resolve == Direction.UP) {
-						// only add body as child if it hit the kinetic body from the top
-						if (otherBody.parent == null) {
-							otherBody.parent = kineticBody;
-							kineticBody.children.add(otherBody);
-						}
-						if (Math.abs(pendingResolutions.get(otherBody).resolution.y) > 5) {
-							System.out.println("way up stylers");
-						}
-					} else if ((resolve & Direction.NOT_UP) != 0) {
-						if (Math.abs(pendingResolutions.get(otherBody).resolution.y) > 5) {
-							System.out.println("other styles");
-						}
-					}
+					checkForCollision(pendingResolutions.get(otherBody), otherBody, kineticBody);
 				}
 			}
 		}
 	}
 
-	private void resolveLevelCollisions(BitBody body) {
+	private void buildLevelCollisions(BitBody body) {
 		if (!pendingResolutions.containsKey(body)) {
 			pendingResolutions.put(body, new BitResolution(body));
 		}
@@ -224,7 +209,6 @@ public class BitWorld {
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
 					checkForCollision(pendingResolutions.get(body), body, checkObj);
-					//					resolve(pendingResolutions.get(body), body, checkObj);
 				}
 			}
 		}

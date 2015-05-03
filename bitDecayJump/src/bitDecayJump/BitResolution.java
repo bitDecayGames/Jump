@@ -38,21 +38,33 @@ public class BitResolution {
 	 * use once this method has returned.
 	 */
 	public void satisfy() {
+		// use a temp BitPoint to hold resolution values for each collision
 		BitPoint tempResolution = new BitPoint(0, 0);
 		for (BitCollision collision : collisions) {
 			if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
 				// only deal with this if we are still needing to resolve
 				int resoDirection = resolve(tempResolution, body, collision.otherBody);
+
+				if (BodyType.KINETIC.equals(collision.otherBody.props.bodyType) && resoDirection == Direction.UP) {
+					// only add body as child if it hit the kinetic body from the top
+					if (body.parent == null) {
+						body.parent = collision.otherBody;
+						collision.otherBody.children.add(body);
+					}
+				}
+
 				// Some simple state stuff to find when we are resolved in conflicting directions
 				if ((resoDirection & Direction.SIDES) != 0) {
 					if (leftRight != 0 && resoDirection != leftRight) {
 						// resolved left and right in same resolution phase
+						System.out.println("SMASH LEFT/RIGHT");
 					}
 					leftRight = resoDirection;
 				}
 				if ((resoDirection & Direction.UPDOWN) != 0) {
 					if (upDown != 0 && resoDirection != upDown) {
 						// resolved up and own in same resolution phase
+						System.out.println("SMASH UP/DOWN");
 					}
 					upDown = resoDirection;
 				}
