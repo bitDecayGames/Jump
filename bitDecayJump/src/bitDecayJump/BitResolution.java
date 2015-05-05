@@ -38,10 +38,12 @@ public class BitResolution {
 	 * use once this method has returned.
 	 */
 	public void satisfy() {
+		System.out.println();
 		// use a temp BitPoint to hold resolution values for each collision
 		BitPoint tempResolution = new BitPoint(0, 0);
 		for (BitCollision collision : collisions) {
 			if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
+				BitWorld.resolvedCollisions.add(collision.collisionZone);
 				// only deal with this if we are still needing to resolved
 				int resoDirection = resolve(tempResolution, body, collision.otherBody);
 				System.out.println(resoDirection);
@@ -95,11 +97,14 @@ public class BitResolution {
 					}
 					upDown = resoDirection;
 				}
+				System.out.println("Resolve body " + body + " " + tempResolution);
+				resolvedPosition.xy.x += tempResolution.x;
+				resolvedPosition.xy.y += tempResolution.y;
+				tempResolution.x = 0;
+				tempResolution.y = 0;
+			} else {
+				BitWorld.unresolvedCollisions.add(collision.collisionZone);
 			}
-			resolvedPosition.xy.x += tempResolution.x;
-			resolvedPosition.xy.y += tempResolution.y;
-			tempResolution.x = 0;
-			tempResolution.y = 0;
 		}
 		// set final resolution values
 		resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
@@ -122,7 +127,6 @@ public class BitResolution {
 			if (against.props instanceof TileBodyProps) {
 				nValue = ((TileBodyProps) against.props).nValue;
 			}
-			BitWorld.collisions.add(insec);
 			BitPoint relativeVelocity = body.lastAttempt;
 			if (against.lastAttempt.x != 0 || against.lastAttempt.y != 0) {
 				// adjust this to work with kinetic bodies

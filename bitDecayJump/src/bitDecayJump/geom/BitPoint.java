@@ -82,4 +82,27 @@ public class BitPoint {
 	public boolean looseEquals(BitPoint other) {
 		return MathUtils.close(this.x, other.x) && MathUtils.close(this.y, other.y);
 	}
+
+	/**
+	 * Moves the point x and y closer to zero
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public BitPoint shrink(float xShrink, float yShrink) {
+		if (x < 0) {
+			x = Math.min(0, x + xShrink);
+		} else if (x > 0) {
+			x = Math.max(0, x - xShrink);
+		}
+
+		if (y < 0) {
+			y = Math.min(0, y + yShrink);
+		} else if (y > 0) {
+			y = Math.max(0, y - yShrink);
+		}
+
+		return this;
+	}
 }

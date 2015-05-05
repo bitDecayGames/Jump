@@ -14,7 +14,6 @@ import bitDecayJump.level.*;
  *
  */
 public class BitWorld {
-	private long stepCount = 0;
 	private static final float STEP_SIZE = 1 / 120f;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
@@ -37,7 +36,8 @@ public class BitWorld {
 
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
-	public static final List<BitRectangle> collisions = new ArrayList<BitRectangle>();
+	public static final List<BitRectangle> resolvedCollisions = new ArrayList<BitRectangle>();
+	public static final List<BitRectangle> unresolvedCollisions = new ArrayList<BitRectangle>();
 
 	public static final BitBodyProps levelBodyProps = new BitBodyProps();
 	public static final String VERSION = "0.1.2";
@@ -84,7 +84,8 @@ public class BitWorld {
 		delta += extraStepTime;
 		while (delta > STEP_SIZE) {
 			stepped = true;
-			collisions.clear();
+			resolvedCollisions.clear();
+			unresolvedCollisions.clear();
 			internalStep(STEP_SIZE);
 			delta -= STEP_SIZE;
 		}
@@ -126,7 +127,7 @@ public class BitWorld {
 					body.aabb.translate(body.lastAttempt);
 					if (BodyType.KINETIC == body.props.bodyType) {
 						for (BitBody child : body.children) {
-							child.aabb.translate(body.lastAttempt);
+							child.aabb.translate(body.lastAttempt.shrink(.01f, .01f));
 							// the child did attempt to move this additional amount according to our engine
 							child.lastAttempt.add(body.lastAttempt);
 							child.parent = null;
@@ -188,7 +189,6 @@ public class BitWorld {
 		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
-		//		BitResolution resolution = new BitResolution();
 		for (int x = (int) startCell.x; x <= endX; x++) {
 			if (!occupiedSpaces.containsKey(x)) {
 				occupiedSpaces.put(x, new HashMap<Integer, Set<BitBody>>());

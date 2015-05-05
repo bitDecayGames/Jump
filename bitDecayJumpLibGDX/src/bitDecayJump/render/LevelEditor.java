@@ -93,6 +93,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 	private EditorToolbox toolBox = new EditorToolbox();
 
+	// a flag to control whether we are moving the world forward or not
+	private boolean stepWorld = true;
+
 	public LevelEditor() {
 		initializeToolbox();
 
@@ -239,7 +242,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		drawGrid();
 		debugRender();
-		world.step(delta);
+		if (stepWorld) {
+			world.step(delta);
+		}
 		worldRenderer.render();
 		drawLevelEdit();
 		drawOrigin();
@@ -255,6 +260,22 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		renderMouseCoords();
 		renderVersion();
 		uiBatch.end();
+
+		renderSpecial();
+	}
+
+	private void renderSpecial() {
+		shaper.setProjectionMatrix(uiBatch.getProjectionMatrix());
+		shaper.setColor(Color.WHITE);
+		if (stepWorld) {
+			shaper.begin(ShapeType.Line);
+			shaper.polygon(new float[] { 20, 20, 70, 45, 20, 70, 20, 20 });
+		} else {
+			shaper.begin(ShapeType.Filled);
+			shaper.rect(20, 20, 20, 50);
+			shaper.rect(50, 20, 20, 50);
+		}
+		shaper.end();
 	}
 
 	private void debugRender() {
@@ -348,6 +369,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	}
 
 	private void handleInput() {
+		if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) {
+			stepWorld = !stepWorld;
+		}
+
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
 			camera.translate(-CAM_SPEED * camera.zoom, 0);
 		} else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {

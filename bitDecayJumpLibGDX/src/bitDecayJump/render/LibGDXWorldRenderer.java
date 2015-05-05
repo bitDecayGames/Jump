@@ -91,8 +91,12 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 			}
 		}
 
+		renderer.setColor(Color.YELLOW);
+		for (BitRectangle col : BitWorld.unresolvedCollisions) {
+			renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
+		}
 		renderer.setColor(Color.RED);
-		for (BitRectangle col : world.collisions) {
+		for (BitRectangle col : BitWorld.resolvedCollisions) {
 			renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
 		}
 		renderer.end();
