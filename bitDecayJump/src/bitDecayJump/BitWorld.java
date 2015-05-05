@@ -127,7 +127,12 @@ public class BitWorld {
 					body.aabb.translate(body.lastAttempt);
 					if (BodyType.KINETIC == body.props.bodyType) {
 						for (BitBody child : body.children) {
-							child.aabb.translate(body.lastAttempt.shrink(.01f, .01f));
+							/*
+							 * we make sure to move the child just slightly less
+							 * than the parent to guarantee that it still
+							 * collides if nothing else influences it's motion
+							 */
+							child.aabb.translate(body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION, MathUtils.FLOAT_PRECISION));
 							// the child did attempt to move this additional amount according to our engine
 							child.lastAttempt.add(body.lastAttempt);
 							child.parent = null;

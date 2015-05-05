@@ -41,11 +41,12 @@ public class BitResolution {
 		System.out.println();
 		// use a temp BitPoint to hold resolution values for each collision
 		BitPoint tempResolution = new BitPoint(0, 0);
+		BitPoint cumulativeResolution = new BitPoint(0, 0);
 		for (BitCollision collision : collisions) {
 			if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
 				BitWorld.resolvedCollisions.add(collision.collisionZone);
 				// only deal with this if we are still needing to resolved
-				int resoDirection = resolve(tempResolution, body, collision.otherBody);
+				int resoDirection = resolve(tempResolution, cumulativeResolution, body, collision.otherBody);
 				System.out.println(resoDirection);
 				if (resoDirection != 0 && BodyType.KINETIC.equals(collision.otherBody.props.bodyType)) {
 					// only attach as child if we were resolved by the kinetic object in the direction it is moving
@@ -100,6 +101,9 @@ public class BitResolution {
 				System.out.println("Resolve body " + body + " " + tempResolution);
 				resolvedPosition.xy.x += tempResolution.x;
 				resolvedPosition.xy.y += tempResolution.y;
+				cumulativeResolution.x += tempResolution.x;
+				cumulativeResolution.y += tempResolution.y;
+
 				tempResolution.x = 0;
 				tempResolution.y = 0;
 			} else {
@@ -117,7 +121,7 @@ public class BitResolution {
 		}
 	}
 
-	private int resolve(BitPoint resolution, BitBody body, BitBody against) {
+	private int resolve(BitPoint resolution, BitPoint cumulativeResolution, BitBody body, BitBody against) {
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
 		if (insec != null) {
 			if (insec.width < MathUtils.COLLISION_PRECISION && insec.height < MathUtils.COLLISION_PRECISION) {
@@ -127,7 +131,11 @@ public class BitResolution {
 			if (against.props instanceof TileBodyProps) {
 				nValue = ((TileBodyProps) against.props).nValue;
 			}
-			BitPoint relativeVelocity = body.lastAttempt;
+			/*
+			 * Take the cumulative resolution into account because the body has
+			 * effectively moved this much while resolving the position
+			 */
+			BitPoint relativeVelocity = body.lastAttempt.plus(cumulativeResolution);
 			if (against.lastAttempt.x != 0 || against.lastAttempt.y != 0) {
 				// adjust this to work with kinetic bodies
 				relativeVelocity = relativeVelocity.plus(body.lastResolution).minus(against.lastAttempt);
