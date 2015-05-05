@@ -9,6 +9,10 @@ public class BitPoint {
 		this.y = y;
 	}
 
+	public BitPoint(BitPoint other) {
+		this(other.x, other.y);
+	}
+
 	/**
 	 * adds point's values to this object
 	 * 
@@ -76,6 +80,29 @@ public class BitPoint {
 	 *         coordinate
 	 */
 	public boolean looseEquals(BitPoint other) {
-		return Math.abs(this.x - other.x) < .0001 && Math.abs(this.y - other.y) < .0001;
+		return MathUtils.close(this.x, other.x) && MathUtils.close(this.y, other.y);
+	}
+
+	/**
+	 * Moves the point x and y closer to zero
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public BitPoint shrink(float xShrink, float yShrink) {
+		if (x < 0) {
+			x = Math.min(0, x + xShrink);
+		} else if (x > 0) {
+			x = Math.max(0, x - xShrink);
+		}
+
+		if (y < 0) {
+			y = Math.min(0, y + yShrink);
+		} else if (y > 0) {
+			y = Math.max(0, y - yShrink);
+		}
+
+		return this;
 	}
 }

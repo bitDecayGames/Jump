@@ -27,7 +27,9 @@ public class CreateMouseMode extends BaseMouseMode {
 	@Override
 	public void mouseUpLogic(BitPointInt point) {
 		endPoint = GeomUtils.snap(point, builder.tileSize);
-		builder.createLevelObject(startPoint, endPoint);
+		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
+			builder.createLevelObject(startPoint, endPoint);
+		}
 	}
 
 	@Override

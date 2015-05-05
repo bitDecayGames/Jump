@@ -5,20 +5,28 @@ public class BitRectangle {
 	public float width;
 	public float height;
 
-	public BitRectangle(float x, float y, float f, float g) {
-		xy = new BitPoint(x, y);
-		this.width = f;
-		this.height = g;
+	public BitRectangle(BitRectangle other) {
+		this(other.xy.x, other.xy.y, other.width, other.height);
+	}
 
-		if (f < 0) {
-			xy.x += f;
+	public BitRectangle(float x, float y, float width, float height) {
+		xy = new BitPoint(x, y);
+		this.width = width;
+		this.height = height;
+
+		if (width < 0) {
+			xy.x += width;
 			this.width *= -1;
 		}
 
-		if (g < 0) {
-			xy.y += g;
+		if (height < 0) {
+			xy.y += height;
 			this.height *= -1;
 		}
+	}
+
+	public BitRectangle(BitPointInt startPoint, BitPointInt endPoint) {
+		this(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 	}
 
 	public float getWidth() {
@@ -31,16 +39,6 @@ public class BitRectangle {
 
 	public void translate(BitPoint point) {
 		translate(point.x, point.y);
-	}
-
-	/**
-	 * resets any axis the body is translated along (for resolving collisions)
-	 * 
-	 * @param resolution
-	 * @param reset
-	 */
-	public void translate(BitPoint resolution, boolean reset) {
-		translate(resolution.x, resolution.y);
 	}
 
 	public void translate(float x, float y) {
@@ -93,7 +91,7 @@ public class BitRectangle {
 			if (other.xy != null) {
 				return false;
 			}
-		} else if (!xy.equals(other.xy)) {
+		} else if (!xy.looseEquals(other.xy)) {
 			return false;
 		}
 		return true;

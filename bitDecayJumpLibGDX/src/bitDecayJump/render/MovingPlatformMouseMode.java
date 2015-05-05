@@ -1,7 +1,7 @@
 package bitDecayJump.render;
 
 import bitDecayJump.geom.*;
-import bitDecayJump.level.LevelBuilder;
+import bitDecayJump.level.*;
 import bitDecayJump.render.mouse.BaseMouseMode;
 
 import com.badlogic.gdx.graphics.Color;
@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class MovingPlatformMouseMode extends BaseMouseMode {
-	private EditState state = EditState.DRAW_PLATFORM;
 	private LevelBuilder builder;
+	public static int direction = Direction.UP;
 
 	public MovingPlatformMouseMode(LevelBuilder builder) {
 		super(builder);
@@ -19,62 +19,29 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
 
 	@Override
 	public void mouseDown(BitPointInt point) {
-		switch (state) {
-		case DRAW_PLATFORM:
-			startPoint = GeomUtils.snap(point, builder.tileSize);
-			break;
-		case FIRST_ANCHOR:
-			break;
-		case SECOND_ANCHOR:
-			break;
-		default:
-			break;
-		}
+		startPoint = GeomUtils.snap(point, builder.tileSize);
 	}
 
 	@Override
 	public void mouseDragged(BitPointInt point) {
-		switch (state) {
-		case DRAW_PLATFORM:
-			endPoint = GeomUtils.snap(point, builder.tileSize);
-			break;
-		case FIRST_ANCHOR:
-			break;
-		case SECOND_ANCHOR:
-			break;
-		default:
-			break;
-		}
+		super.mouseDragged(point);
+		endPoint = GeomUtils.snap(point, builder.tileSize);
 	}
 
 	@Override
-	protected void mouseUpLogic(BitPointInt point) {
-		switch (state) {
-		case DRAW_PLATFORM:
-			endPoint = GeomUtils.snap(point, builder.tileSize);
-			builder.createKineticObject(startPoint, endPoint);
-			break;
-		case FIRST_ANCHOR:
-			break;
-		case SECOND_ANCHOR:
-			break;
-		default:
-			break;
+	public void mouseUpLogic(BitPointInt point) {
+		endPoint = GeomUtils.snap(point, builder.tileSize);
+		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
+			builder.createKineticObject(startPoint, endPoint, direction, 20);
 		}
 	}
 
 	@Override
 	public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 		if (startPoint != null && endPoint != null) {
-			shaper.setColor(Color.ORANGE);
+			shaper.setColor(Color.RED);
 			shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 		}
-	}
-
-	private enum EditState {
-		DRAW_PLATFORM,
-		FIRST_ANCHOR,
-		SECOND_ANCHOR;
 	}
 
 	@Override

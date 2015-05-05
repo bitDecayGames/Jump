@@ -3,7 +3,6 @@ package bitDecayJump.ui;
 public enum OptionsMode {
 	SELECT("Select", ModeType.MOUSE, 0),
 	CREATE("Create", ModeType.MOUSE, 0),
-	MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
 	DELETE("Delete", ModeType.MOUSE, 0),
 
 	SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 1),
@@ -12,6 +11,12 @@ public enum OptionsMode {
 
 	SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 2),
 	SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
+
+	MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 3),
+	UP("Up", ModeType.ACTION, 2),
+	DOWN("Down", ModeType.ACTION, 2),
+	LEFT("Left", ModeType.ACTION, 2),
+	RIGHT("Right", ModeType.ACTION, 2),
 
 	SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
 	LOAD_LEVEL("Load Level", ModeType.ACTION, -1);

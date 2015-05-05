@@ -78,15 +78,23 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		}
 
 		@Override
-		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid) {
+		public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
 			world.setGridOffset(gridOffset);
 			world.setGrid(grid);
+			BitBody player = maybeGetPlayer();
+			world.setObjects(buildBodies(otherObjects));
+			if (player != null) {
+				world.addBody(player);
+			}
 		}
 	};
 
 	private PlayerInputHandler playerController;
 
 	private EditorToolbox toolBox = new EditorToolbox();
+
+	// a flag to control whether we are moving the world forward or not
+	private boolean stepWorld = true;
 
 	public LevelEditor() {
 		initializeToolbox();
@@ -118,6 +126,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		mouseModes = new HashMap<OptionsMode, MouseMode>();
 		mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
+		mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
 		mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
@@ -147,6 +156,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
 
 		fallbackTiles = fullSet.split(16, 16)[0];
+	}
+
+	private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
+		ArrayList<BitBody> bodies = new ArrayList<BitBody>();
+		for (LevelObject levelObject : otherObjects) {
+			bodies.add(levelObject.getBody());
+		}
+		return bodies;
 	}
 
 	private void initializeToolbox() {
@@ -225,7 +242,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
 		drawGrid();
 		debugRender();
-		world.step(delta);
+		if (stepWorld) {
+			world.step(delta);
+		}
 		worldRenderer.render();
 		drawLevelEdit();
 		drawOrigin();
@@ -241,6 +260,22 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		renderMouseCoords();
 		renderVersion();
 		uiBatch.end();
+
+		renderSpecial();
+	}
+
+	private void renderSpecial() {
+		shaper.setProjectionMatrix(uiBatch.getProjectionMatrix());
+		shaper.setColor(Color.WHITE);
+		if (stepWorld) {
+			shaper.begin(ShapeType.Line);
+			shaper.polygon(new float[] { 20, 20, 70, 45, 20, 70, 20, 20 });
+		} else {
+			shaper.begin(ShapeType.Filled);
+			shaper.rect(20, 20, 20, 50);
+			shaper.rect(50, 20, 20, 50);
+		}
+		shaper.end();
 	}
 
 	private void debugRender() {
@@ -334,6 +369,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	}
 
 	private void handleInput() {
+		if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) {
+			stepWorld = !stepWorld;
+		}
+
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
 			camera.translate(-CAM_SPEED * camera.zoom, 0);
 		} else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
@@ -444,6 +483,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	public void setMode(OptionsMode mode) {
 		if (mouseModes.containsKey(mode)) {
 			mouseMode = mouseModes.get(mode);
+		} else if (OptionsMode.UP.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.UP;
+		} else if (OptionsMode.DOWN.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.DOWN;
+		} else if (OptionsMode.LEFT.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.LEFT;
+		} else if (OptionsMode.RIGHT.equals(mode)) {
+			MovingPlatformMouseMode.direction = Direction.RIGHT;
 		} else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
 			// set base directory. Allow textures to be loaded from it.
 		} else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
