@@ -28,13 +28,13 @@ public class MovingObject extends LevelObject implements Updatable {
 		body.props = new BitBodyProps();
 		body.props.bodyType = BodyType.KINETIC;
 		if (direction == Direction.UP) {
-			body.velocity.y = speed;
+			body.props.velocity.y = speed;
 		} else if (direction == Direction.DOWN) {
-			body.velocity.y = -speed;
+			body.props.velocity.y = -speed;
 		} else if (direction == Direction.LEFT) {
-			body.velocity.x = -speed;
+			body.props.velocity.x = -speed;
 		} else if (direction == Direction.RIGHT) {
-			body.velocity.x = speed;
+			body.props.velocity.x = speed;
 		}
 		return body;
 	}

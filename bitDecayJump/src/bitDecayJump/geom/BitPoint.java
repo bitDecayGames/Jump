@@ -84,25 +84,39 @@ public class BitPoint {
 	}
 
 	/**
-	 * Moves the point x and y closer to zero
+	 * Shifts a point {@link MathUtils#FLOAT_PRECISION} in the direction of dir
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param dir
+	 * @return this object for chaining
 	 */
-	public BitPoint shrink(float xShrink, float yShrink) {
-		if (x < 0) {
-			x = Math.min(0, x + xShrink);
-		} else if (x > 0) {
-			x = Math.max(0, x - xShrink);
+
+	public BitPoint influence(BitPoint dir) {
+		BitPoint result = new BitPoint(this);
+		if (dir.x < 0) {
+			result.x -= MathUtils.FLOAT_PRECISION;
+		} else if (dir.x > 0) {
+			result.x += MathUtils.FLOAT_PRECISION;
+		} else {
+			// just shift it close to zero
+			if (x < 0) {
+				result.x = Math.min(0, x + MathUtils.FLOAT_PRECISION);
+			} else if (x > 0) {
+				result.x = Math.max(0, x - MathUtils.FLOAT_PRECISION);
+			}
 		}
 
-		if (y < 0) {
-			y = Math.min(0, y + yShrink);
-		} else if (y > 0) {
-			y = Math.max(0, y - yShrink);
+		if (dir.y < 0) {
+			result.y -= MathUtils.FLOAT_PRECISION;
+		} else if (dir.y > 0) {
+			result.y += MathUtils.FLOAT_PRECISION;
+		} else {
+			// just shift it close to zero
+			if (x < 0) {
+				result.y = Math.min(0, y + MathUtils.FLOAT_PRECISION);
+			} else if (y > 0) {
+				result.y = Math.max(0, y - MathUtils.FLOAT_PRECISION);
+			}
 		}
-
 		return this;
 	}
 }

@@ -74,7 +74,7 @@ public class JumperController extends BasicBodyController {
 			}
 
 			if (jumping && jumpVariableHeightWindow <= props.variableJumpWindow) {
-				body.velocity.y = props.jumpStrength;
+				body.props.velocity.y = props.jumpStrength;
 			} else {
 				jumping = false;
 			}

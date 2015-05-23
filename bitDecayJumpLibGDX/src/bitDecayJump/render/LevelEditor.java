@@ -244,6 +244,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		debugRender();
 		if (stepWorld) {
 			world.step(delta);
+		} else {
+			world.nonStep(delta);
 		}
 		worldRenderer.render();
 		drawLevelEdit();

@@ -94,17 +94,17 @@ public class BitWorld {
 		return stepped;
 	}
 
+	public void nonStep(float delta) {
+		doAddRemoves();
+	}
+
 	private void internalStep(final float delta) {
 		if (delta <= 0) {
 			return;
 		}
 		//		System.out.println("\t" + (++stepCount));
 		// make sure world contains everything it should
-		bodies.removeAll(pendingRemoves);
-		pendingRemoves.clear();
-
-		bodies.addAll(pendingAdds);
-		pendingAdds.clear();
+		doAddRemoves();
 
 		occupiedSpaces.clear();
 
@@ -114,7 +114,7 @@ public class BitWorld {
 				// apply gravity to DYNAMIC bodies
 				if (BodyType.DYNAMIC == body.props.bodyType) {
 					if (body.props.gravitational) {
-						body.velocity.add(gravity.getScaled(delta));
+						body.props.velocity.add(gravity.getScaled(delta));
 					}
 				}
 				// then let controller handle the body
@@ -123,7 +123,7 @@ public class BitWorld {
 				}
 				// then move all of our non-static bodies
 				if (BodyType.STATIC != body.props.bodyType) {
-					body.lastAttempt = body.velocity.getScaled(delta);
+					body.lastAttempt = body.props.velocity.getScaled(delta);
 					body.aabb.translate(body.lastAttempt);
 					if (BodyType.KINETIC == body.props.bodyType) {
 						for (BitBody child : body.children) {
@@ -132,9 +132,10 @@ public class BitWorld {
 							 * than the parent to guarantee that it still
 							 * collides if nothing else influences it's motion
 							 */
-							child.aabb.translate(body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION, MathUtils.FLOAT_PRECISION));
+							BitPoint influence = body.lastAttempt.influence(gravity);
+							child.aabb.translate(influence);
 							// the child did attempt to move this additional amount according to our engine
-							child.lastAttempt.add(body.lastAttempt);
+							child.lastAttempt.add(influence);
 							child.parent = null;
 						}
 						body.children.clear();
@@ -152,6 +153,14 @@ public class BitWorld {
 		resolveAndApplyPendingResolutions();
 
 		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
+	}
+
+	private void doAddRemoves() {
+		bodies.removeAll(pendingRemoves);
+		pendingRemoves.clear();
+
+		bodies.addAll(pendingAdds);
+		pendingAdds.clear();
 	}
 
 	private void resolveAndApplyPendingResolutions() {
@@ -224,10 +233,10 @@ public class BitWorld {
 			}
 		}
 		if (resolution.haltX) {
-			body.velocity.x = 0;
+			body.props.velocity.x = 0;
 		}
 		if (resolution.haltY) {
-			body.velocity.y = 0;
+			body.props.velocity.y = 0;
 		}
 
 		body.lastResolution = resolution.resolution;
@@ -318,5 +327,10 @@ public class BitWorld {
 	public void setObjects(Collection<BitBody> otherObjects) {
 		pendingRemoves.addAll(bodies);
 		pendingAdds.addAll(otherObjects);
+	}
+
+	public void removeAllBodies() {
+		pendingRemoves.addAll(bodies);
+		pendingAdds.clear();
 	}
 }

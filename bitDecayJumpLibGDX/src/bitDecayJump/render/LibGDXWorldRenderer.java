@@ -83,11 +83,11 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 				}
 			}
 			renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
-			if (body.velocity.x != 0 || body.velocity.y != 0) {
+			if (body.props.velocity.x != 0 || body.props.velocity.y != 0) {
 				float x = body.aabb.xy.x + body.aabb.width / 2;
 				float y = body.aabb.xy.y + body.aabb.height / 2;
 				renderer.setColor(Color.PINK);
-				renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
+				renderer.line(x, y, x + body.props.velocity.x, y + body.props.velocity.y);
 			}
 		}
 

@@ -8,7 +8,6 @@ import bitDecayJump.state.BitBodyStateWatcher;
 
 public class BitBody {
 	public BitRectangle aabb;
-	public BitPoint velocity = new BitPoint(0, 0);
 
 	public BitBody parent;
 	/**
@@ -31,7 +30,8 @@ public class BitBody {
 
 	/**
 	 * Properties object to hold information about how this body should interact
-	 * with the world
+	 * with the world. Contains information such as body type, speed,
+	 * acceleration, etc
 	 */
 	public BitBodyProps props;
 

@@ -154,7 +154,7 @@ public class BitResolution {
 			boolean validRightCollision = validBodyRightCollision(body, nValue, insec, relativeVelocity);
 			boolean validTopCollision = validBodyTopCollisionLoose(body, nValue, insec, relativeVelocity);
 			boolean validBottomCollision = validBodyBottomCollisionLoose(body, nValue, insec, relativeVelocity);
-			if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
+			if (validBottomCollision && body.props.velocity.y <= 0 && body.grounded) {
 				// body collided on its bottom side
 				resolution.y = Math.max(resolution.y, insec.height);
 				return Direction.UP;
@@ -177,15 +177,15 @@ public class BitResolution {
 			} else {
 				// handle where the body is partially inside a box that was not resolvable with the basic checks
 				if (insec.height == body.aabb.height) {
-					if (body.velocity.y <= 0) {
+					if (body.props.velocity.y <= 0) {
 						return resolveUp(resolution, against, insec);
 					} else {
 						return resolveDown(resolution, against, insec);
 					}
 				} else if (insec.width == body.aabb.width) {
-					if (body.velocity.x < 0) {
+					if (body.props.velocity.x < 0) {
 						return resolveRight(resolution, against, insec);
-					} else if (body.velocity.x > 0) {
+					} else if (body.props.velocity.x > 0) {
 						return resolveLeft(resolution, against, insec);
 					}
 				}
@@ -203,16 +203,16 @@ public class BitResolution {
 	private int resolveBodyInside(BitPoint resolution, BitBody body, BitBody against, int nValue, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
-		if (xSpeedDominant && body.velocity.x <= 0 && (nValue & Direction.RIGHT) == 0) {
+		if (xSpeedDominant && body.props.velocity.x <= 0 && (nValue & Direction.RIGHT) == 0) {
 			//push them out to the right
 			return resolveRight(resolution, against, insec);
-		} else if (xSpeedDominant && body.velocity.x > 0 && (nValue & Direction.LEFT) == 0) {
+		} else if (xSpeedDominant && body.props.velocity.x > 0 && (nValue & Direction.LEFT) == 0) {
 			// push them out to the left
 			return resolveLeft(resolution, against, insec);
-		} else if (!xSpeedDominant && body.velocity.y <= 0 && (nValue & Direction.UP) == 0) {
+		} else if (!xSpeedDominant && body.props.velocity.y <= 0 && (nValue & Direction.UP) == 0) {
 			// push them out to the top
 			return resolveUp(resolution, against, insec);
-		} else if (!xSpeedDominant && body.velocity.y > 0 && (nValue & Direction.DOWN) == 0) {
+		} else if (!xSpeedDominant && body.props.velocity.y > 0 && (nValue & Direction.DOWN) == 0) {
 			// push them out to the bottom
 			return resolveDown(resolution, against, insec);
 		}

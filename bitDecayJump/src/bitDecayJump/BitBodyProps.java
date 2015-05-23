@@ -2,8 +2,11 @@ package bitDecayJump;
 
 import java.lang.reflect.Field;
 
+import bitDecayJump.geom.BitPoint;
+
 public class BitBodyProps {
 	public BodyType bodyType = BodyType.STATIC;
+	public BitPoint velocity = new BitPoint(0, 0);
 	public int accelX = 0;
 	public int accelY = 0;
 	public int maxSpeedX = 0;
