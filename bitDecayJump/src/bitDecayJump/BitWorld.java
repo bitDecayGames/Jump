@@ -274,7 +274,7 @@ public class BitWorld {
 	public BitBody createBody(float x, float y, float width, float height, BitBodyProps props) {
 		BitBody body = new BitBody();
 		body.aabb = new BitRectangle(x, y, width, height);
-		body.props = props.clone();
+		body.props = props;
 		addBody(body);
 		return body;
 	}

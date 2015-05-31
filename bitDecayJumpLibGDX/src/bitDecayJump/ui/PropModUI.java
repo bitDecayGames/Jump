@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import bitDecayJump.BitBodyProps;
 
@@ -35,54 +34,32 @@ public class PropModUI extends JDialog {
 		List<Field> fields = new ArrayList<Field>();
 		fields.addAll(Arrays.asList(props.getClass().getSuperclass().getDeclaredFields()));
 		fields.addAll(Arrays.asList(props.getClass().getDeclaredFields()));
+		boolean first = true;
 		for (Field field : fields) {
-			if (field.getType().isPrimitive()) {
-				if (field.getType().equals(boolean.class)) {
-					// TODO: make check box
-				} else if (field.getType().equals(int.class) || field.getType().equals(float.class)) {
-					JSlider slider = null;
-					try {
-						if (field.getType().equals(float.class)) {
-							slider = new JSlider(0, 100, 0);
-							Hashtable labelTable = new Hashtable();
-							for (int i = 0; i <= 10; i++) {
-								labelTable.put(i * 10, new JLabel(Integer.toString(i)));
-							}
-							slider.setLabelTable(labelTable);
-							slider.setMajorTickSpacing(1);
-							slider.setValue((int) (field.getFloat(props) * 100));
-							slider.addChangeListener(new ChangeListener() {
-
-								@Override
-								public void stateChanged(ChangeEvent e) {
-									callback.propertyChanged(field.getName(), ((JSlider) e.getSource()).getValue() / 100f);
-								}
-							});
-						} else {
-							slider = new JSlider(0, 1000, 0);
-							slider.setMajorTickSpacing(100);
-							slider.setMinorTickSpacing(25);
-							slider.setValue(field.getInt(props));
-							slider.addChangeListener(new ChangeListener() {
-
-								@Override
-								public void stateChanged(ChangeEvent e) {
-									callback.propertyChanged(field.getName(), ((JSlider) e.getSource()).getValue());
-								}
-							});
-						}
-						slider.setPaintTicks(true);
-						slider.setPaintLabels(true);
-						slider.setBorder(BorderFactory.createEtchedBorder());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					items.add(new JLabel(field.getName()));
-					items.add(slider);
-					items.add(Box.createVerticalStrut(5));
-				}
+			if (!first) {
+				items.add(new JSeparator(JSeparator.CENTER));
+			} else {
+				first = false;
 			}
+			try {
+				ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getName());
+				if (builder != null) {
+					List<JComponent> component = builder.build(field, props, callback);
+					if (component != null) {
+						JLabel label = new JLabel(field.getName());
+						items.add(label);
+						for (JComponent jComponent : component) {
+							items.add(jComponent);
+						}
+						items.add(Box.createVerticalStrut(5));
+					}
+				} else {
+					throw new Exception();
+				}
+			} catch (Exception e) {
+				System.out.println("Unable to build component for " + field.getName() + " of type " + field.getType());
+			}
+
 		}
 		revalidate();
 		repaint();

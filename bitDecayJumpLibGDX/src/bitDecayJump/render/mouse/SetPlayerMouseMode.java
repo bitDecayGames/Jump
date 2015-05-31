@@ -30,12 +30,9 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 	@Override
 	protected void mouseUpLogic(BitPointInt point) {
 		if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
-			BitBodyProps props = new BitBodyProps();
+			BitBodyProps props = this.props;
 			if (lastPlayer != null) {
 				world.removeBody(lastPlayer);
-				props = lastPlayer.props;
-			} else {
-				props = this.props;
 			}
 			// TODO: figure out why this isn't bringing over the jumperprops values
 			lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
