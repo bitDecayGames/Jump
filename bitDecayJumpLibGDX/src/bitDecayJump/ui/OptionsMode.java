@@ -18,6 +18,9 @@ public enum OptionsMode {
 	LEFT("Left", ModeType.ACTION, 2),
 	RIGHT("Right", ModeType.ACTION, 2),
 
+	CREATE_TEST_CASE("Create Test Case", ModeType.ACTION, 4),
+	LOAD_TEST_CASE("Load Test Case", ModeType.ACTION, 4),
+
 	SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
 	LOAD_LEVEL("Load Level", ModeType.ACTION, -1);
 

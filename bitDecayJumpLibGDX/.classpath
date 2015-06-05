@@ -32,5 +32,8 @@
 	<classpathentry kind="lib" path="/bitDecayGDX/jars/gdx.jar" sourcepath="/bitDecayGDX/jars/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="/bitDecayGDX/jars/gdx-backend-gwt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bitDecayCommon"/>
+	<classpathentry kind="lib" path="/bitDecayJump/jars/jackson-core-2.5.3.jar"/>
+	<classpathentry kind="lib" path="/bitDecayJump/jars/jackson-databind-2.5.3.jar"/>
+	<classpathentry kind="lib" path="/bitDecayJump/jars/jackson-annotations-2.5.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

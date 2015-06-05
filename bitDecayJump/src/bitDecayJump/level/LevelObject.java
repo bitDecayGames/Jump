@@ -6,6 +6,10 @@ import bitDecayJump.geom.BitRectangle;
 public abstract class LevelObject {
 	public BitRectangle rect;
 
+	public LevelObject() {
+		// Here for JSON
+	}
+
 	public LevelObject(BitRectangle rect) {
 		this.rect = rect;
 	}

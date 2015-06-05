@@ -36,7 +36,7 @@ public class SetPlayerMouseMode extends BaseMouseMode {
 			}
 			// TODO: figure out why this isn't bringing over the jumperprops values
 			lastPlayer = world.createBody(GeomUtils.makeRect(startPoint, endPoint), props);
-			lastPlayer.stateWatcher = new JumperStateWatcher(lastPlayer);
+			lastPlayer.stateWatcher = new JumperStateWatcher();
 			playerController.setBody(lastPlayer, controls);
 		}
 	}

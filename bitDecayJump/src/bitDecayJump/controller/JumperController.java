@@ -4,27 +4,23 @@ import bitDecayJump.*;
 
 public class JumperController extends BasicBodyController {
 	// state stuff
-	boolean requestJump = false;
+	public boolean requestJump = false;
 
-	boolean jumping = false;
+	public boolean jumping = false;
 
-	float jumpVariableHeightWindow = 0;
-	float jumpGracePeriod = 0;
-	float jumpPreRequestWindow = .1f;
-	float jumpPreRequestTimer = 0;
+	public float jumpVariableHeightWindow = 0;
+	public float jumpGracePeriod = 0;
+	public float jumpPreRequestWindow = .1f;
+	public float jumpPreRequestTimer = 0;
 
-	int jumpsPerformed = 0;
-	int jumpsRemaining = 0;
+	public int jumpsPerformed = 0;
+	public int jumpsRemaining = 0;
 
 	// end state stuff
 
-	public JumperController(BitBody body) {
-		super(body);
-	}
-
 	@Override
-	public void update(float delta) {
-		super.update(delta);
+	public void update(float delta, BitBody body) {
+		super.update(delta, body);
 		if (body.props instanceof JumperProps) {
 			JumperProps props = (JumperProps) body.props;
 			if (!body.grounded) {

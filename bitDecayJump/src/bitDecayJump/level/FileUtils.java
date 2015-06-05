@@ -6,21 +6,44 @@ import java.io.*;
 
 import javax.swing.*;
 
-import com.google.gson.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
 
 public class FileUtils {
 
+	private static String nextSaveDir = null;
+
+	private static final ObjectMapper mapper = new ObjectMapper();
+	static {
+		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		//		mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+	}
+
 	public static String toJson(Object obj) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		return gson.toJson(obj);
+		try {
+			return mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		//		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		//		return gson.toJson(obj);
 	}
 
 	public static String saveToFile(Object obj) {
 		return saveToFile(toJson(obj));
 	}
 
+	public static String saveToFile(Object obj, String dir) {
+		nextSaveDir = dir;
+		return saveToFile(obj);
+	}
+
 	public static String saveToFile(String json) {
-		JFileChooser fileChooser = new JFileChooser() {
+		JFileChooser fileChooser = new JFileChooser(nextSaveDir) {
 			@Override
 			protected JDialog createDialog(Component parent) throws HeadlessException {
 				JDialog dialog = super.createDialog(parent);
@@ -30,10 +53,12 @@ public class FileUtils {
 				return dialog;
 			}
 		};
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setDialogTitle("Save As");
 		fileChooser.setApproveButtonText("Save");
 		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			nextSaveDir = fileChooser.getSelectedFile().getParent();
 			try {
 				FileWriter writer = new FileWriter(fileChooser.getSelectedFile());
 				writer.write(json);
@@ -42,6 +67,8 @@ public class FileUtils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		} else {
+			System.out.println("Got something else back...");
 		}
 		return null;
 	}
@@ -55,7 +82,13 @@ public class FileUtils {
 	}
 
 	public static <T> T loadFileAs(Class<T> clazz, String json) {
-		return new GsonBuilder().create().fromJson(json, clazz);
+		try {
+			return mapper.readValue(json, clazz);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		//		return new GsonBuilder().create().fromJson(json, clazz);
 	}
 
 	public static String loadFile() {

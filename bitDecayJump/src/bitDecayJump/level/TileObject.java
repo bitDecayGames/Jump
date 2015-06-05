@@ -9,6 +9,10 @@ public class TileObject extends LevelObject {
 	// a rendering hint for which tile to use
 	public int nValue;
 
+	public TileObject() {
+		// TODO Here for JSON
+	}
+
 	public TileObject(BitRectangle rect) {
 		super(rect);
 	}
@@ -19,7 +23,7 @@ public class TileObject extends LevelObject {
 		// CONSIDER: we might want to just put the collision shit (nValue) onto the body
 		BitBody body = new BitBody();
 		body.aabb = rect;
-		TileBodyProps props = new TileBodyProps(this);
+		TileBodyProps props = new TileBodyProps();
 		props.nValue = nValue;
 		props.bodyType = BodyType.STATIC;
 		body.props = props;

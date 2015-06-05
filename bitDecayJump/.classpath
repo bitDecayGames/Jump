@@ -5,5 +5,11 @@
 	<classpathentry kind="lib" path="jars/gson-2.3.1.jar" sourcepath="jars/gson-2.3.1-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="src" path="/bitDecayCommon"/>
+	<classpathentry kind="lib" path="jars/reflections-0.9.9-RC1.jar"/>
+	<classpathentry kind="lib" path="jars/guava-11.0.2.jar"/>
+	<classpathentry kind="lib" path="jars/javassist-3.16.1-GA.jar"/>
+	<classpathentry kind="lib" path="jars/jackson-core-2.5.3.jar"/>
+	<classpathentry kind="lib" path="jars/jackson-databind-2.5.3.jar"/>
+	<classpathentry kind="lib" path="jars/jackson-annotations-2.5.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

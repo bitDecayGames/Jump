@@ -13,7 +13,7 @@ public class PlayerInputHandler {
 	public void setBody(BitBody body, ControlMap controls) {
 		this.body = body;
 		this.controls = controls;
-		bodyController = new JumperController(body);
+		bodyController = new JumperController();
 		body.controller = bodyController;
 	}
 

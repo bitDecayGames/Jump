@@ -1,7 +1,9 @@
 package bitDecayJump.state;
 
 import com.bitdecay.common.State;
+import com.fasterxml.jackson.annotation.*;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum JumperState implements State {
 	RIGHT_STANDING,
 	LEFT_STANDING,
@@ -17,4 +19,14 @@ public enum JumperState implements State {
 	LEFT_AIR_AGAINST_WALL,
 	RIGHT_GROUNDED_AGAINST_WALL,
 	LEFT_GROUNDED_AGAINST_WALL;
+
+	@JsonCreator
+	public static JumperState forValue(String value) {
+		return RIGHT_RUNNING;
+	}
+
+	@JsonValue
+	public String toValue() {
+		return toString();
+	}
 }

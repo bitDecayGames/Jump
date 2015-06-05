@@ -47,7 +47,7 @@ public class BitResolution {
 				BitWorld.resolvedCollisions.add(collision.collisionZone);
 				// only deal with this if we are still needing to resolved
 				int resoDirection = resolve(tempResolution, cumulativeResolution, body, collision.otherBody);
-				System.out.println(resoDirection);
+				//				System.out.println(resoDirection);
 				if (resoDirection != 0 && BodyType.KINETIC.equals(collision.otherBody.props.bodyType)) {
 					// only attach as child if we were resolved by the kinetic object in the direction it is moving
 					boolean attach = false;
@@ -98,7 +98,7 @@ public class BitResolution {
 					}
 					upDown = resoDirection;
 				}
-				System.out.println("Resolve body " + body + " " + tempResolution);
+				//				System.out.println("Resolve body " + body + " " + tempResolution);
 				resolvedPosition.xy.x += tempResolution.x;
 				resolvedPosition.xy.y += tempResolution.y;
 				cumulativeResolution.x += tempResolution.x;

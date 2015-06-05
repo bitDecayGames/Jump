@@ -4,14 +4,11 @@ import bitDecayJump.*;
 
 public class JumperStateWatcher extends AbstractStateWatcher {
 
-	private BitBody body;
-
-	public JumperStateWatcher(BitBody body) {
-		this.body = body;
+	public JumperStateWatcher() {
 	}
 
 	@Override
-	public void update() {
+	public void update(BitBody body) {
 		boolean facingLeft = Facing.LEFT.equals(body.facing);
 		JumperState newState = state;
 		if (body.grounded) {

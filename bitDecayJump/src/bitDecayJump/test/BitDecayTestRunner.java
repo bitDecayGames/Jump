@@ -2,7 +2,12 @@ package bitDecayJump.test;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.*;
+import java.awt.*;
+import java.awt.Dialog.ModalityType;
+import java.io.*;
+import java.util.Set;
+
+import javax.swing.*;
 
 import org.junit.runner.*;
 import org.junit.runner.notification.Failure;
@@ -24,7 +29,7 @@ public class BitDecayTestRunner {
 		Set<Class<?>> testClasses = reflections.getTypesAnnotatedWith(BitDecayTest.class);
 		System.out.println("Running tests for " + testClasses.size() + " classes");
 		Result results = JUnitCore.runClasses(testClasses.toArray(new Class[testClasses.size()]));
-		List<Failure> failures = results.getFailures();
+		java.util.List<Failure> failures = results.getFailures();
 		if (failures.size() > 0) {
 			System.out.println(failures.size() + " tests failed");
 			for (Failure failure : failures) {
@@ -38,10 +43,52 @@ public class BitDecayTestRunner {
 				}
 			}
 		}
-		//		Set<Method> testMethods = reflections.getMethodsAnnotatedWith(BitDecayTest.class);
-		//		for (Method test : testMethods) {
-		//			test.invoke()
-		//		}
+		File testDirectory = getTestDirectory();
+		File[] filteredFiles = testDirectory.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".test");
+			}
+		});
+		System.out.println(filteredFiles.length + " test case files found.");
+		for (File testCase : filteredFiles) {
+			runTestFile(testCase);
+		}
+	}
+
+	private static void runTestFile(File testFile) {
+		System.out.println(testFile.getName());
+		BitDecayTestCase testCase = FileUtils.loadFileAs(BitDecayTestCase.class, testFile);
+		BitWorld world = new BitWorld();
+		world.setLevel(testCase.level);
+		for (BitBody testBody : testCase.bodies) {
+			world.addBody(testBody);
+		}
+	}
+
+	private static File getTestDirectory() {
+		JFileChooser fileChooser = new JFileChooser() {
+			@Override
+			protected JDialog createDialog(Component parent) throws HeadlessException {
+				JDialog dialog = super.createDialog(parent);
+				dialog.setAlwaysOnTop(true);
+				dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+				dialog.setModal(true);
+				return dialog;
+			}
+		};
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setDialogTitle("Select Test Case Directory");
+		fileChooser.setApproveButtonText("Select");
+		fileChooser.setCurrentDirectory(new File("."));
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFile();
+		} else {
+			System.out.println("No test directory selected. Terminating.");
+			System.exit(0);
+		}
+		return null;
 	}
 
 	public void setUp() throws Exception {

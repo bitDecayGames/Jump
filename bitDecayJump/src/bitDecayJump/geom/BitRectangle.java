@@ -5,6 +5,10 @@ public class BitRectangle {
 	public float width;
 	public float height;
 
+	public BitRectangle() {
+		// here for JSON
+	}
+
 	public BitRectangle(BitRectangle other) {
 		this(other.xy.x, other.xy.y, other.width, other.height);
 	}

@@ -4,6 +4,10 @@ public class BitPointInt {
 	public int x;
 	public int y;
 
+	public BitPointInt() {
+		// Here for JSON
+	}
+
 	public BitPointInt(int x, int y) {
 		this.x = x;
 		this.y = y;

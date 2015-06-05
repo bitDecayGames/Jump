@@ -119,7 +119,7 @@ public class BitWorld {
 				}
 				// then let controller handle the body
 				if (body.controller != null) {
-					body.controller.update(delta);
+					body.controller.update(delta, body);
 				}
 				// then move all of our non-static bodies
 				if (BodyType.STATIC != body.props.bodyType) {
@@ -152,7 +152,7 @@ public class BitWorld {
 		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
 		resolveAndApplyPendingResolutions();
 
-		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update());
+		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
 	}
 
 	private void doAddRemoves() {

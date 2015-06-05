@@ -1,9 +1,11 @@
 package bitDecayJump.state;
 
+import bitDecayJump.BitBody;
+
 import com.bitdecay.common.StateListener;
 
 public interface BitBodyStateWatcher {
-	public void update();
+	public void update(BitBody body);
 
 	public Object getState();
 

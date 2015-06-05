@@ -28,7 +28,7 @@ public class Player implements Updatable, Renderable {
 		playerBody = new BitBody();
 		playerBody.aabb = new BitRectangle(50, 50, 46, 46);
 		playerBody.props = FileUtils.loadFileAs(JumperProps.class, Gdx.files.internal("props/graceProps").readString());
-		playerBody.stateWatcher = new JumperStateWatcher(playerBody);
+		playerBody.stateWatcher = new JumperStateWatcher();
 		playerBody.stateWatcher.addListener(animations);
 		world.addBody(playerBody);
 

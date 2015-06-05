@@ -2,17 +2,13 @@ package bitDecayJump.controller;
 
 import bitDecayJump.*;
 
-public class BasicBodyController extends BitBodyController {
+public class BasicBodyController implements BitBodyController {
 
 	protected boolean requestLeft = false;
 	protected boolean requestRight = false;
 
-	public BasicBodyController(BitBody body) {
-		super(body);
-	}
-
 	@Override
-	public void update(float delta) {
+	public void update(float delta, BitBody body) {
 		if (requestLeft || requestRight) {
 			body.facing = requestLeft ? Facing.LEFT : Facing.RIGHT;
 			if (requestLeft) {
