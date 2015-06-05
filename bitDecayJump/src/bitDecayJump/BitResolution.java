@@ -90,7 +90,6 @@ public class BitResolution {
 					if (attach && body.parent == null) {
 						body.parent = collision.otherBody;
 						collision.otherBody.children.add(body);
-						System.out.println("i have parent");
 					}
 				}
 
@@ -150,8 +149,12 @@ public class BitResolution {
 			 * Take the cumulative resolution into account because the body has
 			 * effectively moved this much while resolving the position
 			 */
-			BitPoint relativeVelocity = body.lastAttempt
-					.plus(cumulativeResolution);
+			BitPoint relativeVelocity = body.lastAttempt;
+			if (body.parent != null) {
+				relativeVelocity.add(body.parent.lastAttempt);
+			}
+//			BitPoint relativeVelocity = body.lastAttempt
+//					.plus(cumulativeResolution);
 			if (against.lastAttempt.x != 0 || against.lastAttempt.y != 0) {
 				// adjust this to work with kinetic bodies
 				relativeVelocity = relativeVelocity.plus(body.lastResolution)
