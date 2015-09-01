@@ -13,3 +13,9 @@ The goals are fairly simple as of yet:
 The platformer is in its early stages, and there is plenty that needs to be cleaned up.
 
 The platformer physics are isolated and can be used as a stand alone in any project. The editor is built on top of LibGDX.
+
+The projects are laid out as follows:
+* bitDecayJump - Pure platformer engine, no ties to libgdx.
+* bitDecayGDX - libGDX specific things such as image and sound utilities, rendering, etc.
+* bitDecayJumpLibGDX - This project is basically the level editor (jump backend with gdx frontend)
+* bitDecayCommon - This is a project just for intermediate things, right now it only has state objects in it (state would be set by Jump, but used by some external code) I wanted to have the code visible to any project that needs it without having dependencies against one of the other projects.
