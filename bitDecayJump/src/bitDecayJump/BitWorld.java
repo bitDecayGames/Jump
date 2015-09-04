@@ -1,21 +1,9 @@
 package bitDecayJump;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import bitDecayJump.geom.ArrayUtilities;
-import bitDecayJump.geom.BitPoint;
-import bitDecayJump.geom.BitPointInt;
-import bitDecayJump.geom.BitRectangle;
-import bitDecayJump.geom.GeomUtils;
-import bitDecayJump.level.Level;
-import bitDecayJump.level.TileObject;
+import bitDecayJump.geom.*;
+import bitDecayJump.level.*;
 
 /**
  * A Pseudo-Physics simulation world. Will step according to all body's
@@ -26,9 +14,10 @@ import bitDecayJump.level.TileObject;
  *
  */
 public class BitWorld {
-	private static final float STEP_SIZE = 1 / 120f;
+	public static final float STEP_SIZE = 1 / 120f;
 	/**
-	 * Holds left-over time when there isn't enough time for a full {@link #STEP_SIZE}
+	 * Holds left-over time when there isn't enough time for a full
+	 * {@link #STEP_SIZE}
 	 */
 	private float extraStepTime = 0;
 
@@ -44,6 +33,7 @@ public class BitWorld {
 	private Map<BitBody, BitResolution> pendingResolutions;
 
 	protected static BitPoint gravity = new BitPoint(0, 0);
+	protected static BitPoint maxSpeed = new BitPoint(2000, 2000);
 
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
@@ -113,7 +103,6 @@ public class BitWorld {
 		if (delta <= 0) {
 			return;
 		}
-		//		System.out.println("\t" + (++stepCount));
 		// make sure world contains everything it should
 		doAddRemoves();
 
@@ -132,6 +121,11 @@ public class BitWorld {
 				if (body.controller != null) {
 					body.controller.update(delta, body);
 				}
+
+				// cap body at max speed
+				body.props.velocity.x = Math.min(Math.abs(body.props.velocity.x), maxSpeed.x) * (body.props.velocity.x < 0 ? -1 : 1);
+				body.props.velocity.y = Math.min(Math.abs(body.props.velocity.y), maxSpeed.y) * (body.props.velocity.y < 0 ? -1 : 1);
+
 				// then move all of our non-static bodies
 				if (BodyType.STATIC != body.props.bodyType) {
 					body.lastAttempt = body.props.velocity.getScaled(delta);
@@ -143,8 +137,7 @@ public class BitWorld {
 							 * than the parent to guarantee that it still
 							 * collides if nothing else influences it's motion
 							 */
-							BitPoint influence = body.lastAttempt
-									.influence(gravity);
+							BitPoint influence = body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION);
 							child.aabb.translate(influence);
 							// the child did attempt to move this additional amount according to our engine
 							child.lastAttempt.add(influence);
@@ -159,20 +152,12 @@ public class BitWorld {
 		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies-
-		bodies.stream()
-				.filter(body -> body.active
-						&& BodyType.DYNAMIC == body.props.bodyType)
-				.forEach(body -> buildLevelCollisions(body));
+		bodies.stream().filter(body -> body.active && BodyType.DYNAMIC == body.props.bodyType).forEach(body -> buildLevelCollisions(body));
 		//		applyPendingResolutions();
-		bodies.stream()
-				.filter(body -> body.active
-						&& BodyType.KINETIC == body.props.bodyType)
-				.forEach(body -> buildKineticCollections(body));
+		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
 		resolveAndApplyPendingResolutions();
 
-		bodies.parallelStream()
-				.filter(body -> body.active && body.stateWatcher != null)
-				.forEach(body -> body.stateWatcher.update(body));
+		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
 	}
 
 	private void doAddRemoves() {
@@ -193,14 +178,11 @@ public class BitWorld {
 
 	private void buildKineticCollections(BitBody kineticBody) {
 		// 1. determine tile that x,y lives in
-		BitPoint startCell = kineticBody.aabb.xy.floorDivideBy(tileSize,
-				tileSize).minus(gridOffset);
+		BitPoint startCell = kineticBody.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
 		// 2. determine width/height in tiles
-		int endX = (int) (startCell.x + Math.ceil(1.0 * kineticBody.aabb.width
-				/ tileSize));
-		int endY = (int) (startCell.y + Math.ceil(1.0 * kineticBody.aabb.height
-				/ tileSize));
+		int endX = (int) (startCell.x + Math.ceil(1.0 * kineticBody.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * kineticBody.aabb.height / tileSize));
 
 		for (int x = (int) startCell.x; x <= endX; x++) {
 			if (!occupiedSpaces.containsKey(x)) {
@@ -219,14 +201,11 @@ public class BitWorld {
 
 	private void buildLevelCollisions(BitBody body) {
 		// 1. determine tile that x,y lives in
-		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize)
-				.minus(gridOffset);
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
 		// 2. determine width/height in tiles
-		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width
-				/ tileSize));
-		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height
-				/ tileSize));
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
 
 		// 3. loop over those all occupied tiles
 		for (int x = (int) startCell.x; x <= endX; x++) {
@@ -240,8 +219,7 @@ public class BitWorld {
 				// mark the body as occupying the current grid coordinate
 				occupiedSpaces.get(x).get(y).add(body);
 				// ensure valid cell
-				if (ArrayUtilities.onGrid(gridObjects, x, y)
-						&& gridObjects[x][y] != null) {
+				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
 					checkForNewCollision(body, checkObj);
 				}
@@ -253,8 +231,7 @@ public class BitWorld {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution);
 			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
-			if (Math.abs(gravity.y - resolution.resolution.y) > Math
-					.abs(gravity.y)) {
+			if (Math.abs(gravity.y - resolution.resolution.y) > Math.abs(gravity.y)) {
 				// if the body was resolved against the gravity's y, we assume grounded.
 				// CONSIDER: 4-directional gravity might become a possibility.
 				body.grounded = true;
@@ -271,7 +248,8 @@ public class BitWorld {
 	}
 
 	/**
-	 * A simple method that sees if there is a collision and adds it to the {@link BitResolution} as something that needs to be handled at the time
+	 * A simple method that sees if there is a collision and adds it to the
+	 * {@link BitResolution} as something that needs to be handled at the time
 	 * of resolution.
 	 * 
 	 * @param body
@@ -298,8 +276,7 @@ public class BitWorld {
 		return createBody(rect.xy.x, rect.xy.y, rect.width, rect.height, props);
 	}
 
-	public BitBody createBody(float x, float y, float width, float height,
-			BitBodyProps props) {
+	public BitBody createBody(float x, float y, float width, float height, BitBodyProps props) {
 		BitBody body = new BitBody();
 		body.aabb = new BitRectangle(x, y, width, height);
 		body.props = props;

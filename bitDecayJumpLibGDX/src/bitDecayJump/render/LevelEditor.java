@@ -4,10 +4,9 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JDialog;
 
 import org.reflections.Reflections;
 
@@ -17,7 +16,6 @@ import bitDecayJump.input.PlayerInputHandler;
 import bitDecayJump.level.*;
 import bitDecayJump.render.mouse.*;
 import bitDecayJump.setup.*;
-import bitDecayJump.test.BitDecayTestCase;
 import bitDecayJump.ui.*;
 
 import com.badlogic.gdx.*;
@@ -98,8 +96,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	// a flags to control whether we are moving the world forward or not
 	private boolean stepWorld = true;
 	private boolean singleStep = false;
-
-	private BitDecayTestCase pendingTestCase = null;
 
 	public LevelEditor() {
 		initializeToolbox();
@@ -250,9 +246,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 		if (stepWorld || singleStep) {
 			singleStep = false;
 			world.step(delta);
-		} else if (pendingTestCase != null && !stepWorld && !singleStep) {
-			// a bit of a hack to have this here, but it works
-			maybeFinalizeTestCase();
 		} else {
 			world.nonStep(delta);
 		}
@@ -519,48 +512,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 				setLevelBuilder(loadLevel);
 				setCamToOrigin();
 			}
-		} else if (OptionsMode.CREATE_TEST_CASE.equals(mode)) {
-			startTestCase();
-		} else if (OptionsMode.LOAD_TEST_CASE.equals(mode)) {
-			loadTestCase();
 		}
-	}
-
-	private void loadTestCase() {
-		BitDecayTestCase testCase = FileUtils.loadFileAs(BitDecayTestCase.class);
-		world.setLevel(testCase.level);
-		for (BitBody testBody : testCase.bodies) {
-			world.addBody(testBody);
-		}
-		stepWorld = false;
-		singleStep = false;
-	}
-
-	private void startTestCase() {
-		try {
-			BitDecayTestCase testCase = new BitDecayTestCase();
-			testCase.level = curLevelBuilder.tilizeLevel();
-			testCase.bodies = this.world.getBodies().stream().filter(body -> BodyType.DYNAMIC.equals(body.props.bodyType)).collect(Collectors.toList());
-			setLevelBuilder(testCase.level);
-			// save it as json intermediately so we copy the body data
-			String json = FileUtils.toJson(testCase);
-			pendingTestCase = FileUtils.loadFileAs(BitDecayTestCase.class, json);
-			stepWorld = false;
-			singleStep = true;
-		} catch (Throwable e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}
-	}
-
-	private void maybeFinalizeTestCase() {
-		int result = JOptionPane.showConfirmDialog(null, "Confirm resolution as test case?", "Confirm", JOptionPane.YES_NO_OPTION);
-		if (result == JOptionPane.YES_OPTION) {
-			pendingTestCase.endPositions = pendingTestCase.bodies = this.world.getBodies().stream()
-					.filter(body -> BodyType.DYNAMIC.equals(body.props.bodyType)).collect(Collectors.toList());
-			FileUtils.saveToFile(pendingTestCase);
-		}
-		pendingTestCase = null;
 	}
 
 	private void saveProps() {

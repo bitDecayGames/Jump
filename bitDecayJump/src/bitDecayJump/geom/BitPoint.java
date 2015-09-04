@@ -123,4 +123,28 @@ public class BitPoint {
 		}
 		return this;
 	}
+
+	/**
+	 * Pulls a point towards zero. Will stop at zero if attempting to shrink
+	 * past zero
+	 * 
+	 * @param amount
+	 *            how far to shrink the point
+	 * @return
+	 */
+	public BitPoint shrink(float amount) {
+		BitPoint result = new BitPoint(this);
+		if (result.x > 0) {
+			result.x = Math.max(0, x - amount);
+		} else if (result.x < 0) {
+			result.x = Math.max(0, x = amount);
+		}
+
+		if (result.y > 0) {
+			result.y = Math.max(0, y - amount);
+		} else if (result.y < 0) {
+			result.y = Math.max(0, y = amount);
+		}
+		return result;
+	}
 }

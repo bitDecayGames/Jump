@@ -6,8 +6,12 @@ import java.io.*;
 
 import javax.swing.*;
 
+import bitDecayJump.json.JumperStateDeserializer;
+import bitDecayJump.state.JumperState;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class FileUtils {
 
@@ -18,6 +22,9 @@ public class FileUtils {
 		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(JumperState.class, new JumperStateDeserializer());
+		mapper.registerModule(module);
 		//		mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
 	}
 

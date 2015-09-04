@@ -26,11 +26,16 @@ public class JumperController extends BasicBodyController {
 			if (!body.grounded) {
 				if (jumping) {
 					jumpVariableHeightWindow += delta;
-				} else {
+				} else if (jumpsPerformed == 0) {
 					jumpGracePeriod += delta;
 				}
 
-				if (requestJump) {
+				if (jumpsRemaining == 0 && requestJump) {
+					/*
+					 * Trying to jump with no jumps remaining. Time for grace
+					 * period where player can 'pre-jump' and jump as they hit
+					 * the ground
+					 */
 					jumpPreRequestTimer += delta;
 				} else {
 					jumpPreRequestTimer = 0;
@@ -44,14 +49,21 @@ public class JumperController extends BasicBodyController {
 			}
 
 			if (requestJump && !jumping) {
-				boolean requestValid = false;
-				if (jumpPreRequestTimer <= jumpPreRequestWindow) {
-					// if they pushed it too early, cancel request. No bunny hop mods here
-					requestValid = true;
+				boolean validJumpRequest = false;
+				if (body.grounded && jumpPreRequestTimer <= jumpPreRequestWindow) {
+					// grounded, and requesting jump within a reasonable time of touching the ground
+					validJumpRequest = true;
+				} else if (!body.grounded && jumpsPerformed == 0 && jumpGracePeriod <= props.jumpGraceWindow) {
+					// not grounded, but within the jump grace period
+					validJumpRequest = true;
+				} else if (jumpsPerformed > 0 && jumpsRemaining > 0) {
+					// still have jumps left
+					validJumpRequest = true;
 				} else {
+					// all possible jump criteria failed, stop the request
 					requestJump = false;
 				}
-				if (jumpsPerformed > 0 && jumpsRemaining > 0 || requestValid && (body.grounded || jumpGracePeriod <= props.jumpGraceWindow)) {
+				if (validJumpRequest) {
 					jumpsPerformed++;
 					jumpsRemaining--;
 					jumping = true;
