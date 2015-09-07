@@ -1,26 +1,19 @@
-package bitDecayJump.render;
+package test;
 
-import java.util.*;
-
-import javax.swing.JDialog;
-
-import bitDecayJump.*;
-import bitDecayJump.geom.*;
 import bitDecayJump.input.PlayerInputHandler;
-import bitDecayJump.level.*;
-import bitDecayJump.render.mouse.*;
-import bitDecayJump.setup.*;
-import bitDecayJump.ui.*;
-
-import com.badlogic.gdx.*;
+import bitDecayJump.ui.OptionsUICallback;
+import bitDecayJump.ui.PropModUICallback;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
-public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CollisionEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
 
 	public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
 
@@ -90,7 +83,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private boolean stepWorld = true;
 	private boolean singleStep = false;
 
-	public LevelEditor() {
+	public CollisionEditor() {
 		spriteBatch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
 		shaper = new ShapeRenderer();

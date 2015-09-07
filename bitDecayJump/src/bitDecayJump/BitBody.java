@@ -6,9 +6,6 @@ import bitDecayJump.controller.BitBodyController;
 import bitDecayJump.geom.*;
 import bitDecayJump.state.BitBodyStateWatcher;
 
-import com.fasterxml.jackson.annotation.*;
-
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class BitBody {
 	public BitRectangle aabb;
 
