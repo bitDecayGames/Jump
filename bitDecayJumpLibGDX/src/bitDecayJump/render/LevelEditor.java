@@ -1,14 +1,8 @@
 package bitDecayJump.render;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.lang.reflect.*;
 import java.util.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.JDialog;
-
-import org.reflections.Reflections;
 
 import bitDecayJump.*;
 import bitDecayJump.geom.*;
@@ -20,7 +14,6 @@ import bitDecayJump.ui.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
@@ -98,8 +91,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 	private boolean singleStep = false;
 
 	public LevelEditor() {
-		initializeToolbox();
-
 		spriteBatch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
 		shaper = new ShapeRenderer();
@@ -165,63 +156,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 			bodies.add(levelObject.getBody());
 		}
 		return bodies;
-	}
-
-	private void initializeToolbox() {
-		Reflections reflections = new Reflections("");
-		Set<Class<? extends EditorObject>> subtypes = reflections.getSubTypesOf(EditorObject.class);
-		for (Class<? extends EditorObject> class1 : subtypes) {
-			System.out.println(class1.getName());
-
-			try {
-				Method objectTypeMethod = class1.getMethod("getEditorObjectType");
-				Method objectImageMethod = class1.getMethod("getEditorImage");
-
-				EditorObjectType type = (EditorObjectType) objectTypeMethod.invoke(null);
-				TextureRegion texRegion = (TextureRegion) objectImageMethod.invoke(null);
-
-				texRegion.getTexture().getTextureData().prepare();
-				Pixmap consumePixmap = texRegion.getTexture().getTextureData().consumePixmap();
-
-				int width = com.badlogic.gdx.math.MathUtils.nextPowerOfTwo(texRegion.getRegionWidth());
-				int height = com.badlogic.gdx.math.MathUtils.nextPowerOfTwo(texRegion.getRegionHeight());
-
-				Pixmap regionPixmap = new Pixmap(width, height, consumePixmap.getFormat());
-
-				int x = width / 2 - texRegion.getRegionWidth() / 2;
-				int y = height / 2 - texRegion.getRegionHeight() / 2;
-
-				regionPixmap.drawPixmap(consumePixmap, x, y, texRegion.getRegionX(), texRegion.getRegionY(), texRegion.getRegionWidth(),
-						texRegion.getRegionHeight());
-				FileHandle tempFile = FileHandle.tempFile("tempImage");
-				PixmapIO.writePNG(tempFile, regionPixmap);
-				Image scaledImg = null;
-				try {
-					BufferedImage img = ImageIO.read(tempFile.file());
-					scaledImg = img.getScaledInstance(32, 32, Image.SCALE_DEFAULT);
-					//					JDialog dialog = new JDialog();
-					//					JLabel label = new JLabel();
-					//					ImageIcon icon = new ImageIcon(scaledImg);
-					//					label.setIcon(icon);
-					//					dialog.add(label);
-					//					dialog.setVisible(true);
-					toolBox.add(type, scaledImg, class1);
-				} catch (Exception e) {
-					// TODO set the image to some sort of 'failed' default image
-					e.printStackTrace();
-				}
-
-				consumePixmap.dispose();
-				regionPixmap.dispose();
-			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		System.out.println(toolBox.pathedObject.size() + " pathed objects");
-		System.out.println(toolBox.placableObject.size() + " placable objects");
-		System.out.println(toolBox.tiles.size() + " tile objects");
 	}
 
 	private void setCamToOrigin() {

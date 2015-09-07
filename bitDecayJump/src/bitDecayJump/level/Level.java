@@ -4,9 +4,6 @@ import java.util.*;
 
 import bitDecayJump.geom.BitPointInt;
 
-import com.fasterxml.jackson.annotation.*;
-
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class Level {
 	public int tileSize = 16;
 	public TileObject[][] gridObjects;
@@ -42,7 +39,6 @@ public class Level {
 		spawn = level.spawn;
 	}
 
-	@JsonIgnore
 	public Collection<TileObject> getGridObjectsAsCollection() {
 		ArrayList<TileObject> list = new ArrayList<TileObject>();
 		if (gridObjects != null) {

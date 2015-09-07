@@ -41,8 +41,16 @@ public class BitPoint {
 		return new BitPoint(x + point.x, y + point.y);
 	}
 
+	public BitPoint plus(float x, float y) {
+		return new BitPoint(this.x + x, this.y + y);
+	}
+
 	public BitPoint minus(BitPoint point) {
 		return new BitPoint(x - point.x, y - point.y);
+	}
+
+	public BitPoint minus(float x, float y) {
+		return new BitPoint(this.x - x, this.y - y);
 	}
 
 	public BitPoint minus(BitPointInt point) {
@@ -66,6 +74,23 @@ public class BitPoint {
 		return new BitPoint(Math.floorDiv((int) Math.floor(x), xDiv), Math.floorDiv((int) Math.floor(y), yDiv));
 	}
 
+	public float dot (float ox, float oy) {
+		return x * ox + y * oy;
+	}
+
+	public float len() {
+		return (float)Math.sqrt(x * x + y * y);
+	}
+
+	public BitPoint normalize() {
+		float len = len();
+		if (len != 0) {
+			x /= len;
+			y /= len;
+		}
+		return this;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof BitPoint) {
@@ -73,6 +98,13 @@ public class BitPoint {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
+		result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+		return result;
 	}
 
 	/**
