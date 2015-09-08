@@ -36,6 +36,15 @@ public class SATCollisions {
                 return null;
             }
         }
+        if (res != null) {
+            // normalize our data so the resolution is always a positive vector
+            if (res.distance < 0) {
+                System.out.println("Normalizing " + res);
+                res.distance *= -1;
+                res.axis.x *= -1;
+                res.axis.y *= -1;
+            }
+        }
         return res;
     }
 
@@ -51,8 +60,8 @@ public class SATCollisions {
             firstPoint = points[i];
             secondPoint = points[(i+1) % points.length];
 
-            float rise = secondPoint.x - firstPoint.x;
-            float run = secondPoint.y - firstPoint.y;
+            float run = secondPoint.x - firstPoint.x;
+            float rise = secondPoint.y - firstPoint.y;
             if (run == 0) {
                 // vertical line
                 perpendicularAxes.add(new BitPoint(0, 1));
