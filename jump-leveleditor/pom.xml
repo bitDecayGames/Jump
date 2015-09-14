@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.bitdecay</groupId>
+        <artifactId>jump</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>jump-leveleditor</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Jump Level Editor</name>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <testFailureIgnore>true</testFailureIgnore>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4jVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bitdecay</groupId>
+            <artifactId>jump-common</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bitdecay</groupId>
+            <artifactId>jump-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bitdecay</groupId>
+            <artifactId>jump-gdx</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.badlogicgames.gdx</groupId>
+            <artifactId>gdx-platform</artifactId>
+            <version>${gdxVersion}</version>
+            <classifier>natives-desktop</classifier>
+        </dependency>
+    </dependencies>
+</project>
