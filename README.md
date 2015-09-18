@@ -6,7 +6,7 @@ This project came as the culmination of motivation from working on game jams wit
 The goals are fairly simple as of yet:
 
  * Support tile-based levels a la the original Megaman series
- * Have accurate collision resolution.
+ * Have accurate collision resolution
  * Provide parameters to dictate how a body moves in the world
  * Have a level editor to help piece things together
 
@@ -15,7 +15,7 @@ The platformer is in its early stages, and there is plenty that needs to be clea
 The platformer physics are isolated and can be used as a stand alone in any project. The editor is built on top of LibGDX.
 
 The projects are laid out as follows:
-* bitDecayJump - Pure platformer engine, no ties to libgdx.
-* bitDecayGDX - libGDX specific things such as image and sound utilities, rendering, etc.
-* bitDecayJumpLibGDX - This project is basically the level editor (jump backend with gdx frontend)
-* bitDecayCommon - This is a project just for intermediate things, right now it only has state objects in it (state would be set by Jump, but used by some external code) I wanted to have the code visible to any project that needs it without having dependencies against one of the other projects.
+* jump-core - Pure platformer engine, no ties to libgdx.
+* jump-gdx - libGDX specific things such as image and sound utilities, rendering, etc.
+* jump-leveleditor - This project is basically the level editor (jump backend with gdx frontend)
+* jump-common - This is a project just for intermediate things, right now it only has state objects in it (state would be set by Jump, but used by some external code) I wanted to have the code visible to any project that needs it without having dependencies against one of the other projects.

@@ -1,1 +1,10 @@
 *.class
+**.iml
+**/.idea/
+**.project
+**.classpath
+**/.settings/
+**/bin/
+**.DS_Store
+**/build/
+**/target
