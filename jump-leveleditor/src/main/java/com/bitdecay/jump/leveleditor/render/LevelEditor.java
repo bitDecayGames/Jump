@@ -18,7 +18,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BitWorld;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.JumperProps;
+import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
@@ -66,7 +66,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private Map<Integer, JDialog> uiKeys;
     private PropModUI propUI;
 
-    private JumperProps playerProps;
+    private JumperBody playerBody;
 
     private Map<String, TextureRegion[]> materialMap;
     private TextureRegion[] fallbackTiles;
@@ -128,8 +128,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         worldRenderer = new LibGDXWorldRenderer(world, camera);
 
-        playerProps = new JumperProps();
-        playerProps.bodyType = BodyType.DYNAMIC;
+        playerBody = new JumperBody();
+        playerBody.bodyType = BodyType.DYNAMIC;
 
         mouseModes = new HashMap<OptionsMode, MouseMode>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
@@ -139,7 +139,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
         playerController = new PlayerInputHandler();
-        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerProps));
+        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerBody));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
         uiKeys = new HashMap<Integer, JDialog>();
@@ -149,7 +149,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         uiKeys.put(Keys.T, buttonsDialog);
 
-        JDialog playerTweakDialog = new PropModUI(this, playerProps);
+        JDialog playerTweakDialog = new PropModUI(this, playerBody);
         playerTweakDialog.setTitle("Player Props");
 
         uiKeys.put(Keys.P, playerTweakDialog);
@@ -468,15 +468,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private void saveProps() {
         BitBody player = maybeGetPlayer();
         if (player != null) {
-            FileUtils.saveToFile(player.props);
+            FileUtils.saveToFile(player);
         }
     }
 
     private void loadProps() {
         BitBody player = maybeGetPlayer();
         if (player != null) {
-            player.props = FileUtils.loadFileAs(JumperProps.class);
-            propUI.setProperties(player.props);
+            player = FileUtils.loadFileAs(JumperBody.class);
+            propUI.setProperties(player);
         }
     }
 
@@ -494,7 +494,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         BitBody player = maybeGetPlayer();
         if (player != null) {
             try {
-                player.props.set(prop, value);
+                player.set(prop, value);
             } catch (Exception e) {
                 e.printStackTrace();
             }

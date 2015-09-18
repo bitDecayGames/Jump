@@ -22,12 +22,10 @@ public class TileObject extends LevelObject {
 	public BitBody getBody() {
 		// tile objects don't need a body.
 		// CONSIDER: we might want to just put the collision shit (nValue) onto the body
-		BitBody body = new BitBody();
+		TileBody body = new TileBody();
 		body.aabb = rect;
-		TileBodyProps props = new TileBodyProps();
-		props.nValue = nValue;
-		props.bodyType = BodyType.STATIC;
-		body.props = props;
+		body.nValue = nValue;
+		body.bodyType = BodyType.STATIC;
 		return body;
 	}
 }

@@ -1,6 +1,6 @@
 package com.bitdecay.jump.leveleditor.ui;
 
-import com.bitdecay.jump.BitBodyProps;
+import com.bitdecay.jump.BitBody;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,12 +14,12 @@ public class PropModUI extends JDialog {
     PropModUICallback callback;
     private JPanel items;
 
-    public PropModUI(PropModUICallback callback, BitBodyProps props) {
+    public PropModUI(PropModUICallback callback, BitBody body) {
         super();
         items = new JPanel();
         items.setLayout(new BoxLayout(items, BoxLayout.Y_AXIS));
         this.callback = callback;
-        setProperties(props);
+        setProperties(body);
         add(items);
         pack();
         setMinimumSize(new Dimension(400, (int) getSize().getHeight()));
@@ -30,11 +30,11 @@ public class PropModUI extends JDialog {
         setAlwaysOnTop(true);
     }
 
-    public void setProperties(BitBodyProps props) {
+    public void setProperties(BitBody body) {
         items.removeAll();
         List<Field> fields = new ArrayList<Field>();
-        fields.addAll(Arrays.asList(props.getClass().getSuperclass().getDeclaredFields()));
-        fields.addAll(Arrays.asList(props.getClass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(body.getClass().getSuperclass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(body.getClass().getDeclaredFields()));
         boolean first = true;
         for (Field field : fields) {
             if (!first) {
@@ -45,7 +45,7 @@ public class PropModUI extends JDialog {
             try {
                 ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getName());
                 if (builder != null) {
-                    List<JComponent> component = builder.build(field, props, callback);
+                    List<JComponent> component = builder.build(field, body, callback);
                     if (component != null) {
                         JLabel label = new JLabel(field.getName());
                         items.add(label);

@@ -1,10 +1,10 @@
 package com.bitdecay.jump;
 
-import java.util.*;
-
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.TileObject;
+
+import java.util.*;
 
 /**
  * A Pseudo-Physics simulation world. Will step according to all body's
@@ -15,6 +15,7 @@ import com.bitdecay.jump.level.TileObject;
  *
  */
 public class BitWorld {
+	public static final String VERSION = "0.1.2";
 	public static final float STEP_SIZE = 1 / 120f;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
@@ -22,10 +23,10 @@ public class BitWorld {
 	 */
 	private float extraStepTime = 0;
 
-	private int tileSize;
-	private BitPointInt gridOffset;
-	private BitBody[][] gridObjects;
-	private List<BitBody> bodies;
+	private int tileSize = 32;
+	private BitPointInt gridOffset = new BitPointInt(0, 0);
+	private BitBody[][] gridObjects = new BitBody[0][0];
+	private List<BitBody> bodies = new ArrayList<>();
 
 	/**
 	 * A map of x to y to an occupying body.
@@ -33,18 +34,17 @@ public class BitWorld {
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
 	private Map<BitBody, BitResolution> pendingResolutions;
 
-	protected static BitPoint gravity = new BitPoint(0, 0);
-	protected static BitPoint maxSpeed = new BitPoint(2000, 2000);
+	protected BitPoint gravity = new BitPoint(0, 0);
+	protected BitPoint maxSpeed = new BitPoint(2000, 2000);
 
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
-	public static final List<BitRectangle> resolvedCollisions = new ArrayList<BitRectangle>();
-	public static final List<BitRectangle> unresolvedCollisions = new ArrayList<BitRectangle>();
+	public final List<BitRectangle> resolvedCollisions = new ArrayList<BitRectangle>();
+	public final List<BitRectangle> unresolvedCollisions = new ArrayList<BitRectangle>();
 
-	public static final BitBodyProps levelBodyProps = new BitBodyProps();
-	public static final String VERSION = "0.1.2";
+	public static final BitBody LEVEL_BODY = new BitBody();
 	static {
-		levelBodyProps.bodyType = BodyType.STATIC;
+		LEVEL_BODY.bodyType = BodyType.STATIC;
 	}
 
 	public BitWorld() {
@@ -113,9 +113,9 @@ public class BitWorld {
 		bodies.parallelStream().forEach(body -> {
 			if (body.active) {
 				// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.props.bodyType) {
-					if (body.props.gravitational) {
-						body.props.velocity.add(gravity.getScaled(delta));
+				if (BodyType.DYNAMIC == body.bodyType) {
+					if (body.gravitational) {
+						body.velocity.add(gravity.scale(delta));
 					}
 				}
 				// then let controller handle the body
@@ -124,14 +124,14 @@ public class BitWorld {
 				}
 
 				// cap body at max speed
-				body.props.velocity.x = Math.min(Math.abs(body.props.velocity.x), maxSpeed.x) * (body.props.velocity.x < 0 ? -1 : 1);
-				body.props.velocity.y = Math.min(Math.abs(body.props.velocity.y), maxSpeed.y) * (body.props.velocity.y < 0 ? -1 : 1);
+				body.velocity.x = Math.min(Math.abs(body.velocity.x), maxSpeed.x) * (body.velocity.x < 0 ? -1 : 1);
+				body.velocity.y = Math.min(Math.abs(body.velocity.y), maxSpeed.y) * (body.velocity.y < 0 ? -1 : 1);
 
 				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.props.bodyType) {
-					body.lastAttempt = body.props.velocity.getScaled(delta);
+				if (BodyType.STATIC != body.bodyType) {
+					body.lastAttempt = body.velocity.scale(delta);
 					body.aabb.translate(body.lastAttempt);
-					if (BodyType.KINETIC == body.props.bodyType) {
+					if (BodyType.KINETIC == body.bodyType) {
 						for (BitBody child : body.children) {
 							/*
 							 * we make sure to move the child just slightly less
@@ -153,9 +153,9 @@ public class BitWorld {
 		});
 
 		// resolve collisions for DYNAMIC bodies against Level bodies-
-		bodies.stream().filter(body -> body.active && BodyType.DYNAMIC == body.props.bodyType).forEach(body -> buildLevelCollisions(body));
+		bodies.stream().filter(body -> body.active && BodyType.DYNAMIC == body.bodyType).forEach(body -> buildLevelCollisions(body));
 		//		applyPendingResolutions();
-		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.props.bodyType).forEach(body -> buildKineticCollections(body));
+		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.bodyType).forEach(body -> buildKineticCollections(body));
 		resolveAndApplyPendingResolutions();
 
 		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
@@ -171,7 +171,7 @@ public class BitWorld {
 
 	private void resolveAndApplyPendingResolutions() {
 		for (BitBody body : pendingResolutions.keySet()) {
-			pendingResolutions.get(body).satisfy();
+			pendingResolutions.get(body).satisfy(this);
 			applyResolution(body, pendingResolutions.get(body));
 		}
 		pendingResolutions.clear();
@@ -239,10 +239,10 @@ public class BitWorld {
 			}
 		}
 		if (resolution.haltX) {
-			body.props.velocity.x = 0;
+			body.velocity.x = 0;
 		}
 		if (resolution.haltY) {
-			body.props.velocity.y = 0;
+			body.velocity.y = 0;
 		}
 
 		body.lastResolution = resolution.resolution;
@@ -271,18 +271,6 @@ public class BitWorld {
 			}
 			resolution.collisions.add(new BitCollision(insec, against));
 		}
-	}
-
-	public BitBody createBody(BitRectangle rect, BitBodyProps props) {
-		return createBody(rect.xy.x, rect.xy.y, rect.width, rect.height, props);
-	}
-
-	public BitBody createBody(float x, float y, float width, float height, BitBodyProps props) {
-		BitBody body = new BitBody();
-		body.aabb = new BitRectangle(x, y, width, height);
-		body.props = props;
-		addBody(body);
-		return body;
 	}
 
 	public List<BitBody> getBodies() {

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BitWorld;
-import com.bitdecay.jump.JumperProps;
+import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.gdx.engine.animation.AnimationState;
 import com.bitdecay.jump.gdx.engine.utilities.ImageUtilities;
 import com.bitdecay.jump.gdx.render.Renderable;
@@ -30,9 +30,8 @@ public class Player implements Updatable, Renderable {
     }
 
     private void buildBody(BitWorld world) {
-        playerBody = new BitBody();
+        playerBody = new BitBody(FileUtils.loadFileAs(JumperBody.class, Gdx.files.internal("props/graceProps").readString()));
         playerBody.aabb = new BitRectangle(50, 50, 46, 46);
-        playerBody.props = FileUtils.loadFileAs(JumperProps.class, Gdx.files.internal("props/graceProps").readString());
         playerBody.stateWatcher = new JumperStateWatcher();
         playerBody.stateWatcher.addListener(animations);
         world.addBody(playerBody);

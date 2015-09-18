@@ -16,14 +16,12 @@ public class TestCollisions {
         world.setGravity(0, -1);
 
         BitBody staticBody = new BitBody();
-        staticBody.props = new BitBodyProps();
-        staticBody.props.bodyType = BodyType.STATIC;
+        staticBody.bodyType = BodyType.STATIC;
         staticBody.aabb = new BitRectangle(0, 0, 10, 10);
         world.addBody(staticBody);
 
         BitBody dynamicBody = new BitBody();
-        dynamicBody.props = new BitBodyProps();
-        dynamicBody.props.bodyType = BodyType.DYNAMIC;
+        dynamicBody.bodyType = BodyType.DYNAMIC;
         dynamicBody.aabb = new BitRectangle(0, 20, 10, 10);
         world.addBody(dynamicBody);
 

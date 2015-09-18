@@ -1,7 +1,6 @@
 package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BitBodyProps;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitRectangle;
 
@@ -16,8 +15,7 @@ public class PathedLevelObject extends LevelObject {
 	public BitBody getBody() {
 		BitBody body = new BitBody();
 		body.aabb = rect;
-		body.props = new BitBodyProps();
-		body.props.bodyType = BodyType.KINETIC;
+		body.bodyType = BodyType.KINETIC;
 		return body;
 	}
 

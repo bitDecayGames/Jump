@@ -1,6 +1,6 @@
 package com.bitdecay.jump.leveleditor.ui;
 
-import com.bitdecay.jump.BitBodyProps;
+import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
 
 import javax.swing.*;
@@ -13,8 +13,8 @@ import java.util.List;
 public class BitPointComponentBuilder implements ComponentBuilder {
 
     @Override
-    public List<JComponent> build(Field field, BitBodyProps props, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
-        BitPoint bitPoint = (BitPoint) field.get(props);
+    public List<JComponent> build(Field field, BitBody body, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
+        BitPoint bitPoint = (BitPoint) field.get(body);
         JSlider xslider = new JSlider(-200, 200, 0);
         xslider.setMajorTickSpacing(50);
         xslider.setMinorTickSpacing(10);

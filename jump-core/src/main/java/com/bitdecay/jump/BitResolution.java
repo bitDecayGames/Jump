@@ -1,13 +1,13 @@
 package com.bitdecay.jump;
 
-import java.util.PriorityQueue;
-
 import com.bitdecay.jump.geom.BitPoint;
-import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.level.Direction;
-import com.bitdecay.jump.level.TileBodyProps;
+import com.bitdecay.jump.level.TileBody;
+
+import java.util.PriorityQueue;
 
 /**
  * A class to contain all logic and information about a single resolution plan.
@@ -41,7 +41,7 @@ public class BitResolution {
 	 * Processes the list of collisions. {@link #resolution} will be ready to
 	 * use once this method has returned.
 	 */
-	public void satisfy() {
+	public void satisfy(BitWorld world) {
 		// use a temp BitPoint to hold resolution values for each collision
 		BitPoint tempResolution = new BitPoint(0, 0);
 		BitPoint cumulativeResolution = new BitPoint(0, 0);
@@ -49,27 +49,27 @@ public class BitResolution {
 			if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
 				// only deal with this if we are still needing to resolved
 				int resoDirection = resolve(tempResolution, cumulativeResolution, body, collision.otherBody);
-				if (resoDirection != 0 && BodyType.KINETIC.equals(collision.otherBody.props.bodyType)) {
+				if (resoDirection != 0 && BodyType.KINETIC.equals(collision.otherBody.bodyType)) {
 					// only attach as child if we were resolved by the kinetic object in the direction it is moving
 					boolean attach = false;
 					switch (resoDirection) {
 					case Direction.UP:
-						if (BitWorld.gravity.y < 0 || collision.otherBody.lastAttempt.y > 0) {
+						if (world.gravity.y < 0 || collision.otherBody.lastAttempt.y > 0) {
 							attach = true;
 						}
 						break;
 					case Direction.DOWN:
-						if (BitWorld.gravity.y > 0 || collision.otherBody.lastAttempt.y < 0) {
+						if (world.gravity.y > 0 || collision.otherBody.lastAttempt.y < 0) {
 							attach = true;
 						}
 						break;
 					case Direction.LEFT:
-						if (BitWorld.gravity.x > 0 || collision.otherBody.lastAttempt.x < 0) {
+						if (world.gravity.x > 0 || collision.otherBody.lastAttempt.x < 0) {
 							attach = true;
 						}
 						break;
 					case Direction.RIGHT:
-						if (BitWorld.gravity.x < 0 || collision.otherBody.lastAttempt.x > 0) {
+						if (world.gravity.x < 0 || collision.otherBody.lastAttempt.x > 0) {
 							attach = true;
 						}
 						break;
@@ -105,9 +105,9 @@ public class BitResolution {
 				tempResolution.x = 0;
 				tempResolution.y = 0;
 
-				BitWorld.resolvedCollisions.add(collision.collisionZone);
+				world.resolvedCollisions.add(collision.collisionZone);
 			} else {
-				BitWorld.unresolvedCollisions.add(collision.collisionZone);
+				world.unresolvedCollisions.add(collision.collisionZone);
 			}
 		}
 		// set final resolution values
@@ -128,8 +128,8 @@ public class BitResolution {
 				return Direction.NONE;
 			}
 			int nValue = 0;
-			if (against.props instanceof TileBodyProps) {
-				nValue = ((TileBodyProps) against.props).nValue;
+			if (against instanceof TileBody) {
+				nValue = ((TileBody) against).nValue;
 			}
 			/*
 			 * Take the cumulative resolution into account because the body has
@@ -159,7 +159,7 @@ public class BitResolution {
 			boolean validRightCollision = validBodyRightCollision(body, nValue, insec, relativeVelocity);
 			boolean validTopCollision = validBodyTopCollisionLoose(body, nValue, insec, relativeVelocity);
 			boolean validBottomCollision = validBodyBottomCollisionLoose(body, nValue, insec, relativeVelocity);
-			if (validBottomCollision && body.props.velocity.y <= 0 && body.grounded) {
+			if (validBottomCollision && body.velocity.y <= 0 && body.grounded) {
 				// body collided on its bottom side
 				resolution.y = Math.max(resolution.y, insec.height);
 				return Direction.UP;
@@ -182,15 +182,15 @@ public class BitResolution {
 			} else {
 				// handle where the body is partially inside a box that was not resolvable with the basic checks
 				if (insec.height == body.aabb.height) {
-					if (body.props.velocity.y <= 0) {
+					if (body.velocity.y <= 0) {
 						return resolveUp(resolution, against, insec);
 					} else {
 						return resolveDown(resolution, against, insec);
 					}
 				} else if (insec.width == body.aabb.width) {
-					if (body.props.velocity.x < 0) {
+					if (body.velocity.x < 0) {
 						return resolveRight(resolution, against, insec);
-					} else if (body.props.velocity.x > 0) {
+					} else if (body.velocity.x > 0) {
 						return resolveLeft(resolution, against, insec);
 					}
 				}
@@ -207,16 +207,16 @@ public class BitResolution {
 	private int resolveBodyInside(BitPoint resolution, BitBody body, BitBody against, int nValue, BitRectangle insec, boolean xSpeedDominant) {
 		// handle where a body is entirely inside another object
 		// check speed and move the character straight out based on the dominant vector axis
-		if (xSpeedDominant && body.props.velocity.x <= 0 && (nValue & Direction.RIGHT) == 0) {
+		if (xSpeedDominant && body.velocity.x <= 0 && (nValue & Direction.RIGHT) == 0) {
 			//push them out to the right
 			return resolveRight(resolution, against, insec);
-		} else if (xSpeedDominant && body.props.velocity.x > 0 && (nValue & Direction.LEFT) == 0) {
+		} else if (xSpeedDominant && body.velocity.x > 0 && (nValue & Direction.LEFT) == 0) {
 			// push them out to the left
 			return resolveLeft(resolution, against, insec);
-		} else if (!xSpeedDominant && body.props.velocity.y <= 0 && (nValue & Direction.UP) == 0) {
+		} else if (!xSpeedDominant && body.velocity.y <= 0 && (nValue & Direction.UP) == 0) {
 			// push them out to the top
 			return resolveUp(resolution, against, insec);
-		} else if (!xSpeedDominant && body.props.velocity.y > 0 && (nValue & Direction.DOWN) == 0) {
+		} else if (!xSpeedDominant && body.velocity.y > 0 && (nValue & Direction.DOWN) == 0) {
 			// push them out to the bottom
 			return resolveDown(resolution, against, insec);
 		}
