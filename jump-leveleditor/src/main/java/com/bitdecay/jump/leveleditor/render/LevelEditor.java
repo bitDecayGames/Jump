@@ -40,9 +40,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private static final int CAM_SPEED = 5;
 
-    static {
-        System.out.println(Gdx.files.internal("fonts/test2.fnt").file().getAbsolutePath());
-    }
     public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
 
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
