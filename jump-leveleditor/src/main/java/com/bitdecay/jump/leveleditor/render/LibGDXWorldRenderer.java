@@ -1,8 +1,7 @@
 package com.bitdecay.jump.leveleditor.render;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BitWorld;
@@ -84,6 +83,11 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                         renderer.setColor(Color.WHITE);
                         break;
                 }
+            }
+            if (body.parent != null) {
+                renderer.setColor(Color.MAGENTA);
+            } else if (body.children.size() > 0) {
+                renderer.setColor(Color.PURPLE);
             }
             renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
             if (body.props.velocity.x != 0 || body.props.velocity.y != 0) {
