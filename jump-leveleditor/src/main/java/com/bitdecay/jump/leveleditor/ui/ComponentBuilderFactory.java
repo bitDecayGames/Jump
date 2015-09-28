@@ -9,7 +9,7 @@ public class ComponentBuilderFactory {
 
     static {
         components = new HashMap<String, ComponentBuilder>();
-        components.put("bitDecayJump.geom.BitPoint", new BitPointComponentBuilder());
+        components.put("com.bitdecay.jump.geom.BitPoint", new BitPointComponentBuilder());
         components.put("int", new IntComponentBuilder());
         components.put("float", new FloatComponentBuilder());
         components.put("boolean", new BooleanComponentBuilder());

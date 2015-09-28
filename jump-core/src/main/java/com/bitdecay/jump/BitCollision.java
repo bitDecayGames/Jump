@@ -21,8 +21,8 @@ public class BitCollision implements Comparable<BitCollision> {
 
 	@Override
 	public int compareTo(BitCollision o) {
-		boolean thisCollisionWithKinetic = BodyType.KINETIC.equals(otherBody.props.bodyType);
-		boolean otherCollisionWithKinetic = BodyType.KINETIC.equals(o.otherBody.props.bodyType);
+		boolean thisCollisionWithKinetic = BodyType.KINETIC.equals(otherBody.bodyType);
+		boolean otherCollisionWithKinetic = BodyType.KINETIC.equals(o.otherBody.bodyType);
 		if (thisCollisionWithKinetic && !otherCollisionWithKinetic) {
 			return -1;
 		} else if (otherCollisionWithKinetic && !thisCollisionWithKinetic) {

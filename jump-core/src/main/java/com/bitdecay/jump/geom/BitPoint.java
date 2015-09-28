@@ -57,7 +57,7 @@ public class BitPoint {
 		return new BitPoint(x - point.x, y - point.y);
 	}
 
-	public BitPoint getScaled(float scale) {
+	public BitPoint scale(float scale) {
 		return new BitPoint(x * scale, y * scale);
 	}
 
@@ -80,6 +80,14 @@ public class BitPoint {
 
 	public float len() {
 		return (float)Math.sqrt(x * x + y * y);
+	}
+
+	public float distanceTo(BitPoint other){
+		return other.minus(this).len();
+	}
+
+	public float manhattanDistanceTo(BitPoint other){
+		return Math.abs(other.x - this.x) + Math.abs(other.y - this.y);
 	}
 
 	public BitPoint normalize() {

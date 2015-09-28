@@ -2,7 +2,6 @@ package com.bitdecay.jump;
 
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
-
 import java.util.PriorityQueue;
 
 /**
@@ -29,9 +28,8 @@ public abstract class BitResolution {
 		resolvedPosition = new BitRectangle(body.aabb);
 	}
 
-	public void resolve() {
-		satisfy();
-
+	public void resolve(BitWorld world) {
+		satisfy(world);
 		// set final resolution values
 		resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
 		resolution.y = resolvedPosition.xy.y - body.aabb.xy.y;
@@ -46,5 +44,5 @@ public abstract class BitResolution {
 	/**
 	 * Let our strategy resolve the collision and set the resolved position
 	 */
-	public abstract void satisfy();
+	public abstract void satisfy(BitWorld world);
 }

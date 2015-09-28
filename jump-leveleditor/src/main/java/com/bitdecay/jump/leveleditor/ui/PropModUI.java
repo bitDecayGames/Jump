@@ -1,42 +1,53 @@
 package com.bitdecay.jump.leveleditor.ui;
 
-import com.bitdecay.jump.BitBodyProps;
+import com.bitdecay.jump.BitBody;
 
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class PropModUI extends JDialog {
     private static final long serialVersionUID = 1L;
     PropModUICallback callback;
+    private JScrollPane scrollPane;
     private JPanel items;
 
-    public PropModUI(PropModUICallback callback, BitBodyProps props) {
+    public PropModUI(PropModUICallback callback, BitBody body) {
         super();
+        scrollPane = new JScrollPane();
         items = new JPanel();
         items.setLayout(new BoxLayout(items, BoxLayout.Y_AXIS));
+        scrollPane.getViewport().add(items);
         this.callback = callback;
-        setProperties(props);
-        add(items);
+        setProperties(body);
+        add(scrollPane);
+        setMinimumSize(new Dimension(400, 800));
+        setMaximumSize(new Dimension(400, 800));
+        setPreferredSize(new Dimension(400, 800));
         pack();
-        setMinimumSize(new Dimension(400, (int) getSize().getHeight()));
-        setMaximumSize(new Dimension(400, (int) getSize().getHeight()));
-        setPreferredSize(new Dimension(400, (int) getSize().getHeight()));
 
         setLocation(0, 100);
         setAlwaysOnTop(true);
     }
 
-    public void setProperties(BitBodyProps props) {
+    public void setProperties(BitBody body) {
         items.removeAll();
         List<Field> fields = new ArrayList<Field>();
-        fields.addAll(Arrays.asList(props.getClass().getSuperclass().getDeclaredFields()));
-        fields.addAll(Arrays.asList(props.getClass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(body.getClass().getSuperclass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(body.getClass().getDeclaredFields()));
+        fields.sort(new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         boolean first = true;
         for (Field field : fields) {
+            System.out.println(field.getName());
             if (!first) {
                 items.add(new JSeparator(JSeparator.CENTER));
             } else {
@@ -45,7 +56,7 @@ public class PropModUI extends JDialog {
             try {
                 ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getName());
                 if (builder != null) {
-                    List<JComponent> component = builder.build(field, props, callback);
+                    List<JComponent> component = builder.build(field, body, callback);
                     if (component != null) {
                         JLabel label = new JLabel(field.getName());
                         items.add(label);

@@ -8,7 +8,7 @@ import com.bitdecay.jump.BitWorld;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
-import com.bitdecay.jump.level.TileBodyProps;
+import com.bitdecay.jump.level.TileBody;
 
 public class LibGDXWorldRenderer implements BitWorldRenderer {
     private BitWorld world;
@@ -43,8 +43,8 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                     float bottomY = levelObject.aabb.xy.y;
                     float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
                     int nValue = 0;
-                    if (levelObject.props instanceof TileBodyProps) {
-                        nValue = ((TileBodyProps) levelObject.props).nValue;
+                    if (levelObject instanceof TileBody) {
+                        nValue = ((TileBody) levelObject).nValue;
                     }
                     if ((nValue & Direction.UP) == 0) {
                         renderer.setColor(Color.WHITE);
@@ -69,7 +69,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             if (!body.active) {
                 renderer.setColor(Color.GRAY);
             } else {
-                switch (body.props.bodyType) {
+                switch (body.bodyType) {
                     case DYNAMIC:
                         renderer.setColor(Color.CYAN);
                         break;
@@ -90,20 +90,20 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 renderer.setColor(Color.PURPLE);
             }
             renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
-            if (body.props.velocity.x != 0 || body.props.velocity.y != 0) {
+            if (body.velocity.x != 0 || body.velocity.y != 0) {
                 float x = body.aabb.xy.x + body.aabb.width / 2;
                 float y = body.aabb.xy.y + body.aabb.height / 2;
                 renderer.setColor(Color.PINK);
-                renderer.line(x, y, x + body.props.velocity.x, y + body.props.velocity.y);
+                renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
             }
         }
 
         renderer.setColor(Color.YELLOW);
-        for (BitRectangle col : BitWorld.unresolvedCollisions) {
+        for (BitRectangle col : world.unresolvedCollisions) {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
         renderer.setColor(Color.RED);
-        for (BitRectangle col : BitWorld.resolvedCollisions) {
+        for (BitRectangle col : world.resolvedCollisions) {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
         renderer.end();

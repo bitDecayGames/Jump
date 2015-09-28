@@ -14,12 +14,12 @@ public class SATStrategy extends BitResolution {
     }
 
     @Override
-    public void satisfy() {
+    public void satisfy(BitWorld world) {
         for (BitCollision collision : collisions) {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
                 satResolve(resolvedPosition, satRes);
-                postResolve(body, collision.otherBody, satRes);
+                postResolve(world, body, collision.otherBody, satRes);
             }
         }
     }
@@ -52,8 +52,8 @@ public class SATStrategy extends BitResolution {
     }
 
 
-    private void postResolve(BitBody body, BitBody otherBody, SATResolution satRes) {
-        if (satRes.axis.len() != 0 && BodyType.KINETIC.equals(otherBody.props.bodyType)) {
+    private void postResolve(BitWorld world, BitBody body, BitBody otherBody, SATResolution satRes) {
+        if (satRes.axis.len() != 0 && BodyType.KINETIC.equals(otherBody.bodyType)) {
             if (body.parent == null) {
                 // Attach as child if we were resolved by the kinetic object in the direction it is moving
                 if (satRes.axis.dot(otherBody.lastAttempt.x, otherBody.lastAttempt.y) > 0) {
@@ -61,7 +61,7 @@ public class SATStrategy extends BitResolution {
                     otherBody.children.add(body);
                 }
                 // attach if we were resolved against gravity (aka we are standing on it)
-                if (satRes.axis.dot(BitWorld.gravity.x, BitWorld.gravity.y) < 0) {
+                if (satRes.axis.dot(world.gravity.x, world.gravity.y) < 0) {
                     body.parent = otherBody;
                     otherBody.children.add(body);
                 }
