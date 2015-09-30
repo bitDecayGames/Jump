@@ -237,14 +237,20 @@ public class BitWorld {
 	}
 
 	private void expireContact(BitBody body) {
-		contacts.get(body).stream().forEach(otherBody -> {
+		Iterator<BitBody> iterator = contacts.get(body).iterator();
+		BitBody otherBody = null;
+		while(iterator.hasNext()) {
+			otherBody = iterator.next();
 			if (GeomUtils.intersection(body.aabb, otherBody.aabb) == null) {
-				contacts.get(body).remove(otherBody);
+				iterator.remove();
 				for (ContactListener listener : body.getContactListeners()) {
 					listener.contactEnded(otherBody);
 				}
+				for (ContactListener listener : otherBody.getContactListeners()) {
+					listener.contactEnded(body);
+				}
 			}
-		});
+		}
 	}
 
 	private void findNewContact(BitBody body) {
@@ -267,6 +273,7 @@ public class BitWorld {
 					BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
 					if (insec != null) {
 						if (!contacts.get(body).contains(otherBody)) {
+							contacts.get(body).add(otherBody);
 							for (ContactListener listener : body.getContactListeners()) {
 								listener.contactStarted(otherBody);
 							}
