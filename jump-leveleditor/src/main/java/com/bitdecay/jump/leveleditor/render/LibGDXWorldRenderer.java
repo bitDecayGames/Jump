@@ -10,6 +10,8 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
 
+import java.util.List;
+
 public class LibGDXWorldRenderer implements BitWorldRenderer {
     private BitWorld world;
     private OrthographicCamera cam;
@@ -65,7 +67,23 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 }
             }
         }
-        for (BitBody body : world.getDyanmicBodies()) {
+        renderBodies(renderer, world.getDynamicBodies());
+        renderBodies(renderer, world.getKineticBodies());
+        renderBodies(renderer, world.getStaticBodies());
+
+        renderer.setColor(Color.YELLOW);
+        for (BitRectangle col : world.unresolvedCollisions) {
+            renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
+        }
+        renderer.setColor(Color.RED);
+        for (BitRectangle col : world.resolvedCollisions) {
+            renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
+        }
+        renderer.end();
+    }
+
+    private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
+        for (BitBody body : bodies) {
             if (!body.active) {
                 renderer.setColor(Color.GRAY);
             } else {
@@ -97,15 +115,5 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
             }
         }
-
-        renderer.setColor(Color.YELLOW);
-        for (BitRectangle col : world.unresolvedCollisions) {
-            renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
-        }
-        renderer.setColor(Color.RED);
-        for (BitRectangle col : world.resolvedCollisions) {
-            renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
-        }
-        renderer.end();
     }
 }

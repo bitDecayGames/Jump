@@ -1,12 +1,15 @@
 package com.bitdecay.jump;
 
+import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.controller.BitBodyController;
 import com.bitdecay.jump.exception.BitBodySerializeException;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.state.BitBodyStateWatcher;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BitBody {
@@ -91,6 +94,11 @@ public class BitBody {
      */
     public boolean gravitational = true;
 
+    /**
+     * A list of subscribed listeners for contact information as it happens
+     */
+    public List<ContactListener> contactListeners = new ArrayList<>();
+
     public BitBody(){}
 
     /**
@@ -123,5 +131,9 @@ public class BitBody {
         } catch (IllegalAccessException iae){
             throw new BitBodySerializeException("The property: " + prop + " is not marked as public", iae);
         }
+    }
+
+    public List<ContactListener> getContactListeners() {
+        return contactListeners;
     }
 }

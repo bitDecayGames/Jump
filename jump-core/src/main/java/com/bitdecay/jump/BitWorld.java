@@ -2,6 +2,7 @@ package com.bitdecay.jump;
 
 import java.util.*;
 
+import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.collision.SATStrategy;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
@@ -27,7 +28,7 @@ public class BitWorld {
 	private int tileSize = 32;
 	private BitPointInt gridOffset = new BitPointInt(0, 0);
 	private BitBody[][] gridObjects = new BitBody[0][0];
-	private List<BitBody> dyanmicBodies = new ArrayList<>();
+	private List<BitBody> dynamicBodies = new ArrayList<>();
 	private List<BitBody> kineticBodies = new ArrayList<>();
 	private List<BitBody> staticBodies = new ArrayList<>();
 
@@ -36,14 +37,15 @@ public class BitWorld {
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
 	private Map<BitBody, BitResolution> pendingResolutions;
+	private Map<BitBody, Set<BitBody>> contacts;
 
 	public static BitPoint gravity = new BitPoint(0, 0);
 	public static BitPoint maxSpeed = new BitPoint(2000, 2000);
 
 	private List<BitBody> pendingAdds;
 	private List<BitBody> pendingRemoves;
-	public final List<BitRectangle> resolvedCollisions = new ArrayList<BitRectangle>();
-	public final List<BitRectangle> unresolvedCollisions = new ArrayList<BitRectangle>();
+	public final List<BitRectangle> resolvedCollisions = new ArrayList<>();
+	public final List<BitRectangle> unresolvedCollisions = new ArrayList<>();
 
 	public static final BitBody LEVEL_BODY = new BitBody();
 	static {
@@ -51,11 +53,12 @@ public class BitWorld {
 	}
 
 	public BitWorld() {
-		dyanmicBodies = new ArrayList<BitBody>();
-		pendingAdds = new ArrayList<BitBody>();
-		pendingRemoves = new ArrayList<BitBody>();
-		occupiedSpaces = new HashMap<Integer, Map<Integer, Set<BitBody>>>();
-		pendingResolutions = new HashMap<BitBody, BitResolution>();
+		dynamicBodies = new ArrayList<>();
+		pendingAdds = new ArrayList<>();
+		pendingRemoves = new ArrayList<>();
+		occupiedSpaces = new HashMap<>();
+		pendingResolutions = new HashMap<>();
+		contacts = new HashMap<>();
 	}
 
 	public BitPoint getGravity() {
@@ -115,7 +118,7 @@ public class BitWorld {
 		/**
 		 * FIRST, MOVE EVERYTHING
 		 */
-		dyanmicBodies.parallelStream().forEach(body -> {
+		dynamicBodies.stream().forEach(body -> {
 			if (body.active) {
 				updateDynamics(body, delta);
 				updateInput(body, delta);
@@ -125,7 +128,7 @@ public class BitWorld {
 			}
 		});
 
-		kineticBodies.parallelStream().forEach(body -> {
+		kineticBodies.stream().forEach(body -> {
 			if (body.active) {
 				updateKinetics(body);
 				moveBody(body, delta);
@@ -134,7 +137,7 @@ public class BitWorld {
 			}
 		});
 
-		staticBodies.parallelStream().forEach(body -> {
+		staticBodies.stream().forEach(body -> {
 			if (body.active) {
 				updateOccupiedSpaces(body);
 			}
@@ -146,9 +149,10 @@ public class BitWorld {
 		/**
 		 * BUILD COLLISIONS
 		 */
-		dyanmicBodies.stream().filter(body -> body.active).forEach(body -> {
+		dynamicBodies.stream().filter(body -> body.active).forEach(body -> {
 			buildLevelCollisions(body);
-			buildBodyCollisions(body);
+			expireContact(body);
+			findNewContact(body);
 		});
 		kineticBodies.stream().filter(body -> body.active).forEach(body -> buildKineticCollections(body));
 		/**
@@ -158,7 +162,7 @@ public class BitWorld {
 
 		resolveAndApplyPendingResolutions();
 
-		dyanmicBodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
+		dynamicBodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
 	}
 
 	public void updateInput(BitBody body, float delta) {
@@ -171,13 +175,6 @@ public class BitWorld {
 		if (body.gravitational) {
 			body.velocity.add(gravity.scale(delta));
 		}
-	}
-
-	public void resetCollisions(BitBody body) {
-		// all dyanmicBodies are assumed to be not grounded unless a collision happens this step.
-		body.grounded = false;
-		// all dyanmicBodies assumed to be independent unless a lineage collision happens this step.
-		body.parent = null;
 	}
 
 	public void updateKinetics(BitBody body) {
@@ -202,15 +199,23 @@ public class BitWorld {
 		body.aabb.translate(body.lastAttempt);
 	}
 
+	public void resetCollisions(BitBody body) {
+		// all dynamicBodies are assumed to be not grounded unless a collision happens this step.
+		body.grounded = false;
+		// all dynamicBodies assumed to be independent unless a lineage collision happens this step.
+		body.parent = null;
+	}
+
 	private void doAddRemoves() {
-		dyanmicBodies.removeAll(pendingRemoves);
+		dynamicBodies.removeAll(pendingRemoves);
 		kineticBodies.removeAll(pendingRemoves);
 		staticBodies.removeAll(pendingRemoves);
+		pendingRemoves.stream().forEach(body -> contacts.remove(body));
 		pendingRemoves.clear();
 
 		for (BitBody body : pendingAdds) {
 			if (BodyType.DYNAMIC == body.bodyType) {
-				dyanmicBodies.add(body);
+				dynamicBodies.add(body);
 			}
 			if (BodyType.KINETIC == body.bodyType) {
 				kineticBodies.add(body);
@@ -218,6 +223,7 @@ public class BitWorld {
 			if (BodyType.STATIC == body.bodyType) {
 				staticBodies.add(body);
 			}
+			contacts.put(body, new HashSet<>());
 		}
 		pendingAdds.clear();
 	}
@@ -230,8 +236,19 @@ public class BitWorld {
 		pendingResolutions.clear();
 	}
 
-	private void buildBodyCollisions(BitBody body) {
-		// TODO: collide vs Static and Dynamic dyanmicBodies and report them via a callback (preferably)
+	private void expireContact(BitBody body) {
+		contacts.get(body).stream().forEach(otherBody -> {
+			if (GeomUtils.intersection(body.aabb, otherBody.aabb) == null) {
+				contacts.get(body).remove(otherBody);
+				for (ContactListener listener : body.getContactListeners()) {
+					listener.contactEnded(otherBody);
+				}
+			}
+		});
+	}
+
+	private void findNewContact(BitBody body) {
+		// TODO: collide vs Static and Dynamic dynamicBodies and report them via a callback (preferably)
 		// We need to update each body against the level grid so we only collide things worth colliding
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -247,10 +264,15 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					if (body != otherBody) {
-						BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
-						if (insec != null) {
-							// need to report that a collision happened now
+					BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
+					if (insec != null) {
+						if (!contacts.get(body).contains(otherBody)) {
+							for (ContactListener listener : body.getContactListeners()) {
+								listener.contactStarted(otherBody);
+							}
+							for (ContactListener listener : otherBody.getContactListeners()) {
+								listener.contactStarted(body);
+							}
 						}
 					}
 				}
@@ -275,7 +297,9 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					checkForNewCollision(otherBody, kineticBody);
+					if (otherBody.bodyType != BodyType.KINETIC) {
+						checkForNewCollision(otherBody, kineticBody);
+					}
 				}
 			}
 		}
@@ -369,8 +393,16 @@ public class BitWorld {
 		}
 	}
 
-	public List<BitBody> getDyanmicBodies() {
-		return Collections.unmodifiableList(dyanmicBodies);
+	public List<BitBody> getDynamicBodies() {
+		return Collections.unmodifiableList(dynamicBodies);
+	}
+
+	public List<BitBody> getKineticBodies() {
+		return Collections.unmodifiableList(kineticBodies);
+	}
+
+	public List<BitBody> getStaticBodies() {
+		return Collections.unmodifiableList(staticBodies);
 	}
 
 	public void setTileSize(int tileSize) {
@@ -415,12 +447,15 @@ public class BitWorld {
 	}
 
 	public void setObjects(Collection<BitBody> otherObjects) {
-		pendingRemoves.addAll(dyanmicBodies);
+		pendingRemoves.addAll(dynamicBodies);
+		pendingRemoves.addAll(kineticBodies);
+		pendingRemoves.addAll(staticBodies);
+
 		pendingAdds.addAll(otherObjects);
 	}
 
 	public void removeAllBodies() {
-		pendingRemoves.addAll(dyanmicBodies);
+		pendingRemoves.addAll(dynamicBodies);
 		pendingAdds.clear();
 	}
 }
