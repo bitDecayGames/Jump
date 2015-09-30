@@ -65,7 +65,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 }
             }
         }
-        for (BitBody body : world.getBodies()) {
+        for (BitBody body : world.getDyanmicBodies()) {
             if (!body.active) {
                 renderer.setColor(Color.GRAY);
             } else {

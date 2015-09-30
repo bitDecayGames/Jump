@@ -27,7 +27,9 @@ public class BitWorld {
 	private int tileSize = 32;
 	private BitPointInt gridOffset = new BitPointInt(0, 0);
 	private BitBody[][] gridObjects = new BitBody[0][0];
-	private List<BitBody> bodies = new ArrayList<>();
+	private List<BitBody> dyanmicBodies = new ArrayList<>();
+	private List<BitBody> kineticBodies = new ArrayList<>();
+	private List<BitBody> staticBodies = new ArrayList<>();
 
 	/**
 	 * A map of x to y to an occupying body.
@@ -49,7 +51,7 @@ public class BitWorld {
 	}
 
 	public BitWorld() {
-		bodies = new ArrayList<BitBody>();
+		dyanmicBodies = new ArrayList<BitBody>();
 		pendingAdds = new ArrayList<BitBody>();
 		pendingRemoves = new ArrayList<BitBody>();
 		occupiedSpaces = new HashMap<Integer, Map<Integer, Set<BitBody>>>();
@@ -110,64 +112,113 @@ public class BitWorld {
 
 		occupiedSpaces.clear();
 
-		// first, move everything
-		bodies.parallelStream().forEach(body -> {
+		/**
+		 * FIRST, MOVE EVERYTHING
+		 */
+		dyanmicBodies.parallelStream().forEach(body -> {
 			if (body.active) {
-				// apply gravity to DYNAMIC bodies
-				if (BodyType.DYNAMIC == body.bodyType) {
-					if (body.gravitational) {
-						body.velocity.add(gravity.scale(delta));
-					}
-				}
-				// then let controller handle the body
-				if (body.controller != null) {
-					body.controller.update(delta, body);
-				}
-
-				// cap body at max speed
-				body.velocity.x = Math.min(Math.abs(body.velocity.x), maxSpeed.x) * (body.velocity.x < 0 ? -1 : 1);
-				body.velocity.y = Math.min(Math.abs(body.velocity.y), maxSpeed.y) * (body.velocity.y < 0 ? -1 : 1);
-
-				// then move all of our non-static bodies
-				if (BodyType.STATIC != body.bodyType) {
-					body.lastAttempt = body.velocity.scale(delta);
-					body.aabb.translate(body.lastAttempt);
-					if (BodyType.KINETIC == body.bodyType) {
-						for (BitBody child : body.children) {
-							/*
-							 * we make sure to move the child just slightly less
-							 * than the parent to guarantee that it still
-							 * collides if nothing else influences it's motion
-							 */
-							BitPoint influence = body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION);
-							child.aabb.translate(influence);
-							// the child did attempt to move this additional amount according to our engine
-							child.lastAttempt.add(influence);
-						}
-						body.children.clear();
-					}
-				}
-				// all bodies are assumed to be not grounded unless a collision happens this step.
-				body.grounded = false;
-				// all bodies assumed to be independent unless a lineage collision happens this step.
-				body.parent = null;
+				updateDynamics(body, delta);
+				updateInput(body, delta);
+				moveBody(body, delta);
+				updateOccupiedSpaces(body);
+				resetCollisions(body);
 			}
 		});
 
-		// resolve collisions for DYNAMIC bodies against Level bodies-
-		bodies.stream().filter(body -> body.active && BodyType.DYNAMIC == body.bodyType).forEach(body -> buildLevelCollisions(body));
-		//		applyPendingResolutions();
-		bodies.stream().filter(body -> body.active && BodyType.KINETIC == body.bodyType).forEach(body -> buildKineticCollections(body));
+		kineticBodies.parallelStream().forEach(body -> {
+			if (body.active) {
+				updateKinetics(body);
+				moveBody(body, delta);
+				updateOccupiedSpaces(body);
+				resetCollisions(body);
+			}
+		});
+
+		staticBodies.parallelStream().forEach(body -> {
+			if (body.active) {
+				updateOccupiedSpaces(body);
+			}
+		});
+		/**
+		 * END OF MOVING EVERYTHING
+		 */
+
+		/**
+		 * BUILD COLLISIONS
+		 */
+		dyanmicBodies.stream().filter(body -> body.active).forEach(body -> {
+			buildLevelCollisions(body);
+			buildBodyCollisions(body);
+		});
+		kineticBodies.stream().filter(body -> body.active).forEach(body -> buildKineticCollections(body));
+		/**
+		 * END COLLISIONS
+		 */
+
+
 		resolveAndApplyPendingResolutions();
 
-		bodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
+		dyanmicBodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
+	}
+
+	public void updateInput(BitBody body, float delta) {
+		if (body.controller != null) {
+			body.controller.update(delta, body);
+		}
+	}
+
+	public void updateDynamics(BitBody body, float delta) {
+		if (body.gravitational) {
+			body.velocity.add(gravity.scale(delta));
+		}
+	}
+
+	public void resetCollisions(BitBody body) {
+		// all dyanmicBodies are assumed to be not grounded unless a collision happens this step.
+		body.grounded = false;
+		// all dyanmicBodies assumed to be independent unless a lineage collision happens this step.
+		body.parent = null;
+	}
+
+	public void updateKinetics(BitBody body) {
+		for (BitBody child : body.children) {
+			/*
+			 * we make sure to move the child just slightly less
+			 * than the parent to guarantee that it still
+			 * collides if nothing else influences it's motion
+			 */
+			BitPoint influence = body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION);
+			child.aabb.translate(influence);
+			// the child did attempt to move this additional amount according to our engine
+			child.lastAttempt.add(influence);
+		}
+		body.children.clear();
+	}
+
+	public void moveBody(BitBody body, float delta) {
+		body.velocity.x = Math.min(Math.abs(body.velocity.x), maxSpeed.x) * (body.velocity.x < 0 ? -1 : 1);
+		body.velocity.y = Math.min(Math.abs(body.velocity.y), maxSpeed.y) * (body.velocity.y < 0 ? -1 : 1);
+		body.lastAttempt = body.velocity.scale(delta);
+		body.aabb.translate(body.lastAttempt);
 	}
 
 	private void doAddRemoves() {
-		bodies.removeAll(pendingRemoves);
+		dyanmicBodies.removeAll(pendingRemoves);
+		kineticBodies.removeAll(pendingRemoves);
+		staticBodies.removeAll(pendingRemoves);
 		pendingRemoves.clear();
 
-		bodies.addAll(pendingAdds);
+		for (BitBody body : pendingAdds) {
+			if (BodyType.DYNAMIC == body.bodyType) {
+				dyanmicBodies.add(body);
+			}
+			if (BodyType.KINETIC == body.bodyType) {
+				kineticBodies.add(body);
+			}
+			if (BodyType.STATIC == body.bodyType) {
+				staticBodies.add(body);
+			}
+		}
 		pendingAdds.clear();
 	}
 
@@ -177,6 +228,34 @@ public class BitWorld {
 			applyResolution(body, pendingResolutions.get(body));
 		}
 		pendingResolutions.clear();
+	}
+
+	private void buildBodyCollisions(BitBody body) {
+		// TODO: collide vs Static and Dynamic dyanmicBodies and report them via a callback (preferably)
+		// We need to update each body against the level grid so we only collide things worth colliding
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
+
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
+
+		for (int x = (int) startCell.x; x <= endX; x++) {
+			if (!occupiedSpaces.containsKey(x)) {
+				continue;
+			}
+			for (int y = (int) startCell.y; y <= endY; y++) {
+				if (!occupiedSpaces.get(x).containsKey(y)) {
+					continue;
+				}
+				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
+					if (body != otherBody) {
+						BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
+						if (insec != null) {
+							// need to report that a collision happened now
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void buildKineticCollections(BitBody kineticBody) {
@@ -212,6 +291,26 @@ public class BitWorld {
 
 		// 3. loop over those all occupied tiles
 		for (int x = (int) startCell.x; x <= endX; x++) {
+			for (int y = (int) startCell.y; y <= endY; y++) {
+				// ensure valid cell
+				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
+					BitBody checkObj = gridObjects[x][y];
+					checkForNewCollision(body, checkObj);
+				}
+			}
+		}
+	}
+
+	private void updateOccupiedSpaces(BitBody body) {
+		// 1. determine tile that x,y lives in
+		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
+
+		// 2. determine width/height in tiles
+		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
+		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
+
+		// 3. loop over those all occupied tiles
+		for (int x = (int) startCell.x; x <= endX; x++) {
 			if (!occupiedSpaces.containsKey(x)) {
 				occupiedSpaces.put(x, new HashMap<Integer, Set<BitBody>>());
 			}
@@ -221,11 +320,6 @@ public class BitWorld {
 				}
 				// mark the body as occupying the current grid coordinate
 				occupiedSpaces.get(x).get(y).add(body);
-				// ensure valid cell
-				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
-					BitBody checkObj = gridObjects[x][y];
-					checkForNewCollision(body, checkObj);
-				}
 			}
 		}
 	}
@@ -275,8 +369,8 @@ public class BitWorld {
 		}
 	}
 
-	public List<BitBody> getBodies() {
-		return Collections.unmodifiableList(bodies);
+	public List<BitBody> getDyanmicBodies() {
+		return Collections.unmodifiableList(dyanmicBodies);
 	}
 
 	public void setTileSize(int tileSize) {
@@ -321,12 +415,12 @@ public class BitWorld {
 	}
 
 	public void setObjects(Collection<BitBody> otherObjects) {
-		pendingRemoves.addAll(bodies);
+		pendingRemoves.addAll(dyanmicBodies);
 		pendingAdds.addAll(otherObjects);
 	}
 
 	public void removeAllBodies() {
-		pendingRemoves.addAll(bodies);
+		pendingRemoves.addAll(dyanmicBodies);
 		pendingAdds.clear();
 	}
 }

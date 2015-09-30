@@ -13,7 +13,7 @@ public class TestCollisions {
         Level l = new Level(1);
         l.gridOffset = new BitPointInt(0, 0);
         world.setLevel(l);
-        world.setGravity(0, -1);
+        world.setGravity(0, -90);
 
         BitBody staticBody = new BitBody();
         staticBody.bodyType = BodyType.STATIC;
