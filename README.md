@@ -18,4 +18,4 @@ The projects are laid out as follows:
 * jump-core - Pure platformer engine, no ties to libgdx.
 * jump-gdx - libGDX specific things such as image and sound utilities, rendering, etc.
 * jump-leveleditor - This project is basically the level editor (jump backend with gdx frontend)
-* jump-common - This is a project just for intermediate things, right now it only has state objects in it (state would be set by Jump, but used by some external code) I wanted to have the code visible to any project that needs it without having dependencies against one of the other projects.
+* jump-common - This is a project just for intermediate things, right now it only used for player action state. jump-core sets the 'action state' of some objects (such as player jumping, player running, etc), and these cause events to be fired that can be listened for.
