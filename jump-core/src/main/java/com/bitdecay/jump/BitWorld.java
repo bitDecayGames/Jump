@@ -47,13 +47,7 @@ public class BitWorld {
 	public final List<BitRectangle> resolvedCollisions = new ArrayList<>();
 	public final List<BitRectangle> unresolvedCollisions = new ArrayList<>();
 
-	public static final BitBody LEVEL_BODY = new BitBody();
-	static {
-		LEVEL_BODY.bodyType = BodyType.STATIC;
-	}
-
 	public BitWorld() {
-		dynamicBodies = new ArrayList<>();
 		pendingAdds = new ArrayList<>();
 		pendingRemoves = new ArrayList<>();
 		occupiedSpaces = new HashMap<>();
@@ -86,6 +80,10 @@ public class BitWorld {
 	 * @return true if the world stepped, false otherwise
 	 */
 	public boolean step(float delta) {
+		if (gridObjects == null) {
+			System.err.println("No level has been set into the world. Exiting...");
+			System.exit(-1);
+		}
 		//		delta *= .05f;
 		boolean stepped = false;
 		//add any left over time from last call to step();
@@ -149,12 +147,13 @@ public class BitWorld {
 		/**
 		 * BUILD COLLISIONS
 		 */
-		dynamicBodies.stream().filter(body -> body.active).forEach(body -> {
-			buildLevelCollisions(body);
-			expireContact(body);
-			findNewContact(body);
+		dynamicBodies.stream().forEach(body -> {
+			if (body.active) {
+				buildLevelCollisions(body);
+				expireContact(body);
+				findNewContact(body);
+			}
 		});
-		kineticBodies.stream().filter(body -> body.active).forEach(body -> buildKineticCollections(body));
 		/**
 		 * END COLLISIONS
 		 */
@@ -270,43 +269,28 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					BitRectangle insec = GeomUtils.intersection(body.aabb, otherBody.aabb);
-					if (insec != null) {
-						if (!contacts.get(body).contains(otherBody)) {
-							contacts.get(body).add(otherBody);
-							for (ContactListener listener : body.getContactListeners()) {
-								listener.contactStarted(otherBody);
-							}
-							for (ContactListener listener : otherBody.getContactListeners()) {
-								listener.contactStarted(body);
-							}
-						}
+					if (otherBody.bodyType == BodyType.KINETIC) {
+						// kinetic platforms currently also flag contacts with dynamic bodies
+						checkForNewCollision(body, otherBody);
 					}
+
+					checkContact(body, otherBody);
+
 				}
 			}
 		}
 	}
 
-	private void buildKineticCollections(BitBody kineticBody) {
-		// 1. determine tile that x,y lives in
-		BitPoint startCell = kineticBody.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
-
-		// 2. determine width/height in tiles
-		int endX = (int) (startCell.x + Math.ceil(1.0 * kineticBody.aabb.width / tileSize));
-		int endY = (int) (startCell.y + Math.ceil(1.0 * kineticBody.aabb.height / tileSize));
-
-		for (int x = (int) startCell.x; x <= endX; x++) {
-			if (!occupiedSpaces.containsKey(x)) {
-				continue;
-			}
-			for (int y = (int) startCell.y; y <= endY; y++) {
-				if (!occupiedSpaces.get(x).containsKey(y)) {
-					continue;
+	private void checkContact(BitBody body, BitBody otherBody) {
+		BitRectangle intersection = GeomUtils.intersection(body.aabb, otherBody.aabb);
+		if (intersection != null) {
+			if (!contacts.get(body).contains(otherBody)) {
+				contacts.get(body).add(otherBody);
+				for (ContactListener listener : body.getContactListeners()) {
+					listener.contactStarted(otherBody);
 				}
-				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					if (otherBody.bodyType != BodyType.KINETIC) {
-						checkForNewCollision(otherBody, kineticBody);
-					}
+				for (ContactListener listener : otherBody.getContactListeners()) {
+					listener.contactStarted(body);
 				}
 			}
 		}
@@ -421,6 +405,10 @@ public class BitWorld {
 	}
 
 	public void setLevel(Level level) {
+		if (tileSize <= 0) {
+			System.err.println("Tile Size cannot be less than 1");
+			System.exit(-2);
+		}
 		tileSize = level.tileSize;
 		gridOffset = level.gridOffset;
 		parseGrid(level.gridObjects);
@@ -454,15 +442,14 @@ public class BitWorld {
 	}
 
 	public void setObjects(Collection<BitBody> otherObjects) {
-		pendingRemoves.addAll(dynamicBodies);
-		pendingRemoves.addAll(kineticBodies);
-		pendingRemoves.addAll(staticBodies);
-
+		removeAllBodies();
 		pendingAdds.addAll(otherObjects);
 	}
 
 	public void removeAllBodies() {
 		pendingRemoves.addAll(dynamicBodies);
+		pendingRemoves.addAll(kineticBodies);
+		pendingRemoves.addAll(staticBodies);
 		pendingAdds.clear();
 	}
 }

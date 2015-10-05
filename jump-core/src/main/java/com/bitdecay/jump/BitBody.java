@@ -97,7 +97,7 @@ public class BitBody {
     /**
      * A list of subscribed listeners for contact information as it happens
      */
-    public List<ContactListener> contactListeners = new ArrayList<>();
+    private List<ContactListener> contactListeners = new ArrayList<>();
 
     public BitBody(){}
 
