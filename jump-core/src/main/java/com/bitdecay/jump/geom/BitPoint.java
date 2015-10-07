@@ -74,8 +74,12 @@ public class BitPoint {
 		return new BitPoint(Math.floorDiv((int) Math.floor(x), xDiv), Math.floorDiv((int) Math.floor(y), yDiv));
 	}
 
-	public float dot (float ox, float oy) {
+	public float dot(float ox, float oy) {
 		return x * ox + y * oy;
+	}
+
+	public float dot(BitPoint other) {
+		return dot(other.x, other.y);
 	}
 
 	public float len() {

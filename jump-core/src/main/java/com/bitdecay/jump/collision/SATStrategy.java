@@ -18,13 +18,14 @@ public class SATStrategy extends BitResolution {
         for (BitCollision collision : collisions) {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
-                satResolve(resolvedPosition, satRes);
+                satResolve(resolvedPosition, satRes, body, collision.otherBody);
                 postResolve(world, body, collision.otherBody, satRes);
             }
         }
     }
 
-    private void satResolve(BitRectangle resolvedPosition, SATResolution satRes) {
+    private void satResolve(BitRectangle resolvedPosition, SATResolution satRes, BitBody body, BitBody otherBody) {
+        satRes.compute(body, otherBody);
         if (satRes.axis.x != 0 && satRes.axis.y > 0) {
             // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
             // atan is our angle of resolution

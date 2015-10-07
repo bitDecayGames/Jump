@@ -32,11 +32,10 @@ public class SATCollisions {
             Float overlap = getLinearOverlap(line1, line2);
             if (overlap != null) {
                 if (res == null) {
-                    res = new SATResolution(axis, overlap);
-                } else if (Math.abs(overlap) < Math.abs(res.distance)) {
-                    res.axis = axis;
-                    res.distance = overlap;
+                    // only instantiate the resolution if we need to.
+                    res = new SATResolution();
                 }
+                res.addAxis(axis, overlap);
             } else {
                 // if any axis does not overlap, then the shapes do not overlap
                 return null;
