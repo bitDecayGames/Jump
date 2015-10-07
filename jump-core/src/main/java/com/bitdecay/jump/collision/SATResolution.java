@@ -55,20 +55,33 @@ public class SATResolution {
                     if (!axisValidForNValue(axisOver, (TileBody) otherBody)) {
                         continue;
                     }
-                    if (((TileBody) otherBody).collisionAxis != null && !axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
-                        continue;
-                    }
-                    if (((TileBody) otherBody).collisionAxis != null && axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
-                        if (axisOver.overlap < 0) {
-                            continue;
-                        } else {
-                            // confirm that body came from past this thing
-                            float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.overlap)).dot(axisOver.axis);
-                            float lastPosition = body.lastPosition.dot(axisOver.axis);
-
-                            if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
+                    if (((TileBody) otherBody).collisionAxis != null) {
+                        if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
+                            if (axisOver.overlap < 0) {
                                 continue;
+                            } else {
+                                // confirm that body came from past this thing
+                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.overlap)).dot(axisOver.axis);
+                                float lastPosition = body.lastPosition.dot(axisOver.axis);
+
+                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
+                                    continue;
+                                }
                             }
+                        } else if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis.times(-1))) {
+                            if (axisOver.overlap > 0) {
+                                continue;
+                            } else {
+                                // confirm that body came from past this thing
+                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.overlap)).dot(axisOver.axis);
+                                float lastPosition = body.lastPosition.dot(axisOver.axis);
+
+                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
+                                    continue;
+                                }
+                            }
+                        } else {
+                            continue;
                         }
                     }
                 }

@@ -54,7 +54,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                         renderer.line(leftX, topY, rightX, topY);
                         continue;
                     }
-                    
+
                     if ((nValue & Direction.UP) == 0) {
                         renderer.setColor(Color.WHITE);
                         renderer.line(leftX, topY, rightX, topY);
