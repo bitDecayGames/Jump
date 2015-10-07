@@ -3,6 +3,12 @@ package com.bitdecay.jump.geom;
 import java.util.*;
 
 public class GeomUtils {
+	public static final BitPoint X_AXIS = new BitPoint(1, 0);
+	public static final BitPoint NEG_X_AXIS = new BitPoint(-1, 0);
+
+	public static final BitPoint Y_AXIS = new BitPoint(0, 1);
+	public static final BitPoint NEG_Y_AXIS = new BitPoint(0, -1);
+
 	public static BitRectangle makeRect(BitPointInt start, BitPointInt end) {
 		return new BitRectangle(start.x, start.y, end.x - start.x, end.y - start.y);
 	}

@@ -48,6 +48,13 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                     if (levelObject instanceof TileBody) {
                         nValue = ((TileBody) levelObject).nValue;
                     }
+                    if (((TileBody) levelObject).collisionAxis != null) {
+                        // currently we are just assuming it's a one-way platform
+                        renderer.setColor(Color.WHITE);
+                        renderer.line(leftX, topY, rightX, topY);
+                        continue;
+                    }
+                    
                     if ((nValue & Direction.UP) == 0) {
                         renderer.setColor(Color.WHITE);
                         renderer.line(leftX, topY, rightX, topY);

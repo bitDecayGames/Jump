@@ -17,6 +17,12 @@ public class BitPoint {
 		this(other.x, other.y);
 	}
 
+
+	public void set(BitPoint other) {
+		x = other.x;
+		y = other.y;
+	}
+
 	/**
 	 * adds point's values to this object
 	 * 
@@ -38,7 +44,7 @@ public class BitPoint {
 	 * @return result
 	 */
 	public BitPoint plus(BitPoint point) {
-		return new BitPoint(x + point.x, y + point.y);
+		return plus(point.x,point.y);
 	}
 
 	public BitPoint plus(float x, float y) {
@@ -46,7 +52,7 @@ public class BitPoint {
 	}
 
 	public BitPoint minus(BitPoint point) {
-		return new BitPoint(x - point.x, y - point.y);
+		return minus(point.x, point.y);
 	}
 
 	public BitPoint minus(float x, float y) {
@@ -54,7 +60,12 @@ public class BitPoint {
 	}
 
 	public BitPoint minus(BitPointInt point) {
-		return new BitPoint(x - point.x, y - point.y);
+		return minus(point.x, point.y);
+	}
+
+
+	public BitPoint times(float scalar) {
+		return new BitPoint(x * scalar, y *scalar);
 	}
 
 	public BitPoint scale(float scale) {

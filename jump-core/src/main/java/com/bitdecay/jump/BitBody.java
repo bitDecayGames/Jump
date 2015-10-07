@@ -52,6 +52,12 @@ public class BitBody {
 	 */
 	public BitBodyStateWatcher stateWatcher = null;
 
+    /**
+     * Tracks the last position the body was. Generally this is the same thing as
+     * the position the body was at when the world step began.
+     */
+    public BitPoint lastPosition = new BitPoint(0, 0);
+
 	/**
 	 * Tracks the <b>last</b> movement the body <b>tried</b> to make. This does
 	 * not mean the body did move.

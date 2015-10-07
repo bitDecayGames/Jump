@@ -118,6 +118,7 @@ public class BitWorld {
 		 */
 		dynamicBodies.stream().forEach(body -> {
 			if (body.active) {
+				body.lastPosition.set(body.aabb.xy);
 				updateDynamics(body, delta);
 				updateInput(body, delta);
 				moveBody(body, delta);
