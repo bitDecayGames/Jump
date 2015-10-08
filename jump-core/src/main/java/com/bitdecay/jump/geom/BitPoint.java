@@ -18,14 +18,18 @@ public class BitPoint {
 	}
 
 
+	public void set(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+
 	public void set(BitPoint other) {
-		x = other.x;
-		y = other.y;
+		set(other.x, other.y);
 	}
 
 	/**
 	 * adds point's values to this object
-	 * 
+	 *
 	 * @param point
 	 */
 	public void add(BitPoint point) {
@@ -39,7 +43,7 @@ public class BitPoint {
 
 	/**
 	 * returns the total of this plus point
-	 * 
+	 *
 	 * @param point
 	 * @return result
 	 */
@@ -59,10 +63,10 @@ public class BitPoint {
 		return new BitPoint(this.x - x, this.y - y);
 	}
 
+
 	public BitPoint minus(BitPointInt point) {
 		return minus(point.x, point.y);
 	}
-
 
 	public BitPoint times(float scalar) {
 		return new BitPoint(x * scalar, y *scalar);
@@ -106,12 +110,13 @@ public class BitPoint {
 	}
 
 	public BitPoint normalize() {
-		float len = len();
+		BitPoint normal = new BitPoint(this);
+		float len = normal.len();
 		if (len != 0) {
-			x /= len;
-			y /= len;
+			normal.x /= len;
+			normal.y /= len;
 		}
-		return this;
+		return normal;
 	}
 
 	@Override
@@ -133,7 +138,7 @@ public class BitPoint {
 	/**
 	 * Allows for being within 1/10,000th tolerance before being considered not
 	 * equal.
-	 * 
+	 *
 	 * @param other
 	 * @return true if the other point is within 1/10,000th in both the x and y
 	 *         coordinate
@@ -144,7 +149,7 @@ public class BitPoint {
 
 	/**
 	 * Shifts a point {@link MathUtils#FLOAT_PRECISION} in the direction of dir
-	 * 
+	 *
 	 * @param dir
 	 * @return this object for chaining
 	 */
@@ -182,7 +187,7 @@ public class BitPoint {
 	/**
 	 * Pulls a point towards zero. Will stop at zero if attempting to shrink
 	 * past zero
-	 * 
+	 *
 	 * @param amount
 	 *            how far to shrink the point
 	 * @return

@@ -73,16 +73,14 @@ public class SATCollisions {
                 perpendicularAxes.add(new BitPoint(1, 0));
             } else {
                 float perpSlope = -run / rise;
-                BitPoint perpAxis = new BitPoint(1, perpSlope);
-                perpAxis.normalize();
+                BitPoint perpAxis = new BitPoint(1, perpSlope).normalize();
                 perpendicularAxes.add(perpAxis);
             }
         }
     }
 
     public static BitPoint project(BitPoint slope, BitPoint... points) {
-        BitPoint axis = new BitPoint(slope.x, slope.y);
-        axis.normalize();
+        BitPoint axis = new BitPoint(slope.x, slope.y).normalize();
 
         float min = Float.POSITIVE_INFINITY;
         float max = Float.NEGATIVE_INFINITY;

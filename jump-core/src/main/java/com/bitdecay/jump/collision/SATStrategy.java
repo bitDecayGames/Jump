@@ -3,6 +3,7 @@ package com.bitdecay.jump.collision;
 import com.bitdecay.jump.*;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.MathUtils;
 
 import java.util.ArrayList;
@@ -30,18 +31,24 @@ public class SATStrategy extends BitResolution {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
                 satResolve(resolvedPosition, satRes, body, collision.otherBody);
-                BitPoint resAxis = satRes.axis.scale(satRes.distance);
-                directionsResolved.forEach(otherAxis -> {
-                    if (resAxis.dot(otherAxis) < -.8f) {
+                if (satRes.axis.equals(GeomUtils.ZERO_AXIS)) {
+
+                    continue;
+                }
+                BitPoint resAxis = satRes.result.normalize();
+                for (BitPoint otherAxis : directionsResolved) {
+                    // this will only check exact opposites, may need to change if we move away from rectangle tiles
+                    if (resAxis.scale(-1).equals(otherAxis)) {
                         // reset any pending resolutions.
                         // don't bother moving a dead body
                         // short circuit the resolution
                         // and return
                         resolvedPosition.set(body.aabb);
                         body.active = false;
+                        body.velocity.set(0, 0);
                         return;
                     }
-                });
+                }
                 directionsResolved.add(resAxis);
                 postResolve(world, body, collision.otherBody, satRes);
             }
@@ -49,7 +56,7 @@ public class SATStrategy extends BitResolution {
     }
 
     private void satResolve(BitRectangle resolvedPosition, SATResolution satRes, BitBody body, BitBody otherBody) {
-        satRes.compute(body, otherBody);
+        satRes.compute(body, otherBody, resolvedPosition);
         if (satRes.axis.x != 0 && satRes.axis.y > 0) {
             // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
             // atan is our angle of resolution
@@ -77,10 +84,10 @@ public class SATStrategy extends BitResolution {
 
 
     private void postResolve(BitWorld world, BitBody body, BitBody otherBody, SATResolution satRes) {
-        if (satRes.axis.len() != 0 && BodyType.KINETIC.equals(otherBody.bodyType)) {
+        if (BodyType.KINETIC.equals(otherBody.bodyType)) {
             if (body.parent == null) {
                 // Attach as child if we were resolved by the kinetic object in the direction it is moving
-                if (satRes.axis.dot(otherBody.lastAttempt.x, otherBody.lastAttempt.y) > 0) {
+                if (satRes.result.dot(otherBody.currentAttempt) > 0) {
                     body.parent = otherBody;
                     otherBody.children.add(body);
                 }

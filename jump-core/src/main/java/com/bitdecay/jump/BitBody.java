@@ -59,10 +59,16 @@ public class BitBody {
     public BitPoint lastPosition = new BitPoint(0, 0);
 
 	/**
-	 * Tracks the <b>last</b> movement the body <b>tried</b> to make. This does
+	 * Tracks the <b>attempted</b> movement the body <b>this step</b> of the world. This does
 	 * not mean the body did move.
 	 */
-	public BitPoint lastAttempt = new BitPoint(0, 0);
+	public BitPoint currentAttempt = new BitPoint(0, 0);
+
+    /**
+     * Tracks the <b>previous</b> attempted movement the body <b>tried</b> to move last step.
+     * This is not how far it actually moved. To determine that, sum with lastResolution.
+     */
+    public BitPoint previousAttempt = new BitPoint(0, 0);
 
 	/**
 	 * Tracks what the physics world <b>last</b> did to resolve any collisions
@@ -119,7 +125,7 @@ public class BitBody {
         this.facing = other.facing;
         this.controller = null; // this can't be easily copied from one body to another
         this.stateWatcher = null; // this can't be easily copied from one body to another
-        this.lastAttempt = new BitPoint(other.lastAttempt);
+        this.currentAttempt = new BitPoint(other.currentAttempt);
         this.lastResolution = new BitPoint(other.lastResolution);
         this.active = other.active;
         this.bodyType = other.bodyType;

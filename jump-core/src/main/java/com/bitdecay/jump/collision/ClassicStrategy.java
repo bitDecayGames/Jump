@@ -35,22 +35,22 @@ public class ClassicStrategy extends BitResolution{
                     boolean attach = false;
                     switch (resoDirection) {
                         case Direction.UP:
-                            if (world.gravity.y < 0 || collision.otherBody.lastAttempt.y > 0) {
+                            if (world.gravity.y < 0 || collision.otherBody.currentAttempt.y > 0) {
                                 attach = true;
                             }
                             break;
                         case Direction.DOWN:
-                            if (world.gravity.y > 0 || collision.otherBody.lastAttempt.y < 0) {
+                            if (world.gravity.y > 0 || collision.otherBody.currentAttempt.y < 0) {
                                 attach = true;
                             }
                             break;
                         case Direction.LEFT:
-                            if (world.gravity.x > 0 || collision.otherBody.lastAttempt.x < 0) {
+                            if (world.gravity.x > 0 || collision.otherBody.currentAttempt.x < 0) {
                                 attach = true;
                             }
                             break;
                         case Direction.RIGHT:
-                            if (world.gravity.x < 0 || collision.otherBody.lastAttempt.x > 0) {
+                            if (world.gravity.x < 0 || collision.otherBody.currentAttempt.x > 0) {
                                 attach = true;
                             }
                             break;
@@ -107,15 +107,15 @@ public class ClassicStrategy extends BitResolution{
 			 * Take the cumulative resolution into account because the body has
 			 * effectively moved this much while resolving the position
 			 */
-            BitPoint relativeVelocity = body.lastAttempt;
+            BitPoint relativeVelocity = body.currentAttempt;
             if (body.parent != null) {
-                relativeVelocity.add(body.parent.lastAttempt);
+                relativeVelocity.add(body.parent.currentAttempt);
             }
-            //			BitPoint relativeVelocity = body.lastAttempt
+            //			BitPoint relativeVelocity = body.currentAttempt
             //					.plus(cumulativeResolution);
-            if (against.lastAttempt.x != 0 || against.lastAttempt.y != 0) {
+            if (against.currentAttempt.x != 0 || against.currentAttempt.y != 0) {
                 // adjust this to work with kinetic bodies
-                relativeVelocity = relativeVelocity.plus(body.lastResolution).minus(against.lastAttempt);
+                relativeVelocity = relativeVelocity.plus(body.lastResolution).minus(against.currentAttempt);
             }
             final boolean xSpeedDominant = Math.abs(relativeVelocity.x) > Math.abs(relativeVelocity.y);
 

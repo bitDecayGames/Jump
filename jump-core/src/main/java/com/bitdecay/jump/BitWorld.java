@@ -118,6 +118,7 @@ public class BitWorld {
 		 */
 		dynamicBodies.stream().forEach(body -> {
 			if (body.active) {
+				body.previousAttempt.set(body.currentAttempt);
 				body.lastPosition.set(body.aabb.xy);
 				updateDynamics(body, delta);
 				updateInput(body, delta);
@@ -162,7 +163,11 @@ public class BitWorld {
 
 		resolveAndApplyPendingResolutions();
 
-		dynamicBodies.parallelStream().filter(body -> body.active && body.stateWatcher != null).forEach(body -> body.stateWatcher.update(body));
+		dynamicBodies.parallelStream().forEach(body -> {
+			if (body.active && body.stateWatcher != null) {
+				body.stateWatcher.update(body);
+			}
+		});
 	}
 
 	public void updateInput(BitBody body, float delta) {
@@ -184,10 +189,10 @@ public class BitWorld {
 			 * than the parent to guarantee that it still
 			 * collides if nothing else influences it's motion
 			 */
-			BitPoint influence = body.lastAttempt.shrink(MathUtils.FLOAT_PRECISION);
+			BitPoint influence = body.currentAttempt.shrink(MathUtils.FLOAT_PRECISION);
 			child.aabb.translate(influence);
 			// the child did attempt to move this additional amount according to our engine
-			child.lastAttempt.add(influence);
+			child.currentAttempt.add(influence);
 		}
 		body.children.clear();
 	}
@@ -195,8 +200,8 @@ public class BitWorld {
 	public void moveBody(BitBody body, float delta) {
 		body.velocity.x = Math.min(Math.abs(body.velocity.x), maxSpeed.x) * (body.velocity.x < 0 ? -1 : 1);
 		body.velocity.y = Math.min(Math.abs(body.velocity.y), maxSpeed.y) * (body.velocity.y < 0 ? -1 : 1);
-		body.lastAttempt = body.velocity.scale(delta);
-		body.aabb.translate(body.lastAttempt);
+		body.currentAttempt = body.velocity.scale(delta);
+		body.aabb.translate(body.currentAttempt);
 	}
 
 	public void resetCollisions(BitBody body) {
@@ -229,10 +234,14 @@ public class BitWorld {
 	}
 
 	private void resolveAndApplyPendingResolutions() {
-		for (BitBody body : pendingResolutions.keySet()) {
-			pendingResolutions.get(body).resolve(this);
-			applyResolution(body, pendingResolutions.get(body));
-		}
+		dynamicBodies.forEach(body -> {
+			if (pendingResolutions.containsKey(body)) {
+				pendingResolutions.get(body).resolve(this);
+				applyResolution(body, pendingResolutions.get(body));
+			} else {
+				body.lastResolution.set(0,0);
+			}
+		});
 		pendingResolutions.clear();
 	}
 
@@ -365,7 +374,7 @@ public class BitWorld {
 	 * {@link BitResolution} as something that needs to be handled at the time
 	 * of resolution.
 	 * 
-	 * @param body
+	 * @param body will always be a dynamic body with current code
 	 * @param against
 	 */
 	private void checkForNewCollision(BitBody body, BitBody against) {

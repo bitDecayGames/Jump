@@ -1,15 +1,13 @@
 package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
-import com.sun.org.apache.xerces.internal.impl.xpath.XPath;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -18,6 +16,7 @@ import java.util.List;
 public class SATResolution {
     public BitPoint axis;
     public float distance;
+    public BitPoint result;
 
     private List<AxisOverlap> axes = new ArrayList<>();
 
@@ -40,53 +39,60 @@ public class SATResolution {
      * applied to an object that is AGAINST the relative movement between it and what it has collided against.
      *
      * This logic is here to ensure corners feel crisp when a body is landing on the edge of a platform.
-     *
-     * @param body the body being resolved
+     *  @param body the body being resolved
      * @param otherBody the other body that participated in the collision
+     * @param resolvedPosition the current partially built resolution
      */
-    public void compute(BitBody body, BitBody otherBody) {
+    public void compute(BitBody body, BitBody otherBody, BitRectangle resolvedPosition) {
         axes.sort((o1, o2) -> Float.compare(Math.abs(o1.overlap), Math.abs(o2.overlap)));
-        BitPoint relativeMovement = body.lastAttempt.minus(otherBody.lastAttempt);
+        // this line is just taking where the body tried to move and the partially resolved position into account to
+        // figure out the relative momentum.
+        BitPoint relativeMovement = body.currentAttempt.plus(resolvedPosition.xy.minus(body.aabb.xy)).minus(otherBody.currentAttempt);
         float dotProd;
         for (AxisOverlap axisOver : axes) {
             dotProd = relativeMovement.dot(axisOver.axis);
             if (dotProd != 0 && !sameSign(dotProd, axisOver.overlap)) {
                 if (otherBody instanceof TileBody) {
+                    boolean validCollision = true;
                     if (!axisValidForNValue(axisOver, (TileBody) otherBody)) {
                         continue;
                     }
                     if (((TileBody) otherBody).collisionAxis != null) {
                         if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
                             if (axisOver.overlap < 0) {
-                                continue;
+                                validCollision = false;
                             } else {
                                 // confirm that body came from past this thing
                                 float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.overlap)).dot(axisOver.axis);
                                 float lastPosition = body.lastPosition.dot(axisOver.axis);
 
                                 if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
-                                    continue;
+                                    validCollision = false;
                                 }
                             }
                         } else if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis.times(-1))) {
                             if (axisOver.overlap > 0) {
-                                continue;
+                                validCollision = false;
                             } else {
                                 // confirm that body came from past this thing
                                 float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.overlap)).dot(axisOver.axis);
                                 float lastPosition = body.lastPosition.dot(axisOver.axis);
 
                                 if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
-                                    continue;
+                                    validCollision = false;
                                 }
                             }
                         } else {
-                            continue;
+                            validCollision = false;
                         }
+                    }
+                    if (!validCollision) {
+                        continue;
                     }
                 }
                 axis = axisOver.axis;
                 distance = axisOver.overlap;
+                result = axis.scale(distance);
                 return;
             }
         }
@@ -96,6 +102,7 @@ public class SATResolution {
          */
         axis = new BitPoint(0, 0);
         distance = 0;
+        result = axis.scale(distance);
     }
 
     private boolean sameSign(float num1, float num2) {
