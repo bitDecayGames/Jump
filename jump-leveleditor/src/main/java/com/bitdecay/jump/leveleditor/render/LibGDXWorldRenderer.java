@@ -93,6 +93,10 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         for (BitBody body : bodies) {
             if (!body.active) {
                 renderer.setColor(Color.GRAY);
+            } else if (body.parent != null) {
+                renderer.setColor(Color.MAGENTA);
+            } else if (body.children.size() > 0) {
+                renderer.setColor(Color.PURPLE);
             } else {
                 switch (body.bodyType) {
                     case DYNAMIC:
@@ -109,11 +113,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                         break;
                 }
             }
-            if (body.parent != null) {
-                renderer.setColor(Color.MAGENTA);
-            } else if (body.children.size() > 0) {
-                renderer.setColor(Color.PURPLE);
-            }
+
             renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
             if (body.velocity.x != 0 || body.velocity.y != 0) {
                 float x = body.aabb.xy.x + body.aabb.width / 2;
