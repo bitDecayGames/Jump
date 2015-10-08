@@ -1,8 +1,12 @@
 package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.*;
+import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.MathUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Monday on 9/27/2015.
@@ -13,12 +17,32 @@ public class SATStrategy extends BitResolution {
         super(body);
     }
 
+    /**
+     * Determines appropriate resolution for the body based on the collisions found. This method will
+     * deactivate the body if opposing collisions are found.
+     * @param world
+     */
     @Override
     public void satisfy(BitWorld world) {
+        // TODO: This method can probably made more efficient if needed down the road
+        List<BitPoint> directionsResolved = new ArrayList<>();
         for (BitCollision collision : collisions) {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
                 satResolve(resolvedPosition, satRes, body, collision.otherBody);
+                BitPoint resAxis = satRes.axis.scale(satRes.distance);
+                directionsResolved.forEach(otherAxis -> {
+                    if (resAxis.dot(otherAxis) < -.8f) {
+                        // reset any pending resolutions.
+                        // don't bother moving a dead body
+                        // short circuit the resolution
+                        // and return
+                        resolvedPosition.set(body.aabb);
+                        body.active = false;
+                        return;
+                    }
+                });
+                directionsResolved.add(resAxis);
                 postResolve(world, body, collision.otherBody, satRes);
             }
         }
@@ -49,7 +73,6 @@ public class SATStrategy extends BitResolution {
         }
 
         resolvedPosition.xy.add(satRes.axis.x * satRes.distance, satRes.axis.y * satRes.distance);
-
     }
 
 
