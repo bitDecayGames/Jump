@@ -32,7 +32,6 @@ public class SATStrategy extends BitResolution {
             if (satRes != null) {
                 satResolve(resolvedPosition, satRes, body, collision.otherBody);
                 if (satRes.axis.equals(GeomUtils.ZERO_AXIS)) {
-
                     continue;
                 }
                 BitPoint resAxis = satRes.result.normalize();
@@ -55,6 +54,14 @@ public class SATStrategy extends BitResolution {
         }
     }
 
+    /**
+     * Adjusts the resolved position based on both the outcome of computing the resolution axis AND
+     * player properties such as the max angle they can walk up.
+     * @param resolvedPosition partially built resolved position
+     * @param satRes the resolution to take into consideration
+     * @param body the body being resolved
+     * @param otherBody the body they collided against
+     */
     private void satResolve(BitRectangle resolvedPosition, SATResolution satRes, BitBody body, BitBody otherBody) {
         satRes.compute(body, otherBody, resolvedPosition);
         if (satRes.axis.x != 0 && satRes.axis.y > 0) {
@@ -76,13 +83,22 @@ public class SATStrategy extends BitResolution {
                     resolvedPosition.xy.add(0, (float) straightUp);
                 }
                 return;
+            } else {
+                // TODO: we need to actually resolve the player horizontally, showing the angle is too steep.
             }
         }
 
         resolvedPosition.xy.add(satRes.axis.x * satRes.distance, satRes.axis.y * satRes.distance);
     }
 
-
+    /**
+     * Handles any interactions that may result from the collision. Things such as parent-child (when a body is
+     * being moved by another body) bonds are enforced here.
+     * @param world the world
+     * @param body the body being resolved
+     * @param otherBody the body they collided against
+     * @param satRes the computed resolution
+     */
     private void postResolve(BitWorld world, BitBody body, BitBody otherBody, SATResolution satRes) {
         if (BodyType.KINETIC.equals(otherBody.bodyType)) {
             if (body.parent == null) {

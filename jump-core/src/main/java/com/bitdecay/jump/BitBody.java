@@ -21,7 +21,7 @@ public class BitBody {
     /**
      * Reference to the optional parent object
      */
-	public BitBody parent = null;
+	public BitBody parent = null; //TODO: This can probably be made a list since a body can be moved by more than one body at a time
 
 	/**
 	 * Holds children bodies of this body. Allows for 'attaching' bodies to each
@@ -99,7 +99,7 @@ public class BitBody {
     /**
      * The max speed of the body
      */
-    public BitPoint maxSpeed = new BitPoint(0, 0);
+    public BitPoint maxSpeed = new BitPoint(150, 0);
 
     /**
      * A flag for whether or not gravity should affect this body

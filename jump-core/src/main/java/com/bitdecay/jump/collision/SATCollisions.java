@@ -14,7 +14,7 @@ public class SATCollisions {
      * Builds a resolution to move p1 out of p2 if necessary
      * @param p1 the shape to be resolved
      * @param p2 the shape to resolve against
-     * @return the resolution strategy, or null if the shapes do not overlap
+     * @return the resolution strategy, or null if the shapes do not intersect
      */
     public static SATResolution getCollision(Projectable p1, Projectable p2) {
         BitPoint[] points1 = p1.getProjectionPoints();
@@ -37,7 +37,7 @@ public class SATCollisions {
                 }
                 res.addAxis(axis, overlap);
             } else {
-                // if any axis does not overlap, then the shapes do not overlap
+                // if any axis has no overlap, then the shapes do not intersect
                 return null;
             }
         }
@@ -95,7 +95,7 @@ public class SATCollisions {
     }
 
     public static Float getLinearOverlap(BitPoint l1, BitPoint l2) {
-        // knowing which end are closer will tell us which way the overlap came from.
+        // knowing which ends are closer will tell us which way the intersection came from.
         float minEnd = Math.min(l1.y, l2.y);
         float maxStart = Math.max(l1.x, l2.x);
         float overlap = minEnd - maxStart;
