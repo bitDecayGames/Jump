@@ -2,10 +2,19 @@ package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
+import com.bitdecay.jump.controller.PathedBodyController;
 import com.bitdecay.jump.geom.BitPath;
+import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 
-public class MovingObject extends LevelObject implements Updatable {
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Originally meant to let us add moving objects to the world, this has mostly been obsoleted by the PathedLevelObject
+ * @see PathedLevelObject
+ */
+public class MovingObject extends LevelObject {
 
 	private BitPath path;
 	private float speed;
@@ -16,11 +25,6 @@ public class MovingObject extends LevelObject implements Updatable {
 		this.path = path;
 		this.direction = direction;
 		this.speed = speed;
-	}
-
-	@Override
-	public void update(float delta) {
-		//		rect.xy = path.update(delta, speed);
 	}
 
 	@Override

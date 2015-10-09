@@ -45,6 +45,7 @@ public class SATStrategy extends BitResolution {
                         resolvedPosition.set(body.aabb);
                         body.active = false;
                         body.velocity.set(0, 0);
+                        body.getContactListeners().forEach(listener -> listener.crushed());
                         return;
                     }
                 }

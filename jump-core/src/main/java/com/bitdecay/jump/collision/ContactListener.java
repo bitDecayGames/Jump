@@ -8,4 +8,5 @@ import com.bitdecay.jump.BitBody;
 public interface ContactListener {
     void contactStarted(BitBody other);
     void contactEnded(BitBody other);
+    void crushed();
 }

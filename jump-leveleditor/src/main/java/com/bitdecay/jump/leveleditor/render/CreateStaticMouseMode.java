@@ -53,6 +53,11 @@ public class CreateStaticMouseMode extends BaseMouseMode {
             public void contactEnded(BitBody other) {
                 System.out.println("IT ENDED");
             }
+
+            @Override
+            public void crushed() {
+                System.out.println("CRUSHED");
+            }
         });
         world.addBody(staticBody);
     }
