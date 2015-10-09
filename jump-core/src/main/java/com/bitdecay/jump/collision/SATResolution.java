@@ -1,6 +1,14 @@
 package com.bitdecay.jump.collision;
 
+import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.GeomUtils;
+import com.bitdecay.jump.level.Direction;
+import com.bitdecay.jump.level.TileBody;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Monday on 9/6/2015.
@@ -8,14 +16,129 @@ import com.bitdecay.jump.geom.BitPoint;
 public class SATResolution {
     public BitPoint axis;
     public float distance;
+    public BitPoint result;
 
-    public SATResolution(BitPoint axis, float distance) {
-        this.axis = axis;
-        this.distance = distance;
-    }
+    private List<AxisOverlap> axes = new ArrayList<>();
 
     @Override
     public String toString() {
         return axis.toString() + " * " + distance;
     }
+
+    public void addAxis(BitPoint axis, float overlap) {
+        if (distance < 0) {
+            distance *= -1;
+            axis.x *= -1;
+            axis.y *= -1;
+        }
+        axes.add(new AxisOverlap(axis, overlap));
+    }
+
+    /**
+     * This method finds what axis should be used for resolution. This method takes into account the relative
+     * speeds of the objects being resolved. A resolution will only be applied to an object that is AGAINST
+     * the relative movement between it and what it has collided against.
+     *
+     * This logic is here to ensure corners feel crisp when a body is landing on the edge of a platform.
+     *
+     * <b>NOTE:</b> Due to logic to make sure the feel is correct, there are situations (such as one-way
+     * platforms) that can result in NO axis (aka the Zero-axis) being set on the resolution.
+     *
+     *  @param body the body being resolved
+     * @param otherBody the other body that participated in the collision
+     * @param resolvedPosition the current partially built resolution
+     */
+    public void compute(BitBody body, BitBody otherBody, BitRectangle resolvedPosition) {
+        axes.sort((o1, o2) -> Float.compare(Math.abs(o1.distance), Math.abs(o2.distance)));
+        // this line is just taking where the body tried to move and the partially resolved position into account to
+        // figure out the relative momentum.
+        BitPoint relativeMovement = body.currentAttempt.plus(resolvedPosition.xy.minus(body.aabb.xy)).minus(otherBody.currentAttempt);
+        float dotProd;
+        for (AxisOverlap axisOver : axes) {
+            dotProd = relativeMovement.dot(axisOver.axis);
+            if (dotProd != 0 && !sameSign(dotProd, axisOver.distance)) {
+                if (otherBody instanceof TileBody) {
+                    boolean validCollision = true;
+                    if (!axisValidForNValue(axisOver, (TileBody) otherBody)) {
+                        continue;
+                    }
+                    if (((TileBody) otherBody).collisionAxis != null) {
+                        if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
+                            if (axisOver.distance < 0) {
+                                validCollision = false;
+                            } else {
+                                // confirm that body came from past this thing
+                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
+                                float lastPosition = body.lastPosition.dot(axisOver.axis);
+
+                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
+                                    validCollision = false;
+                                }
+                            }
+                        } else if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis.times(-1))) {
+                            if (axisOver.distance > 0) {
+                                validCollision = false;
+                            } else {
+                                // confirm that body came from past this thing
+                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
+                                float lastPosition = body.lastPosition.dot(axisOver.axis);
+
+                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
+                                    validCollision = false;
+                                }
+                            }
+                        } else {
+                            validCollision = false;
+                        }
+                    }
+                    if (!validCollision) {
+                        continue;
+                    }
+                }
+                axis = axisOver.axis;
+                distance = axisOver.distance;
+                result = axis.scale(distance);
+                return;
+            }
+        }
+        /*
+         * This is a fallback, I can't think of a scenario where we would get here, but better to do
+         * something than to leave ourselves open to an NPE
+         */
+        axis = new BitPoint(0, 0);
+        distance = 0;
+        result = axis.scale(distance);
+    }
+
+    private boolean sameSign(float num1, float num2) {
+        return ((num1<0) == (num2<0));
+    }
+
+    private boolean axisValidForNValue(AxisOverlap axisOver, TileBody body) {
+        if (axisOver.axis.equals(GeomUtils.X_AXIS)) {
+            if (axisOver.distance > 0 && (body.nValue & Direction.RIGHT) == 0) {
+                return true;
+            } else if (axisOver.distance < 0 && (body.nValue & Direction.LEFT) == 0) {
+                return true;
+            }
+        } else if (axisOver.axis.equals(GeomUtils.Y_AXIS)) {
+            if (axisOver.distance > 0 && (body.nValue & Direction.UP) == 0) {
+                return true;
+            } else if (axisOver.distance < 0 && (body.nValue & Direction.DOWN) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private class AxisOverlap {
+        public BitPoint axis;
+        public float distance;
+
+        public AxisOverlap(BitPoint axis, float distance) {
+            this.axis = axis;
+            this.distance = distance;
+        }
+    }
 }
+

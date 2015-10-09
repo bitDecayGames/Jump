@@ -17,9 +17,19 @@ public class BitPoint {
 		this(other.x, other.y);
 	}
 
+
+	public void set(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public void set(BitPoint other) {
+		set(other.x, other.y);
+	}
+
 	/**
 	 * adds point's values to this object
-	 * 
+	 *
 	 * @param point
 	 */
 	public void add(BitPoint point) {
@@ -33,12 +43,12 @@ public class BitPoint {
 
 	/**
 	 * returns the total of this plus point
-	 * 
+	 *
 	 * @param point
 	 * @return result
 	 */
 	public BitPoint plus(BitPoint point) {
-		return new BitPoint(x + point.x, y + point.y);
+		return plus(point.x,point.y);
 	}
 
 	public BitPoint plus(float x, float y) {
@@ -46,15 +56,20 @@ public class BitPoint {
 	}
 
 	public BitPoint minus(BitPoint point) {
-		return new BitPoint(x - point.x, y - point.y);
+		return minus(point.x, point.y);
 	}
 
 	public BitPoint minus(float x, float y) {
 		return new BitPoint(this.x - x, this.y - y);
 	}
 
+
 	public BitPoint minus(BitPointInt point) {
-		return new BitPoint(x - point.x, y - point.y);
+		return minus(point.x, point.y);
+	}
+
+	public BitPoint times(float scalar) {
+		return new BitPoint(x * scalar, y *scalar);
 	}
 
 	public BitPoint scale(float scale) {
@@ -74,8 +89,12 @@ public class BitPoint {
 		return new BitPoint(Math.floorDiv((int) Math.floor(x), xDiv), Math.floorDiv((int) Math.floor(y), yDiv));
 	}
 
-	public float dot (float ox, float oy) {
+	public float dot(float ox, float oy) {
 		return x * ox + y * oy;
+	}
+
+	public float dot(BitPoint other) {
+		return dot(other.x, other.y);
 	}
 
 	public float len() {
@@ -91,12 +110,13 @@ public class BitPoint {
 	}
 
 	public BitPoint normalize() {
-		float len = len();
+		BitPoint normal = new BitPoint(this);
+		float len = normal.len();
 		if (len != 0) {
-			x /= len;
-			y /= len;
+			normal.x /= len;
+			normal.y /= len;
 		}
-		return this;
+		return normal;
 	}
 
 	@Override
@@ -118,7 +138,7 @@ public class BitPoint {
 	/**
 	 * Allows for being within 1/10,000th tolerance before being considered not
 	 * equal.
-	 * 
+	 *
 	 * @param other
 	 * @return true if the other point is within 1/10,000th in both the x and y
 	 *         coordinate
@@ -129,7 +149,7 @@ public class BitPoint {
 
 	/**
 	 * Shifts a point {@link MathUtils#FLOAT_PRECISION} in the direction of dir
-	 * 
+	 *
 	 * @param dir
 	 * @return this object for chaining
 	 */
@@ -167,7 +187,7 @@ public class BitPoint {
 	/**
 	 * Pulls a point towards zero. Will stop at zero if attempting to shrink
 	 * past zero
-	 * 
+	 *
 	 * @param amount
 	 *            how far to shrink the point
 	 * @return

@@ -70,20 +70,26 @@ public class JumperController extends BasicBodyController {
 					jumping = true;
 					jumpVariableHeightWindow = 0;
 					requestJump = false;
-				} else if (jumpsPerformed == 0 && jumpsRemaining > 1 && jumpGracePeriod > jBody.jumpGraceWindow) {
+				} else if (jumpsPerformed == 0 && jumpsRemaining >= 2 && jumpGracePeriod > jBody.jumpGraceWindow) {
 					/*
 					 * This case handles when a player misses the jump window,
 					 * but still has extra jumps they can use. (They lose their
 					 * first jump for missing the window, but can use any
 					 * remaining jumps)
 					 */
-					jumpsPerformed++;
-					jumpsRemaining--;
+					jumpsPerformed+=2;
+					jumpsRemaining-=2;
+					jumping = true;
 				}
 			}
 
-			if (jumping && jumpVariableHeightWindow <= jBody.variableJumpWindow) {
-				body.velocity.y = jBody.jumpStrength;
+			if (jumping && jumpVariableHeightWindow <= jBody.jumpVariableHeightWindow) {
+				if (jumpsPerformed <= 1) {
+					// first jump
+					body.velocity.y = jBody.jumpStrength;
+				} else {
+					body.velocity.y = jBody.jumpDoubleJumpStrength;
+				}
 			} else {
 				jumping = false;
 			}

@@ -42,7 +42,9 @@ public abstract class BitResolution {
 	}
 
 	/**
-	 * Let our strategy resolve the collision and set the resolved position
+	 * Let our strategy resolve the collision and set the resolved position. It may result in
+	 * the body being made inactive as a result of conflicting collisions (such as a body being
+	 * squeezed between two bodies)
 	 */
 	public abstract void satisfy(BitWorld world);
 }

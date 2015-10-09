@@ -14,7 +14,7 @@ public class SATCollisions {
      * Builds a resolution to move p1 out of p2 if necessary
      * @param p1 the shape to be resolved
      * @param p2 the shape to resolve against
-     * @return the resolution strategy, or null if the shapes do not overlap
+     * @return the resolution strategy, or null if the shapes do not intersect
      */
     public static SATResolution getCollision(Projectable p1, Projectable p2) {
         BitPoint[] points1 = p1.getProjectionPoints();
@@ -32,13 +32,12 @@ public class SATCollisions {
             Float overlap = getLinearOverlap(line1, line2);
             if (overlap != null) {
                 if (res == null) {
-                    res = new SATResolution(axis, overlap);
-                } else if (Math.abs(overlap) < Math.abs(res.distance)) {
-                    res.axis = axis;
-                    res.distance = overlap;
+                    // only instantiate the resolution if we need to.
+                    res = new SATResolution();
                 }
+                res.addAxis(axis, overlap);
             } else {
-                // if any axis does not overlap, then the shapes do not overlap
+                // if any axis has no overlap, then the shapes do not intersect
                 return null;
             }
         }
@@ -74,16 +73,14 @@ public class SATCollisions {
                 perpendicularAxes.add(new BitPoint(1, 0));
             } else {
                 float perpSlope = -run / rise;
-                BitPoint perpAxis = new BitPoint(1, perpSlope);
-                perpAxis.normalize();
+                BitPoint perpAxis = new BitPoint(1, perpSlope).normalize();
                 perpendicularAxes.add(perpAxis);
             }
         }
     }
 
     public static BitPoint project(BitPoint slope, BitPoint... points) {
-        BitPoint axis = new BitPoint(slope.x, slope.y);
-        axis.normalize();
+        BitPoint axis = new BitPoint(slope.x, slope.y).normalize();
 
         float min = Float.POSITIVE_INFINITY;
         float max = Float.NEGATIVE_INFINITY;
@@ -98,7 +95,7 @@ public class SATCollisions {
     }
 
     public static Float getLinearOverlap(BitPoint l1, BitPoint l2) {
-        // knowing which end are closer will tell us which way the overlap came from.
+        // knowing which ends are closer will tell us which way the intersection came from.
         float minEnd = Math.min(l1.y, l2.y);
         float maxStart = Math.max(l1.x, l2.x);
         float overlap = minEnd - maxStart;

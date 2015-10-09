@@ -106,6 +106,12 @@ public class BitRectangle implements Projectable{
 		return true;
 	}
 
+	public void set(BitRectangle other) {
+		this.xy.set(other.xy);
+		this.width = other.width;
+		this.height = other.height;
+	}
+
 	@Override
 	public String toString() {
 		return "(x: " + xy.x + ", y: " + xy.y + " - w: " + width + ", h: " + height + ")";

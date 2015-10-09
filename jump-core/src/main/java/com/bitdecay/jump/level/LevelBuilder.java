@@ -78,13 +78,16 @@ public class LevelBuilder {
 		}
 	}
 
-	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint) {
+	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway) {
 		List<LevelObject> newObjects = new ArrayList<LevelObject>();
 
 		BitPointInt objCell = new BitPointInt(0, 0);
 		boolean resize = false;
 		for (BitRectangle rect : GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize)) {
 			TileObject obj = new TileObject(rect);
+			if (oneway) {
+				obj.oneway = true;
+			}
 
 			objCell = getOccupiedCell(obj);
 			while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
@@ -123,7 +126,7 @@ public class LevelBuilder {
 
 	private void updateNeighbors(int x, int y) {
 		// check right
-		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
+		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null && !grid[x + 1][y].oneway) {
 			if (grid[x][y] == null) {
 				grid[x + 1][y].nValue &= Direction.NOT_LEFT;
 			} else {
@@ -132,7 +135,7 @@ public class LevelBuilder {
 			}
 		}
 		// check left
-		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
+		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null && !grid[x - 1][y].oneway) {
 			if (grid[x][y] == null) {
 				grid[x - 1][y].nValue &= Direction.NOT_RIGHT;
 			} else {
@@ -141,7 +144,7 @@ public class LevelBuilder {
 			}
 		}
 		// check up
-		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
+		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null && !grid[x][y + 1].oneway) {
 			if (grid[x][y] == null) {
 				grid[x][y + 1].nValue &= Direction.NOT_DOWN;
 			} else {
@@ -150,7 +153,7 @@ public class LevelBuilder {
 			}
 		}
 		// check down
-		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
+		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null && !grid[x][y - 1].oneway) {
 			if (grid[x][y] == null) {
 				grid[x][y - 1].nValue &= Direction.NOT_UP;
 			} else {
@@ -238,25 +241,25 @@ public class LevelBuilder {
 				if (levelGrid[x][y] != null) {
 					int value = 0;
 					// check right
-					if (ArrayUtilities.onGrid(levelGrid, x + 1, y) && levelGrid[x + 1][y] != null) {
+					if (ArrayUtilities.onGrid(levelGrid, x + 1, y) && levelGrid[x + 1][y] != null && !levelGrid[x + 1][y].oneway) {
 						if (levelGrid[x + 1][y].nValue != -1) {
 							value |= Direction.RIGHT;
 						}
 					}
 					// check left
-					if (ArrayUtilities.onGrid(levelGrid, x - 1, y) && levelGrid[x - 1][y] != null) {
+					if (ArrayUtilities.onGrid(levelGrid, x - 1, y) && levelGrid[x - 1][y] != null && !levelGrid[x - 1][y].oneway) {
 						if (levelGrid[x - 1][y].nValue != -1) {
 							value |= Direction.LEFT;
 						}
 					}
 					// check up
-					if (ArrayUtilities.onGrid(levelGrid, x, y + 1) && levelGrid[x][y + 1] != null) {
+					if (ArrayUtilities.onGrid(levelGrid, x, y + 1) && levelGrid[x][y + 1] != null && !levelGrid[x][y + 1].oneway) {
 						if (levelGrid[x][y + 1].nValue != -1) {
 							value |= Direction.UP;
 						}
 					}
 					// check down
-					if (ArrayUtilities.onGrid(levelGrid, x, y - 1) && levelGrid[x][y - 1] != null) {
+					if (ArrayUtilities.onGrid(levelGrid, x, y - 1) && levelGrid[x][y - 1] != null && !levelGrid[x][y - 1].oneway) {
 						if (levelGrid[x][y - 1].nValue != -1) {
 							value |= Direction.DOWN;
 						}

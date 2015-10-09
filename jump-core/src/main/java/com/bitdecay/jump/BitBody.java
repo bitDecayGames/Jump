@@ -21,7 +21,7 @@ public class BitBody {
     /**
      * Reference to the optional parent object
      */
-	public BitBody parent = null;
+	public BitBody parent = null; //TODO: This can probably be made a list since a body can be moved by more than one body at a time
 
 	/**
 	 * Holds children bodies of this body. Allows for 'attaching' bodies to each
@@ -52,11 +52,23 @@ public class BitBody {
 	 */
 	public BitBodyStateWatcher stateWatcher = null;
 
+    /**
+     * Tracks the last position the body was. Generally this is the same thing as
+     * the position the body was at when the world step began.
+     */
+    public BitPoint lastPosition = new BitPoint(0, 0);
+
 	/**
-	 * Tracks the <b>last</b> movement the body <b>tried</b> to make. This does
+	 * Tracks the <b>attempted</b> movement the body <b>this step</b> of the world. This does
 	 * not mean the body did move.
 	 */
-	public BitPoint lastAttempt = new BitPoint(0, 0);
+	public BitPoint currentAttempt = new BitPoint(0, 0);
+
+    /**
+     * Tracks the <b>previous</b> attempted movement the body <b>tried</b> to move last step.
+     * This is not how far it actually moved. To determine that, sum with lastResolution.
+     */
+    public BitPoint previousAttempt = new BitPoint(0, 0);
 
 	/**
 	 * Tracks what the physics world <b>last</b> did to resolve any collisions
@@ -87,7 +99,7 @@ public class BitBody {
     /**
      * The max speed of the body
      */
-    public BitPoint maxSpeed = new BitPoint(0, 0);
+    public BitPoint maxSpeed = new BitPoint(150, 0);
 
     /**
      * A flag for whether or not gravity should affect this body
@@ -113,7 +125,7 @@ public class BitBody {
         this.facing = other.facing;
         this.controller = null; // this can't be easily copied from one body to another
         this.stateWatcher = null; // this can't be easily copied from one body to another
-        this.lastAttempt = new BitPoint(other.lastAttempt);
+        this.currentAttempt = new BitPoint(other.currentAttempt);
         this.lastResolution = new BitPoint(other.lastResolution);
         this.active = other.active;
         this.bodyType = other.bodyType;
