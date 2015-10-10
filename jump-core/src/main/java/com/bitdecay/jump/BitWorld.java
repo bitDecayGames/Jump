@@ -121,7 +121,7 @@ public class BitWorld {
 				body.previousAttempt.set(body.currentAttempt);
 				body.lastPosition.set(body.aabb.xy);
 				updateDynamics(body, delta);
-				updateInput(body, delta);
+				updateControl(body, delta);
 				moveBody(body, delta);
 				updateOccupiedSpaces(body);
 				resetCollisions(body);
@@ -130,8 +130,11 @@ public class BitWorld {
 
 		kineticBodies.stream().forEach(body -> {
 			if (body.active) {
-				updateKinetics(body);
+				body.previousAttempt.set(body.currentAttempt);
+				body.lastPosition.set(body.aabb.xy);
+				updateControl(body, delta);
 				moveBody(body, delta);
+				updateKinetics(body);
 				updateOccupiedSpaces(body);
 				resetCollisions(body);
 			}
@@ -170,7 +173,7 @@ public class BitWorld {
 		});
 	}
 
-	public void updateInput(BitBody body, float delta) {
+	public void updateControl(BitBody body, float delta) {
 		if (body.controller != null) {
 			body.controller.update(delta, body);
 		}

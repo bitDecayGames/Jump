@@ -195,8 +195,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         drawGrid();
         debugRender();
-        if (stepWorld || singleStep) {
+        if (singleStep) {
             singleStep = false;
+            world.step(1/120f);
+        } else if (stepWorld) {
             world.step(delta);
         } else {
             world.nonStep(delta);
