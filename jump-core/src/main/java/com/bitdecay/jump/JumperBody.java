@@ -9,6 +9,8 @@ public class JumperBody extends BitBody {
 	public float jumpVariableHeightWindow = .2f;
 	public float jumpGraceWindow = .2f;
 
+	public boolean jumpHittingHeadStopsJump = true;
+
 	public JumperBody() {
 		super();
 	}

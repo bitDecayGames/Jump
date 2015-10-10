@@ -82,14 +82,20 @@ public class JumperController extends BasicBodyController {
 					jumping = true;
 				}
 			}
-
+			if (((JumperBody) body).jumpHittingHeadStopsJump){
+				if(body.lastResolution.y < 0){
+					jumping = false;
+				}
+			}
 			if (jumping && jumpVariableHeightWindow <= jBody.jumpVariableHeightWindow) {
+
 				if (jumpsPerformed <= 1) {
 					// first jump
 					body.velocity.y = jBody.jumpStrength;
 				} else {
 					body.velocity.y = jBody.jumpDoubleJumpStrength;
 				}
+
 			} else {
 				jumping = false;
 			}
