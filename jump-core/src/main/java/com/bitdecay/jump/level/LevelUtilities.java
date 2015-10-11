@@ -21,7 +21,7 @@ public class LevelUtilities {
 		String savedContent = FileUtils.saveToFile(level);
 		if (savedContent != null) {
 //			return levelFromJson(savedContent);
-//			return null;
+			return null;
 		} else {
 			return null;
 		}
