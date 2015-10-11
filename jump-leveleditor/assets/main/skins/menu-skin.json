@@ -1,0 +1,52 @@
+{
+  "com.badlogic.gdx.graphics.Color": {
+    "white": { "r": 1, "g": 1, "b": 1, "a": 1 },
+    "black": { "r": 0, "g": 0, "b": 0, "a": 1 },
+    "green": { "r": 0, "g": 1, "b": 0, "a": 1 }
+  },
+  "com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "defaultFont": {
+      "file": "fonts/test2.fnt"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
+    "button-white": {
+      "name": "button",
+      "color": "white"
+    },
+    "simple-down-white": {
+      "name": "simple-down",
+      "color": "white"
+    },
+    "flare-black": {
+      "name": "flare",
+      "color": "black"
+    },
+    "flare-down-black": {
+      "name": "flare-down",
+      "color": "black"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "button": {
+      "up": "button-white" ,
+      "down": "button-white",
+      "font": "defaultFont",
+      "fontColor": "black",
+      "pressedOffsetY": -4
+    },
+    "flare": {
+      "up": "flare-black" ,
+      "down": "flare-down-black",
+      "font": "defaultFont",
+      "fontColor": "white",
+      "pressedOffsetY": -4
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+    "default": {
+      "font": "defaultFont",
+      "fontColor": "white"
+    }
+  }
+}

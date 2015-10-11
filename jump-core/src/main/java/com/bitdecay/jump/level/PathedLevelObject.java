@@ -5,10 +5,12 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.controller.PathedBodyController;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
 public class PathedLevelObject extends LevelObject {
 	List<BitPoint> pathPoints;
 	private float speed;
@@ -28,7 +30,7 @@ public class PathedLevelObject extends LevelObject {
 	}
 
 	@Override
-	public BitBody getBody() {
+	public BitBody buildBody() {
 		BitBody body = new BitBody();
 		body.aabb = rect;
 		body.bodyType = BodyType.KINETIC;

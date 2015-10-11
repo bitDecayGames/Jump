@@ -3,15 +3,13 @@ package com.bitdecay.jump.leveleditor.render;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
@@ -24,6 +22,7 @@ import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.*;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.setup.EditorToolbox;
 import com.bitdecay.jump.leveleditor.ui.*;
@@ -37,6 +36,7 @@ import java.util.Map;
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
 
     public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
+    private EditorMenus menus;
 
     private static final int CAM_SPEED = 5;
 
@@ -52,11 +52,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
 
-    public BitPointInt mouseDown;
-    public BitPointInt mouseRelease;
-
     public LevelBuilder curLevelBuilder;
-    public String savedLevel;
 
     private OrthographicCamera camera;
     private ShapeRenderer shaper;
@@ -64,7 +60,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private MouseMode mouseMode;
 
     private Map<Integer, JDialog> uiKeys;
-    private PropModUI propUI;
 
     private JumperBody playerBody;
 
@@ -80,6 +75,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         @Override
         public void levelChanged(Level level) {
             world.setLevel(level);
+            world.setObjects(buildBodies(level.otherObjects));
             BitBody player = maybeGetPlayer();
             if (player != null) {
                 world.addBody(player);
@@ -107,6 +103,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private boolean singleStep = false;
 
     public LevelEditor() {
+        setUpMenus();
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
         shaper = new ShapeRenderer();
@@ -168,10 +165,19 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         fallbackTiles = fullSet.split(16, 16)[0];
     }
 
+    private void setUpMenus() {
+        menus = new EditorMenus(this);
+
+        InputMultiplexer inputMux = new InputMultiplexer();
+        inputMux.addProcessor(menus.getStage());
+        inputMux.addProcessor(this);
+        Gdx.input.setInputProcessor(inputMux);
+    }
+
     private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
         ArrayList<BitBody> bodies = new ArrayList<BitBody>();
         for (LevelObject levelObject : otherObjects) {
-            bodies.add(levelObject.getBody());
+            bodies.add(levelObject.buildBody());
         }
         return bodies;
     }
@@ -220,6 +226,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         uiBatch.end();
 
         renderSpecial();
+
+        menus.updateAndDraw();
     }
 
     private void renderSpecial() {
@@ -437,7 +445,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void show() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gdx.input.setInputProcessor(this);
     }
 
     @Override
@@ -469,6 +476,19 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
+    public void saveLevel() {
+        setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
+    }
+
+    public void loadLevel() {
+        Level loadLevel = LevelUtilities.loadLevel();
+        if (loadLevel != null) {
+            setLevelBuilder(loadLevel);
+            setCamToOrigin();
+            stepWorld = false;
+        }
+    }
+
     private void saveProps() {
         BitBody player = maybeGetPlayer();
         if (player != null) {
@@ -480,7 +500,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         BitBody player = maybeGetPlayer();
         if (player != null) {
             player = FileUtils.loadFileAs(JumperBody.class);
-            propUI.setProperties(player);
         }
     }
 

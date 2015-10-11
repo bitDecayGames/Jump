@@ -6,12 +6,8 @@ import java.io.*;
 
 import javax.swing.*;
 
-import com.bitdecay.jump.json.JumperStateDeserializer;
-import com.bitdecay.jump.state.JumperState;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class FileUtils {
 
@@ -19,13 +15,8 @@ public class FileUtils {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
-		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		SimpleModule module = new SimpleModule();
-		module.addDeserializer(JumperState.class, new JumperStateDeserializer());
-		mapper.registerModule(module);
-		//		mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
 	}
 
 	public static String toJson(Object obj) {
@@ -36,8 +27,6 @@ public class FileUtils {
 			e.printStackTrace();
 			return null;
 		}
-		//		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		//		return gson.toJson(obj);
 	}
 
 	public static String saveToFile(Object obj) {

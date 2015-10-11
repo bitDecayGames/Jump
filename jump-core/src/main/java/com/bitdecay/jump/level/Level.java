@@ -3,13 +3,12 @@ package com.bitdecay.jump.level;
 import java.util.*;
 
 import com.bitdecay.jump.geom.BitPointInt;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Level {
 	public int tileSize = 16;
 	public TileObject[][] gridObjects;
 	public List<LevelObject> otherObjects;
-	public String baseMaterialDir;
-	public Map<Integer, String> materials;
 	/**
 	 * This offset is to compensate from how far from the origin the 2d array
 	 * sits. This is needed due to the array being 'shrink wrapped' to the grid
@@ -25,20 +24,18 @@ public class Level {
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
 		gridObjects = new TileObject[10][10];
-		otherObjects = new ArrayList<LevelObject>();
-		materials = new HashMap<Integer, String>();
+		otherObjects = new ArrayList<>();
 	}
 
 	public Level(Level level) {
 		tileSize = level.tileSize;
 		gridObjects = level.gridObjects;
 		otherObjects = level.otherObjects;
-		baseMaterialDir = level.baseMaterialDir;
-		materials = level.materials;
 		gridOffset = level.gridOffset;
 		spawn = level.spawn;
 	}
 
+	@JsonIgnore
 	public Collection<TileObject> getGridObjectsAsCollection() {
 		ArrayList<TileObject> list = new ArrayList<TileObject>();
 		if (gridObjects != null) {

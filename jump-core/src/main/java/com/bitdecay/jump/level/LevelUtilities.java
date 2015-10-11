@@ -2,8 +2,6 @@ package com.bitdecay.jump.level;
 
 import java.io.File;
 
-import com.google.gson.GsonBuilder;
-
 public class LevelUtilities {
 	public static Level loadLevel() {
 		return FileUtils.loadFileAs(Level.class);
@@ -22,13 +20,14 @@ public class LevelUtilities {
 		Level level = builder.tilizeLevel();
 		String savedContent = FileUtils.saveToFile(level);
 		if (savedContent != null) {
-			return levelFromJson(savedContent);
+//			return levelFromJson(savedContent);
+//			return null;
 		} else {
 			return null;
 		}
 	}
 
-	private static Level levelFromJson(String json) {
-		return new GsonBuilder().create().fromJson(json, Level.class);
-	}
+//	private static Level levelFromJson(String json) {
+//		return new GsonBuilder().create().fromJson(json, Level.class);
+//	}
 }

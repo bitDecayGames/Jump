@@ -31,7 +31,7 @@ public class LevelBuilder {
 	 * This collection is used to track all other objects such as power-ups and
 	 * moving platforms
 	 */
-	public Collection<LevelObject> otherObjects;
+	public List<LevelObject> otherObjects;
 
 	public int tileSize;
 	public TileObject[][] grid;
@@ -45,12 +45,12 @@ public class LevelBuilder {
 
 	public void newLevel(int tileSize) {
 		this.tileSize = tileSize;
-		listeners = new ArrayList<LevelBuilderListener>();
+		listeners = new ArrayList<>();
 		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
-		selection = new ArrayList<LevelObject>();
-		tileObjects = new HashSet<TileObject>();
-		otherObjects = new ArrayList<LevelObject>();
+		selection = new ArrayList<>();
+		tileObjects = new HashSet<>();
+		otherObjects = new ArrayList<>();
 	}
 
 	public LevelBuilder(Level level) {
@@ -178,6 +178,9 @@ public class LevelBuilder {
 		}
 		tileObjects.removeAll(selection);
 		selection.clear();
+		for (LevelBuilderListener listener : listeners) {
+			listener.updateGrid(gridOffset, grid, otherObjects);
+		}
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
@@ -271,6 +274,7 @@ public class LevelBuilder {
 
 		tillizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
 		tillizedLevel.gridObjects = levelGrid;
+		tillizedLevel.otherObjects = otherObjects;
 
 		return tillizedLevel;
 	}
@@ -305,9 +309,5 @@ public class LevelBuilder {
 
 	public void setSpawn(BitPointInt point) {
 		level.spawn = point;
-	}
-
-	public void addMaterial(String mat) {
-		level.materials.put(level.materials.size(), mat);
 	}
 }
