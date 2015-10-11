@@ -1,5 +1,7 @@
-package com.bitdecay.jump;
+package com.bitdecay.jump.collision;
 
+import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitRectangle;
 
 /**

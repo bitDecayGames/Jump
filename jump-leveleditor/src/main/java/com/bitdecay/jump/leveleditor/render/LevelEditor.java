@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BitWorld;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.geom.BitPoint;
@@ -117,7 +117,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         setCamToOrigin();
 
         world = new BitWorld();
-        world.setGravity(0, -900);
+        world.setGravity(0, 900);
 
         world.setGridOffset(curLevelBuilder.gridOffset);
         world.setTileSize(curLevelBuilder.tileSize);

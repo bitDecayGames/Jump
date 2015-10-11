@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
-import com.bitdecay.jump.BitWorld;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.collision.SATCollisions;
 import com.bitdecay.jump.collision.SATResolution;
 import com.bitdecay.jump.geom.*;

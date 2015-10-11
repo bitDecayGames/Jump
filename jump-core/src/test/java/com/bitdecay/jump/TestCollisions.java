@@ -1,5 +1,6 @@
 package com.bitdecay.jump;
 
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.level.Level;

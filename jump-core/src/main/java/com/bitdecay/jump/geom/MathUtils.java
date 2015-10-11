@@ -16,4 +16,8 @@ public class MathUtils {
 	public static boolean within(float f1, float f2, float precision) {
 		return Math.abs(f1 - f2) <= precision;
 	}
+
+	public static boolean sameSign(float num1, float num2) {
+		return ((num1<0) == (num2<0));
+	}
 }

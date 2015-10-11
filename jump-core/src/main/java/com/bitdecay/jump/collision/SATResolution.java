@@ -4,6 +4,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
+import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
 
@@ -56,7 +57,7 @@ public class SATResolution {
         float dotProd;
         for (AxisOverlap axisOver : axes) {
             dotProd = relativeMovement.dot(axisOver.axis);
-            if (dotProd != 0 && !sameSign(dotProd, axisOver.distance)) {
+            if (dotProd != 0 && !MathUtils.sameSign(dotProd, axisOver.distance)) {
                 if (otherBody instanceof TileBody) {
                     boolean validCollision = true;
                     if (!axisValidForNValue(axisOver, (TileBody) otherBody)) {
@@ -71,7 +72,7 @@ public class SATResolution {
                                 float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
                                 float lastPosition = body.lastPosition.dot(axisOver.axis);
 
-                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
+                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
                                     validCollision = false;
                                 }
                             }
@@ -83,7 +84,7 @@ public class SATResolution {
                                 float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
                                 float lastPosition = body.lastPosition.dot(axisOver.axis);
 
-                                if (!sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
+                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
                                     validCollision = false;
                                 }
                             }
@@ -108,10 +109,6 @@ public class SATResolution {
         axis = new BitPoint(0, 0);
         distance = 0;
         result = axis.scale(distance);
-    }
-
-    private boolean sameSign(float num1, float num2) {
-        return ((num1<0) == (num2<0));
     }
 
     private boolean axisValidForNValue(AxisOverlap axisOver, TileBody body) {
