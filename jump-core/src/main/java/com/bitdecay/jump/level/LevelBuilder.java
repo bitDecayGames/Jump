@@ -70,8 +70,11 @@ public class LevelBuilder {
 		}
 	}
 
-	public void createKineticObject(BitPointInt startPoint, BitPointInt endPoint, int direction, float speed) {
-		MovingObject kObj = new MovingObject(new BitRectangle(startPoint, endPoint), new BitPath(), direction, speed);
+	public void createKineticObject(BitRectangle rect, List<BitPoint> path, float speed, boolean pendulum) {
+		for (BitPoint point : path) {
+			point.subtract(rect.xy.plus(rect.width/2, rect.height/2));
+		}
+		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), path, speed, pendulum);
 		otherObjects.add(kObj);
 		for (LevelBuilderListener listener : listeners) {
 			listener.updateGrid(gridOffset, grid, otherObjects);

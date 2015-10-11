@@ -20,8 +20,7 @@ public class LevelUtilities {
 		Level level = builder.tilizeLevel();
 		String savedContent = FileUtils.saveToFile(level);
 		if (savedContent != null) {
-//			return levelFromJson(savedContent);
-			return null;
+			return level;
 		} else {
 			return null;
 		}

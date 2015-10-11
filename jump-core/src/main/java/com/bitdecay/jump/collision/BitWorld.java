@@ -266,7 +266,6 @@ public class BitWorld {
 	}
 
 	private void findNewContact(BitBody body) {
-		// TODO: collide vs Static and Dynamic dynamicBodies and report them via a callback (preferably)
 		// We need to update each body against the level grid so we only collide things worth colliding
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 

@@ -9,8 +9,8 @@ import java.util.List;
  * Created by Monday on 10/8/2015.
  */
 public class PathedBodyController implements BitBodyController{
-    List<BitPoint> path;
-    boolean pendulum;
+    public List<BitPoint> path;
+    public boolean pendulum;
     private float speed;
 
     int index;

@@ -14,7 +14,7 @@ public enum OptionsMode {
     SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 2),
     SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
 
-    MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 3),
+    MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
     UP("Up", ModeType.ACTION, 2),
     DOWN("Down", ModeType.ACTION, 2),
     LEFT("Left", ModeType.ACTION, 2),

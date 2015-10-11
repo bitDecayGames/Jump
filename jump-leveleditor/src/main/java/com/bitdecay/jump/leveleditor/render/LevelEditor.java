@@ -45,7 +45,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
     private String renderVersion = "Render v" + BitWorld.VERSION;
     private GlyphLayout jumpVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
-    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
+    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, renderVersion);
     private BitPoint jumpSize = new BitPoint(jumpVersionGlyphLayout.width, jumpVersionGlyphLayout.height);
     private BitPoint renderSize = new BitPoint(renderVersionGlyphLayout.width, renderVersionGlyphLayout.height);
 
@@ -117,7 +117,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         setCamToOrigin();
 
         world = new BitWorld();
-        world.setGravity(0, 900);
+        world.setGravity(0, -900);
 
         world.setGridOffset(curLevelBuilder.gridOffset);
         world.setTileSize(curLevelBuilder.tileSize);
@@ -225,7 +225,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
 
         uiBatch.begin();
-        renderHotkeys();
         renderMouseCoords();
         renderVersion();
         uiBatch.end();
@@ -255,23 +254,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
                 curLevelBuilder.grid.length * curLevelBuilder.tileSize, curLevelBuilder.grid[0].length * curLevelBuilder.tileSize);
         shaper.end();
-    }
-
-    private void renderHotkeys() {
-        int menuIndex = 0;
-        int spacing = 200;
-        int row = 0;
-        int rowSpacing = 200;
-        uiBatch.setColor(Color.BLUE);
-        for (Integer menuKey : uiKeys.keySet()) {
-            JDialog menu = uiKeys.get(menuKey);
-            int x = menuIndex++ * spacing;
-            if (x > camera.viewportWidth) {
-                menuIndex = 0;
-                row++;
-            }
-            font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, Gdx.graphics.getHeight() - row * rowSpacing);
-        }
     }
 
     private void renderMouseCoords() {

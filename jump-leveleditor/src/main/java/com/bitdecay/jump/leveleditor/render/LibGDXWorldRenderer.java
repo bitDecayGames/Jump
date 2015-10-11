@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.controller.PathedBodyController;
+import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
@@ -91,6 +93,26 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
         for (BitBody body : bodies) {
+            if (body.controller != null && body.controller instanceof PathedBodyController) {
+                renderer.setColor(Color.FIREBRICK);
+                BitPoint lastPoint = null;
+                PathedBodyController controller = (PathedBodyController) body.controller;
+                if (controller.path.size() > 1) {
+                    for (BitPoint pathNode : controller.path) {
+                        if (lastPoint == null) {
+                            lastPoint = pathNode;
+                        } else {
+                            renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2);
+                            renderer.circle(pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2, 8);
+                            lastPoint = pathNode;
+                        }
+                    }
+                    if (!controller.pendulum) {
+                        renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, controller.path.get(0).x + body.aabb.width/2, controller.path.get(0).y + body.aabb.height/2);
+                    }
+                    renderer.circle(controller.path.get(0).x + body.aabb.width/2, controller.path.get(0).y + body.aabb.height/2, 8);
+                }
+            }
             if (!body.active) {
                 renderer.setColor(Color.GRAY);
             } else if (body.parent != null) {

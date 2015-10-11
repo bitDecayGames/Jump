@@ -17,7 +17,7 @@ public class TileObject extends LevelObject {
 	public boolean oneway;
 
 	public TileObject() {
-		// TODO Here for JSON
+		// Here for JSON
 	}
 
 	public TileObject(BitRectangle rect) {
