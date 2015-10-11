@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BitWorld;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.geom.BitPointInt;

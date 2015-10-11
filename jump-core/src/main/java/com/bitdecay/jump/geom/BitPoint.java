@@ -55,6 +55,15 @@ public class BitPoint {
 		return new BitPoint(this.x + x, this.y + y);
 	}
 
+
+	public void subtract(BitPoint other) {
+		add(-other.x, -other.y);
+	}
+
+	public void subtract(float x, float y) {
+		add(-x, -y);
+	}
+
 	public BitPoint minus(BitPoint point) {
 		return minus(point.x, point.y);
 	}

@@ -1,9 +1,9 @@
-package com.bitdecay.jump;
+package com.bitdecay.jump.collision;
 
 import java.util.*;
 
-import com.bitdecay.jump.collision.ContactListener;
-import com.bitdecay.jump.collision.SATStrategy;
+import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.TileObject;
@@ -266,7 +266,6 @@ public class BitWorld {
 	}
 
 	private void findNewContact(BitBody body) {
-		// TODO: collide vs Static and Dynamic dynamicBodies and report them via a callback (preferably)
 		// We need to update each body against the level grid so we only collide things worth colliding
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -355,20 +354,13 @@ public class BitWorld {
 	private void applyResolution(BitBody body, BitResolution resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution);
-			// CONSIDER: have grounded check based on gravity direction rather than just always assuming down
-			if (Math.abs(gravity.y - resolution.resolution.y) > Math.abs(gravity.y)) {
-				// if the body was resolved against the gravity's y, we assume grounded.
-				// CONSIDER: 4-directional gravity might become a possibility.
-				body.grounded = true;
+			if (resolution.haltX) {
+				body.velocity.x = 0;
+			}
+			if (resolution.haltY) {
+				body.velocity.y = 0;
 			}
 		}
-		if (resolution.haltX) {
-			body.velocity.x = 0;
-		}
-		if (resolution.haltY) {
-			body.velocity.y = 0;
-		}
-
 		body.lastResolution = resolution.resolution;
 	}
 
@@ -436,7 +428,7 @@ public class BitWorld {
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				if (grid[x][y] != null) {
-					gridObjects[x][y] = grid[x][y].getBody();
+					gridObjects[x][y] = grid[x][y].buildBody();
 				}
 			}
 		}

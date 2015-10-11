@@ -1,7 +1,9 @@
 package com.bitdecay.jump.controller;
 
 import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.JumperBody;
+import com.bitdecay.jump.geom.MathUtils;
 
 public class JumperController extends BasicBodyController {
 	// state stuff
@@ -23,6 +25,11 @@ public class JumperController extends BasicBodyController {
 	public void update(float delta, BitBody body) {
 		super.update(delta, body);
 		if (body instanceof JumperBody) {
+			if (Math.abs(BitWorld.gravity.y - body.lastResolution.y) > Math.abs(BitWorld.gravity.y)) {
+				// if the body was resolved against the gravity's y, we assume grounded.
+				// CONSIDER: 4-directional gravity might become a possibility.
+				body.grounded = true;
+			}
 			JumperBody jBody = (JumperBody) body;
 			if (!body.grounded) {
 				if (jumping) {
@@ -83,17 +90,18 @@ public class JumperController extends BasicBodyController {
 				}
 			}
 			if (((JumperBody) body).jumpHittingHeadStopsJump){
-				if(body.lastResolution.y < 0){
+				if(Math.abs(BitWorld.gravity.y - body.lastResolution.y) < Math.abs(BitWorld.gravity.y)){
 					jumping = false;
 				}
 			}
 			if (jumping && jumpVariableHeightWindow <= jBody.jumpVariableHeightWindow) {
 
+				// Jumps are assumed here to be along the y-axis. This may change at some point?
 				if (jumpsPerformed <= 1) {
 					// first jump
-					body.velocity.y = jBody.jumpStrength;
+					body.velocity.y = jBody.jumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, jBody.jumpStrength) ? -1 : 1);
 				} else {
-					body.velocity.y = jBody.jumpDoubleJumpStrength;
+					body.velocity.y = jBody.jumpDoubleJumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, jBody.jumpDoubleJumpStrength) ? -1 : 1);
 				}
 
 			} else {

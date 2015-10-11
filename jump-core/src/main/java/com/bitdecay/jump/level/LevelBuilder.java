@@ -31,7 +31,7 @@ public class LevelBuilder {
 	 * This collection is used to track all other objects such as power-ups and
 	 * moving platforms
 	 */
-	public Collection<LevelObject> otherObjects;
+	public List<LevelObject> otherObjects;
 
 	public int tileSize;
 	public TileObject[][] grid;
@@ -45,12 +45,12 @@ public class LevelBuilder {
 
 	public void newLevel(int tileSize) {
 		this.tileSize = tileSize;
-		listeners = new ArrayList<LevelBuilderListener>();
+		listeners = new ArrayList<>();
 		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
-		selection = new ArrayList<LevelObject>();
-		tileObjects = new HashSet<TileObject>();
-		otherObjects = new ArrayList<LevelObject>();
+		selection = new ArrayList<>();
+		tileObjects = new HashSet<>();
+		otherObjects = new ArrayList<>();
 	}
 
 	public LevelBuilder(Level level) {
@@ -70,8 +70,13 @@ public class LevelBuilder {
 		}
 	}
 
-	public void createKineticObject(BitPointInt startPoint, BitPointInt endPoint, int direction, float speed) {
-		MovingObject kObj = new MovingObject(new BitRectangle(startPoint, endPoint), new BitPath(), direction, speed);
+	public void createKineticObject(BitRectangle rect, List<PathPoint> path, float speed, boolean pendulum) {
+		// copy the list so we don't share data between the level and the world
+		List<PathPoint> listCopy = new ArrayList<>();
+		for (PathPoint point : path) {
+			listCopy.add(new PathPoint(point.destination.minus(rect.xy.plus(rect.width / 2, rect.height / 2)), point.stayTime));
+		}
+		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, speed, pendulum);
 		otherObjects.add(kObj);
 		for (LevelBuilderListener listener : listeners) {
 			listener.updateGrid(gridOffset, grid, otherObjects);
@@ -178,6 +183,9 @@ public class LevelBuilder {
 		}
 		tileObjects.removeAll(selection);
 		selection.clear();
+		for (LevelBuilderListener listener : listeners) {
+			listener.updateGrid(gridOffset, grid, otherObjects);
+		}
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
@@ -208,7 +216,7 @@ public class LevelBuilder {
 	}
 
 	public Level tilizeLevel() {
-		Level tillizedLevel = new Level(tileSize);
+		Level tilizedLevel = new Level(tileSize);
 		BitPointInt min = getMinXY(tileObjects);
 		BitPointInt max = getMaxXY(tileObjects);
 
@@ -269,10 +277,11 @@ public class LevelBuilder {
 			}
 		}
 
-		tillizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
-		tillizedLevel.gridObjects = levelGrid;
+		tilizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
+		tilizedLevel.gridObjects = levelGrid;
+		tilizedLevel.otherObjects = otherObjects;
 
-		return tillizedLevel;
+		return tilizedLevel;
 	}
 
 	private BitPointInt getMinXY(Collection<TileObject> objects) {
@@ -305,9 +314,5 @@ public class LevelBuilder {
 
 	public void setSpawn(BitPointInt point) {
 		level.spawn = point;
-	}
-
-	public void addMaterial(String mat) {
-		level.materials.put(level.materials.size(), mat);
 	}
 }

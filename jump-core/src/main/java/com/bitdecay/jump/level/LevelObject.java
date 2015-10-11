@@ -2,7 +2,17 @@ package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
+@JsonSubTypes({
+
+		@JsonSubTypes.Type(value=MovingObject.class),
+		@JsonSubTypes.Type(value=PathedLevelObject.class),
+		@JsonSubTypes.Type(value=TileObject.class)
+})
 public abstract class LevelObject {
 	public BitRectangle rect;
 
@@ -14,7 +24,6 @@ public abstract class LevelObject {
 		this.rect = rect;
 	}
 
-	public abstract BitBody getBody();
-
-	// will also need notion of material / path / style
+	@JsonIgnore
+	public abstract BitBody buildBody();
 }

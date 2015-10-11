@@ -2,35 +2,32 @@ package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.controller.PathedBodyController;
-import com.bitdecay.jump.geom.BitPath;
-import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Originally meant to let us add moving objects to the world, this has mostly been obsoleted by the PathedLevelObject
  * @see PathedLevelObject
  */
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="objectType")
 public class MovingObject extends LevelObject {
 
-	private BitPath path;
-	private float speed;
-	private int direction;
+	public float speed;
+	public int direction;
 
-	public MovingObject(BitRectangle rect, BitPath path, int direction, float speed) {
+	public MovingObject() {
+		// Here for Json
+	}
+	public MovingObject(BitRectangle rect, int direction, float speed) {
 		super(rect);
-		this.path = path;
 		this.direction = direction;
 		this.speed = speed;
 	}
 
 	@Override
-	public BitBody getBody() {
+	public BitBody buildBody() {
 		BitBody body = new BitBody();
-		body.aabb = rect;
+		body.aabb = rect.copyOf();
 		body.bodyType = BodyType.KINETIC;
 		if (direction == Direction.UP) {
 			body.velocity.y = speed;

@@ -3,20 +3,18 @@ package com.bitdecay.jump.leveleditor.render;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BitWorld;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.geom.BitPoint;
@@ -24,6 +22,7 @@ import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.*;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.setup.EditorToolbox;
 import com.bitdecay.jump.leveleditor.ui.*;
@@ -37,6 +36,7 @@ import java.util.Map;
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
 
     public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
+    private EditorMenus menus;
 
     private static final int CAM_SPEED = 5;
 
@@ -45,18 +45,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
     private String renderVersion = "Render v" + BitWorld.VERSION;
     private GlyphLayout jumpVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
-    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
+    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, renderVersion);
     private BitPoint jumpSize = new BitPoint(jumpVersionGlyphLayout.width, jumpVersionGlyphLayout.height);
     private BitPoint renderSize = new BitPoint(renderVersionGlyphLayout.width, renderVersionGlyphLayout.height);
+
+    private static Map<String, BitPoint> extraStrings = new HashMap<>();
 
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
 
-    public BitPointInt mouseDown;
-    public BitPointInt mouseRelease;
-
     public LevelBuilder curLevelBuilder;
-    public String savedLevel;
 
     private OrthographicCamera camera;
     private ShapeRenderer shaper;
@@ -64,7 +62,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private MouseMode mouseMode;
 
     private Map<Integer, JDialog> uiKeys;
-    private PropModUI propUI;
 
     private JumperBody playerBody;
 
@@ -80,6 +77,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         @Override
         public void levelChanged(Level level) {
             world.setLevel(level);
+            world.setObjects(buildBodies(level.otherObjects));
             BitBody player = maybeGetPlayer();
             if (player != null) {
                 world.addBody(player);
@@ -107,17 +105,18 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private boolean singleStep = false;
 
     public LevelEditor() {
+        setUpMenus();
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
         shaper = new ShapeRenderer();
 
         font.setColor(Color.YELLOW);
 
-        camera = new OrthographicCamera(1600, 900);
-        setCamToOrigin();
-
         curLevelBuilder = new LevelBuilder(16);
         curLevelBuilder.addListener(levelListener);
+
+        camera = new OrthographicCamera(1600, 900);
+        setCamToOrigin();
 
         world = new BitWorld();
         world.setGravity(0, -900);
@@ -131,7 +130,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         playerBody = new JumperBody();
         playerBody.bodyType = BodyType.DYNAMIC;
 
-        mouseModes = new HashMap<OptionsMode, MouseMode>();
+        mouseModes = new HashMap<>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.ONEWAY, new CreateOneWayMouseMode(curLevelBuilder));
@@ -144,7 +143,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerBody));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
-        uiKeys = new HashMap<Integer, JDialog>();
+        uiKeys = new HashMap<>();
 
         JDialog buttonsDialog = new OptionsUI(this, toolBox);
         buttonsDialog.setTitle("Tools");
@@ -156,28 +155,42 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         uiKeys.put(Keys.P, playerTweakDialog);
 
-        materialMap = new HashMap<String, TextureRegion[]>();
+        materialMap = new HashMap<>();
 
-        //		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
-        //		if (!editorAssets.exists()) {
-        //			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
-        //					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
-        //		}
         fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
 
         fallbackTiles = fullSet.split(16, 16)[0];
     }
 
+    private void setUpMenus() {
+        menus = new EditorMenus(this);
+
+        InputMultiplexer inputMux = new InputMultiplexer();
+        inputMux.addProcessor(menus.getStage());
+        inputMux.addProcessor(this);
+        Gdx.input.setInputProcessor(inputMux);
+    }
+
     private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
         ArrayList<BitBody> bodies = new ArrayList<BitBody>();
         for (LevelObject levelObject : otherObjects) {
-            bodies.add(levelObject.getBody());
+            bodies.add(levelObject.buildBody());
         }
         return bodies;
     }
 
     private void setCamToOrigin() {
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        int tileSize = curLevelBuilder.tileSize;
+        float width = curLevelBuilder.grid.length * tileSize;
+        float height = curLevelBuilder.grid[0].length * tileSize;
+
+        BitPoint center = new BitPoint(0, 0).plus(curLevelBuilder.gridOffset.x * tileSize, curLevelBuilder.gridOffset.y * tileSize);
+        center.add(width / 2, height / 2);
+        camera.position.set(center.x, center.y, 0);
+
+        float widthZoom = width / Gdx.graphics.getWidth();
+        float heightZoom = height / Gdx.graphics.getHeight();
+        camera.zoom = Math.max(widthZoom, heightZoom) + .25f;
         camera.update();
     }
 
@@ -214,12 +227,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
 
         uiBatch.begin();
-        renderHotkeys();
+        renderStrings();
         renderMouseCoords();
         renderVersion();
         uiBatch.end();
 
         renderSpecial();
+
+        menus.updateAndDraw();
     }
 
     private void renderSpecial() {
@@ -244,21 +259,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
     }
 
-    private void renderHotkeys() {
-        int menuIndex = 0;
-        int spacing = 200;
-        int row = 0;
-        int rowSpacing = 200;
-        uiBatch.setColor(Color.BLUE);
-        for (Integer menuKey : uiKeys.keySet()) {
-            JDialog menu = uiKeys.get(menuKey);
-            int x = menuIndex++ * spacing;
-            if (x > camera.viewportWidth) {
-                menuIndex = 0;
-                row++;
-            }
-            font.draw(uiBatch, "(" + Keys.toString(menuKey) + ") " + menu.getTitle(), x, Gdx.graphics.getHeight() - row * rowSpacing);
+    private void renderStrings() {
+        for (Map.Entry<String, BitPoint> entry : extraStrings.entrySet()) {
+            Vector3 screenCoords = camera.project(new Vector3(entry.getValue().x, entry.getValue().y, 0));
+            font.draw(uiBatch, entry.getKey(), screenCoords.x, screenCoords.y);
         }
+        extraStrings.clear();
     }
 
     private void renderMouseCoords() {
@@ -268,6 +274,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private void renderVersion() {
         font.draw(uiBatch, jumpVersion, Gdx.graphics.getWidth() - jumpSize.x, jumpSize.y);
         font.draw(uiBatch, renderVersion, Gdx.graphics.getWidth() - renderSize.x, jumpSize.y + renderSize.y);
+    }
+
+    /**
+     * Queues a string to be rendered next frame
+     * @param text
+     * @param location
+     */
+    public static void addStringForRender(String text, BitPoint location) {
+        extraStrings.put(text, location);
     }
 
     private void drawLevelEdit() {
@@ -347,15 +362,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         if (Gdx.input.isKeyPressed(Keys.NUM_2)) {
             if (camera.zoom > 5) {
-                camera.zoom -= .2f;
+                adjustCamZoom(-.2f);
             } else if (camera.zoom > .2) {
-                camera.zoom -= .05f;
+                adjustCamZoom(-.05f);
             }
         } else if (Gdx.input.isKeyPressed(Keys.NUM_1)) {
             if (camera.zoom < 5) {
-                camera.zoom += .05f;
+                adjustCamZoom(.05f);
             } else if (camera.zoom < 20) {
-                camera.zoom += .2f;
+                adjustCamZoom(.2f);
             }
         }
 
@@ -375,6 +390,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 }
             }
         }
+    }
+
+    private void adjustCamZoom(float change) {
+        BitPointInt mouseCoordinates = getMouseCoords();
+        camera.zoom += change;
+        camera.update();
+        mouseCoordinates = mouseCoordinates.minus(getMouseCoords());
+        camera.translate(mouseCoordinates.x, mouseCoordinates.y);
     }
 
     private BitBody maybeGetPlayer() {
@@ -437,21 +460,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void show() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gdx.input.setInputProcessor(this);
     }
 
     @Override
     public void setMode(OptionsMode mode) {
         if (mouseModes.containsKey(mode)) {
             mouseMode = mouseModes.get(mode);
-        } else if (OptionsMode.UP.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.UP;
-        } else if (OptionsMode.DOWN.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.DOWN;
-        } else if (OptionsMode.LEFT.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.LEFT;
-        } else if (OptionsMode.RIGHT.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.RIGHT;
         } else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
             // set base directory. Allow textures to be loaded from it.
         } else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
@@ -469,6 +483,19 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
+    public void saveLevel() {
+        setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
+    }
+
+    public void loadLevel() {
+        Level loadLevel = LevelUtilities.loadLevel();
+        if (loadLevel != null) {
+            setLevelBuilder(loadLevel);
+            setCamToOrigin();
+            stepWorld = false;
+        }
+    }
+
     private void saveProps() {
         BitBody player = maybeGetPlayer();
         if (player != null) {
@@ -480,7 +507,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         BitBody player = maybeGetPlayer();
         if (player != null) {
             player = FileUtils.loadFileAs(JumperBody.class);
-            propUI.setProperties(player);
         }
     }
 

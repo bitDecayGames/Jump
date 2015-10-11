@@ -33,10 +33,10 @@ public class GeomUtils {
 	}
 
 	/**
-	 * {@link #snap(int, int, int)}
+	 * {@link #snap(int, int, int, int, int)}
 	 */
 	public static BitPointInt snap(BitPointInt coords, int snapSize) {
-		return snap(coords.x, coords.y, snapSize);
+		return snap(coords.x, coords.y, snapSize, 0, 0);
 	}
 
 	/**
@@ -45,15 +45,21 @@ public class GeomUtils {
 	 * @param x
 	 * @param y
 	 * @param snapSize
+	 * @param relativeX
+	 * @param relativeY
 	 * @return
 	 */
-	public static BitPointInt snap(int x, int y, int snapSize) {
+	public static BitPointInt snap(int x, int y, int snapSize, int relativeX, int relativeY) {
 		int xSnapDir = x >= 0 ? 1 : -1;
 		int ySnapDir = y >= 0 ? 1 : -1;
+		int xOffset = relativeX % snapSize;
+		int yOffset = relativeY % snapSize;
 		int xSnap = (x + xSnapDir * snapSize / 2) / snapSize;
 		xSnap *= snapSize;
+		xSnap += xOffset;
 		int ySnap = (y + ySnapDir * snapSize / 2) / snapSize;
 		ySnap *= snapSize;
+		ySnap += yOffset;
 
 		return new BitPointInt(xSnap, ySnap);
 	}
