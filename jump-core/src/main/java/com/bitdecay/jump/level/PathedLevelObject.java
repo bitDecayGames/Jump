@@ -6,6 +6,7 @@ import com.bitdecay.jump.controller.PathedBodyController;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.PathPoint;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import sun.security.tools.PathList;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
 public class PathedLevelObject extends LevelObject {
-	public List<BitPoint> pathPoints;
+	public List<PathPoint> pathPoints;
 	public float speed;
 	public boolean pendulum;
 
@@ -28,7 +29,7 @@ public class PathedLevelObject extends LevelObject {
 	 * @param speed how fast the object should move
 	 * @param pendulum use true for back and forth, false for loop
 	 */
-	public PathedLevelObject(BitRectangle rect, List<BitPoint> points, float speed, boolean pendulum) {
+	public PathedLevelObject(BitRectangle rect, List<PathPoint> points, float speed, boolean pendulum) {
 		super(rect);
 		this.pathPoints = points;
 		this.speed = speed;
@@ -41,8 +42,8 @@ public class PathedLevelObject extends LevelObject {
 		body.aabb = rect.copyOf();
 		body.bodyType = BodyType.KINETIC;
 
-		List<BitPoint> path = new ArrayList<>();
-		pathPoints.forEach(point -> path.add(rect.xy.plus(point.x, point.y)));
+		List<PathPoint> path = new ArrayList<>();
+		pathPoints.forEach(point -> path.add(new PathPoint(rect.xy.plus(point.destination.x, point.destination.y), point.stayTime)));
 
 		body.controller = new PathedBodyController(path, pendulum, speed);
 		return body;

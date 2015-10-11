@@ -49,6 +49,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private BitPoint jumpSize = new BitPoint(jumpVersionGlyphLayout.width, jumpVersionGlyphLayout.height);
     private BitPoint renderSize = new BitPoint(renderVersionGlyphLayout.width, renderVersionGlyphLayout.height);
 
+    private static Map<String, BitPoint> extraStrings = new HashMap<>();
+
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
 
@@ -225,6 +227,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
 
         uiBatch.begin();
+        renderStrings();
         renderMouseCoords();
         renderVersion();
         uiBatch.end();
@@ -256,6 +259,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
     }
 
+    private void renderStrings() {
+        for (Map.Entry<String, BitPoint> entry : extraStrings.entrySet()) {
+            Vector3 screenCoords = camera.project(new Vector3(entry.getValue().x, entry.getValue().y, 0));
+            font.draw(uiBatch, entry.getKey(), screenCoords.x, screenCoords.y);
+        }
+        extraStrings.clear();
+    }
+
     private void renderMouseCoords() {
         font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
     }
@@ -263,6 +274,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private void renderVersion() {
         font.draw(uiBatch, jumpVersion, Gdx.graphics.getWidth() - jumpSize.x, jumpSize.y);
         font.draw(uiBatch, renderVersion, Gdx.graphics.getWidth() - renderSize.x, jumpSize.y + renderSize.y);
+    }
+
+    /**
+     * Queues a string to be rendered next frame
+     * @param text
+     * @param location
+     */
+    public static void addStringForRender(String text, BitPoint location) {
+        extraStrings.put(text, location);
     }
 
     private void drawLevelEdit() {
@@ -446,14 +466,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void setMode(OptionsMode mode) {
         if (mouseModes.containsKey(mode)) {
             mouseMode = mouseModes.get(mode);
-        } else if (OptionsMode.UP.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.UP;
-        } else if (OptionsMode.DOWN.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.DOWN;
-        } else if (OptionsMode.LEFT.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.LEFT;
-        } else if (OptionsMode.RIGHT.equals(mode)) {
-            MovingPlatformMouseMode.direction = Direction.RIGHT;
         } else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
             // set base directory. Allow textures to be loaded from it.
         } else if (OptionsMode.SAVE_PLAYER.equals(mode)) {

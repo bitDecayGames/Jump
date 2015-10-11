@@ -9,6 +9,7 @@ import com.bitdecay.jump.controller.PathedBodyController;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
+import com.bitdecay.jump.geom.PathPoint;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -96,27 +97,27 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         for (BitBody body : bodies) {
             if (body.controller != null && body.controller instanceof PathedBodyController) {
                 renderer.setColor(Color.FIREBRICK);
-                BitPoint lastPoint = null;
+                PathPoint lastPoint = null;
                 PathedBodyController controller = (PathedBodyController) body.controller;
                 if (controller.path.size() > 1) {
-                    for (BitPoint pathNode : controller.path) {
+                    for (PathPoint pathNode : controller.path) {
                         if (lastPoint == null) {
                             lastPoint = pathNode;
                             renderer.setColor(BitColors.DARK_NAVY);
-                            renderer.rect(pathNode.x, pathNode.y, body.aabb.width, body.aabb.height);
+                            renderer.rect(pathNode.destination.x, pathNode.destination.y, body.aabb.width, body.aabb.height);
                             renderer.setColor(Color.FIREBRICK);
-                            renderer.circle(pathNode.x + body.aabb.width / 2, pathNode.y + body.aabb.height / 2, 4);
+                            renderer.circle(pathNode.destination.x + body.aabb.width / 2, pathNode.destination.y + body.aabb.height / 2, 4);
                         } else {
                             renderer.setColor(BitColors.DARK_NAVY);
-                            renderer.rect(pathNode.x, pathNode.y, body.aabb.width, body.aabb.height);
+                            renderer.rect(pathNode.destination.x, pathNode.destination.y, body.aabb.width, body.aabb.height);
                             renderer.setColor(Color.FIREBRICK);
-                            renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2);
-                            renderer.circle(pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2, 4);
+                            renderer.line(lastPoint.destination.x + body.aabb.width/2, lastPoint.destination.y + body.aabb.height/2, pathNode.destination.x + body.aabb.width/2, pathNode.destination.y + body.aabb.height/2);
+                            renderer.circle(pathNode.destination.x + body.aabb.width/2, pathNode.destination.y + body.aabb.height/2, 4);
                             lastPoint = pathNode;
                         }
                     }
                     if (!controller.pendulum) {
-                        renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, controller.path.get(0).x + body.aabb.width/2, controller.path.get(0).y + body.aabb.height/2);
+                        renderer.line(lastPoint.destination.x + body.aabb.width/2, lastPoint.destination.y + body.aabb.height/2, controller.path.get(0).destination.x + body.aabb.width/2, controller.path.get(0).destination.y + body.aabb.height/2);
                     }
                 }
             }
