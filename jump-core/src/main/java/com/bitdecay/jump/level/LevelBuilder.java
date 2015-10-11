@@ -211,7 +211,7 @@ public class LevelBuilder {
 	}
 
 	public Level tilizeLevel() {
-		Level tillizedLevel = new Level(tileSize);
+		Level tilizedLevel = new Level(tileSize);
 		BitPointInt min = getMinXY(tileObjects);
 		BitPointInt max = getMaxXY(tileObjects);
 
@@ -272,11 +272,11 @@ public class LevelBuilder {
 			}
 		}
 
-		tillizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
-		tillizedLevel.gridObjects = levelGrid;
-		tillizedLevel.otherObjects = otherObjects;
+		tilizedLevel.gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
+		tilizedLevel.gridObjects = levelGrid;
+		tilizedLevel.otherObjects = otherObjects;
 
-		return tillizedLevel;
+		return tilizedLevel;
 	}
 
 	private BitPointInt getMinXY(Collection<TileObject> objects) {

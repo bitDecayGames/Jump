@@ -110,11 +110,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         font.setColor(Color.YELLOW);
 
-        camera = new OrthographicCamera(1600, 900);
-        setCamToOrigin();
-
         curLevelBuilder = new LevelBuilder(16);
         curLevelBuilder.addListener(levelListener);
+
+        camera = new OrthographicCamera(1600, 900);
+        setCamToOrigin();
 
         world = new BitWorld();
         world.setGravity(0, -900);
@@ -128,7 +128,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         playerBody = new JumperBody();
         playerBody.bodyType = BodyType.DYNAMIC;
 
-        mouseModes = new HashMap<OptionsMode, MouseMode>();
+        mouseModes = new HashMap<>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.ONEWAY, new CreateOneWayMouseMode(curLevelBuilder));
@@ -141,7 +141,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerBody));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
-        uiKeys = new HashMap<Integer, JDialog>();
+        uiKeys = new HashMap<>();
 
         JDialog buttonsDialog = new OptionsUI(this, toolBox);
         buttonsDialog.setTitle("Tools");
@@ -153,13 +153,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         uiKeys.put(Keys.P, playerTweakDialog);
 
-        materialMap = new HashMap<String, TextureRegion[]>();
+        materialMap = new HashMap<>();
 
-        //		FileHandle editorAssets = Gdx.files.internal(EDITOR_ASSETS_FOLDER);
-        //		if (!editorAssets.exists()) {
-        //			throw new RuntimeException("/" + EDITOR_ASSETS_FOLDER
-        //					+ " directory not found in assets folder. Please copy this out of the bitDecayJumpLibGDX project into your assets folder");
-        //		}
         fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
 
         fallbackTiles = fullSet.split(16, 16)[0];
@@ -183,7 +178,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void setCamToOrigin() {
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        int tileSize = curLevelBuilder.tileSize;
+        float width = curLevelBuilder.grid.length * tileSize;
+        float height = curLevelBuilder.grid[0].length * tileSize;
+
+        BitPoint center = new BitPoint(0, 0).plus(curLevelBuilder.gridOffset.x * tileSize, curLevelBuilder.gridOffset.y * tileSize);
+        center.add(width / 2, height / 2);
+        camera.position.set(center.x, center.y, 0);
+
+        float widthZoom = width / Gdx.graphics.getWidth();
+        float heightZoom = height / Gdx.graphics.getHeight();
+        camera.zoom = Math.max(widthZoom, heightZoom) + .25f;
         camera.update();
     }
 
@@ -355,15 +360,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         if (Gdx.input.isKeyPressed(Keys.NUM_2)) {
             if (camera.zoom > 5) {
-                camera.zoom -= .2f;
+                adjustCamZoom(-.2f);
             } else if (camera.zoom > .2) {
-                camera.zoom -= .05f;
+                adjustCamZoom(-.05f);
             }
         } else if (Gdx.input.isKeyPressed(Keys.NUM_1)) {
             if (camera.zoom < 5) {
-                camera.zoom += .05f;
+                adjustCamZoom(.05f);
             } else if (camera.zoom < 20) {
-                camera.zoom += .2f;
+                adjustCamZoom(.2f);
             }
         }
 
@@ -383,6 +388,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 }
             }
         }
+    }
+
+    private void adjustCamZoom(float change) {
+        BitPointInt mouseCoordinates = getMouseCoords();
+        camera.zoom += change;
+        camera.update();
+        mouseCoordinates = mouseCoordinates.minus(getMouseCoords());
+        camera.translate(mouseCoordinates.x, mouseCoordinates.y);
     }
 
     private BitBody maybeGetPlayer() {
