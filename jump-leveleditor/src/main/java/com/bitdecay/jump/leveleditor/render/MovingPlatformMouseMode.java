@@ -10,6 +10,7 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,12 +92,18 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
                 if (lastPoint == null) {
                     lastPoint = point;
                 } else {
+                    shaper.setColor(BitColors.DARK_NAVY);
+                    shaper.rect(point.x - platform.width / 2, point.y - platform.height / 2, platform.width, platform.height);
+                    shaper.setColor(Color.FIREBRICK);
                     shaper.line(lastPoint.x, lastPoint.y, point.x, point.y);
-                    shaper.circle(point.x, point.y, 8);
+                    shaper.circle(point.x, point.y, 4);
                     lastPoint = point;
                 }
             }
             if (currentPoint != null) {
+                shaper.setColor(Color.GREEN);
+                shaper.rect(currentPoint.x - platform.width / 2, currentPoint.y - platform.height / 2, platform.width, platform.height);
+                shaper.setColor(Color.FIREBRICK);
                 shaper.line(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
             }
         }

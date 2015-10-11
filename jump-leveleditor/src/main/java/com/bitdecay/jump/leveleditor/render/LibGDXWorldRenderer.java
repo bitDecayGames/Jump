@@ -11,6 +11,7 @@ import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 import java.util.List;
 
@@ -101,16 +102,22 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                     for (BitPoint pathNode : controller.path) {
                         if (lastPoint == null) {
                             lastPoint = pathNode;
+                            renderer.setColor(BitColors.DARK_NAVY);
+                            renderer.rect(pathNode.x, pathNode.y, body.aabb.width, body.aabb.height);
+                            renderer.setColor(Color.FIREBRICK);
+                            renderer.circle(pathNode.x + body.aabb.width / 2, pathNode.y + body.aabb.height / 2, 4);
                         } else {
+                            renderer.setColor(BitColors.DARK_NAVY);
+                            renderer.rect(pathNode.x, pathNode.y, body.aabb.width, body.aabb.height);
+                            renderer.setColor(Color.FIREBRICK);
                             renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2);
-                            renderer.circle(pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2, 8);
+                            renderer.circle(pathNode.x + body.aabb.width/2, pathNode.y + body.aabb.height/2, 4);
                             lastPoint = pathNode;
                         }
                     }
                     if (!controller.pendulum) {
                         renderer.line(lastPoint.x + body.aabb.width/2, lastPoint.y + body.aabb.height/2, controller.path.get(0).x + body.aabb.width/2, controller.path.get(0).y + body.aabb.height/2);
                     }
-                    renderer.circle(controller.path.get(0).x + body.aabb.width/2, controller.path.get(0).y + body.aabb.height/2, 8);
                 }
             }
             if (!body.active) {
