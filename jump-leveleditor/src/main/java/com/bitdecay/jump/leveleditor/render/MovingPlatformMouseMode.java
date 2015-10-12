@@ -39,7 +39,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseDown(BitPointInt point) {
+    public void mouseDown(BitPointInt point, int button) {
         if (platform == null) {
             startPoint = GeomUtils.snap(point, builder.tileSize);
         } else {
