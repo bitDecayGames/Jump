@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 
 public interface MouseMode {
-    public void mouseDown(BitPointInt point);
+    public void mouseDown(BitPointInt point, int button);
 
     /**
      * mouse moved while button is down
@@ -14,7 +14,7 @@ public interface MouseMode {
      */
     public void mouseDragged(BitPointInt point);
 
-    public void mouseUp(BitPointInt point);
+    public void mouseUp(BitPointInt point, int button);
 
     /**
      * Mouse moved without button down

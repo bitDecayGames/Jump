@@ -93,11 +93,11 @@ public class EditorMenus {
         });
 
 
-        menu.add(toolsBtn).height(60);
-        menu.add(playerPropsBtn).height(60);
-        menu.add(saveBtn).height(60);
-        menu.add(loadBtn).height(60);
-        menu.add(quitBtn).height(60);
+        menu.add(toolsBtn).height(30);
+        menu.add(playerPropsBtn).height(30);
+        menu.add(saveBtn).height(30);
+        menu.add(loadBtn).height(30);
+        menu.add(quitBtn).height(30);
         menu.align(Align.topLeft);
         menu.setFillParent(true);
         menu.setVisible(false);
@@ -119,7 +119,7 @@ public class EditorMenus {
                         levelEditor.setMode(mode);
                     }
                 });
-                menu.add(button).height(60).padBottom(20);
+                menu.add(button).height(30);
             }
         }
 
@@ -150,7 +150,7 @@ public class EditorMenus {
                         levelEditor.setMode(mode);
                     }
                 });
-                menu.add(button).height(60).padBottom(20);
+                menu.add(button).height(30);
             }
         }
 
@@ -168,7 +168,7 @@ public class EditorMenus {
                 levelEditor.setMode(OptionsMode.SELECT);
             }
         });
-        menu.add(backBtn).height(60).padBottom(20);
+        menu.add(backBtn).height(30);
         menu.align(Align.topLeft);
         menu.setFillParent(true);
         menu.setVisible(false);

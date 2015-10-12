@@ -406,17 +406,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        mouseMode.mouseDown(getMouseCoords());
+        mouseMode.mouseDown(getMouseCoords(), button);
         return super.touchDown(screenX, screenY, pointer, button);
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        // mouseRelease = GeomUtils.snap(getMouseCoords(), curLevelBuilder.level.tileSize);
-        mouseMode.mouseUp(getMouseCoords());
-        // createObject();
-        // mouseDown = null;
-        // mouseRelease = null;
+        mouseMode.mouseUp(getMouseCoords(), button);
         return super.touchUp(screenX, screenY, pointer, button);
     }
 

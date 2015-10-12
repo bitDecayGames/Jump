@@ -14,7 +14,7 @@ public class CreateMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseDown(BitPointInt point) {
+    public void mouseDown(BitPointInt point, int button) {
         startPoint = GeomUtils.snap(point, builder.tileSize);
     }
 
