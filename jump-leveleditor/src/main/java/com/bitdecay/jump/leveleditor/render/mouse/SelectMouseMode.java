@@ -27,7 +27,7 @@ public class SelectMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseUpLogic(BitPointInt point) {
+    public void mouseUpLogic(BitPointInt point, MouseButton button) {
         boolean shift = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Keys.SHIFT_RIGHT);
         if (startPoint.equals(endPoint)) {
             builder.selectObject(startPoint, shift);

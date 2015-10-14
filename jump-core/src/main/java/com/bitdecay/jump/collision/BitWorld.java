@@ -25,6 +25,8 @@ public class BitWorld {
 	 */
 	private float extraStepTime = 0;
 
+	private float timePassed;
+
 	private int tileSize = 32;
 	private BitPointInt gridOffset = new BitPointInt(0, 0);
 	private BitBody[][] gridObjects = new BitBody[0][0];
@@ -108,6 +110,7 @@ public class BitWorld {
 		if (delta <= 0) {
 			return;
 		}
+		timePassed += delta;
 		// make sure world contains everything it should
 		doAddRemoves();
 
@@ -456,5 +459,13 @@ public class BitWorld {
 		pendingRemoves.addAll(kineticBodies);
 		pendingRemoves.addAll(staticBodies);
 		pendingAdds.clear();
+	}
+
+	public float getTimePassed() {
+		return timePassed;
+	}
+
+	public void resetTimePassed() {
+		timePassed = 0;
 	}
 }

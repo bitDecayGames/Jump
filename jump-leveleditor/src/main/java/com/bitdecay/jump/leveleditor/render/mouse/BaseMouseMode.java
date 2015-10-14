@@ -20,7 +20,7 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
     }
 
     @Override
-    public void mouseDown(BitPointInt point, int button) {
+    public void mouseDown(BitPointInt point, MouseButton button) {
         startPoint = point;
     }
 
@@ -30,17 +30,17 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
     }
 
     @Override
-    public void mouseUp(BitPointInt point, int button) {
+    public void mouseUp(BitPointInt point, MouseButton button) {
         if (startPoint == null) {
             return;
         }
         endPoint = point;
-        mouseUpLogic(point);
+        mouseUpLogic(point, button);
         startPoint = null;
         endPoint = null;
     }
 
-    protected abstract void mouseUpLogic(BitPointInt point);
+    protected abstract void mouseUpLogic(BitPointInt point, MouseButton button);
 
     @Override
     public void mouseMoved(BitPointInt point) {

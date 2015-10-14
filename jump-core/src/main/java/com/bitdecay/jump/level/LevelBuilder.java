@@ -70,13 +70,13 @@ public class LevelBuilder {
 		}
 	}
 
-	public void createKineticObject(BitRectangle rect, List<PathPoint> path, float speed, boolean pendulum) {
+	public void createKineticObject(BitRectangle rect, List<PathPoint> path, boolean pendulum) {
 		// copy the list so we don't share data between the level and the world
 		List<PathPoint> listCopy = new ArrayList<>();
 		for (PathPoint point : path) {
-			listCopy.add(new PathPoint(point.destination.minus(rect.xy.plus(rect.width / 2, rect.height / 2)), point.stayTime));
+			listCopy.add(new PathPoint(point.destination.minus(rect.xy.plus(rect.width / 2, rect.height / 2)), point.speed, point.stayTime));
 		}
-		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, speed, pendulum);
+		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, pendulum);
 		otherObjects.add(kObj);
 		for (LevelBuilderListener listener : listeners) {
 			listener.updateGrid(gridOffset, grid, otherObjects);

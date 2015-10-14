@@ -14,7 +14,7 @@ public class CreateMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseDown(BitPointInt point, int button) {
+    public void mouseDown(BitPointInt point, MouseButton button) {
         startPoint = GeomUtils.snap(point, builder.tileSize);
     }
 
@@ -25,7 +25,7 @@ public class CreateMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseUpLogic(BitPointInt point) {
+    public void mouseUpLogic(BitPointInt point, MouseButton button) {
         endPoint = GeomUtils.snap(point, builder.tileSize);
         if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
             builder.createLevelObject(startPoint, endPoint, false);
