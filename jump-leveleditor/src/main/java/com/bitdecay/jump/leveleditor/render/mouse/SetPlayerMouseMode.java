@@ -7,7 +7,7 @@ import com.bitdecay.jump.*;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.state.JumperStateWatcher;

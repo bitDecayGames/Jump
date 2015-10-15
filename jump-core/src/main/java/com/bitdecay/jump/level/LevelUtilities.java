@@ -1,5 +1,7 @@
 package com.bitdecay.jump.level;
 
+import com.bitdecay.jump.level.builder.LevelBuilder;
+
 import java.io.File;
 
 public class LevelUtilities {
@@ -17,7 +19,7 @@ public class LevelUtilities {
 	}
 
 	public static Level saveLevel(LevelBuilder builder) {
-		Level level = builder.tilizeLevel();
+		Level level = builder.optimizeLevel();
 		String savedContent = FileUtils.saveToFile(level);
 		if (savedContent != null) {
 			return level;

@@ -1,14 +1,11 @@
-package com.bitdecay.jump.level;
+package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.controller.PathedBodyController;
-import com.bitdecay.jump.geom.BitPoint;
-import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.PathPoint;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import sun.security.tools.PathList;
 
 import java.util.ArrayList;
 import java.util.List;

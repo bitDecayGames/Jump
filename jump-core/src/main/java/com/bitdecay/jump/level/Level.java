@@ -3,6 +3,8 @@ package com.bitdecay.jump.level;
 import java.util.*;
 
 import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.builder.TileObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Level {
@@ -33,20 +35,5 @@ public class Level {
 		otherObjects = level.otherObjects;
 		gridOffset = level.gridOffset;
 		spawn = level.spawn;
-	}
-
-	@JsonIgnore
-	public Collection<TileObject> getGridObjectsAsCollection() {
-		ArrayList<TileObject> list = new ArrayList<TileObject>();
-		if (gridObjects != null) {
-			for (int i = 0; i < gridObjects.length; i++) {
-				for (int j = 0; j < gridObjects[0].length; j++) {
-					if (gridObjects[i][j] != null) {
-						list.add(gridObjects[i][j]);
-					}
-				}
-			}
-		}
-		return list;
 	}
 }

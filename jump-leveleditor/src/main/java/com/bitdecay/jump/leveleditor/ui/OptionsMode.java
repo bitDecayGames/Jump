@@ -8,6 +8,9 @@ public enum OptionsMode {
     STATIC("Static", ModeType.MOUSE, 0),
     DELETE("Delete", ModeType.MOUSE, 0),
 
+    UNDO("Undo", ModeType.ACTION, 0),
+    REDO("Redo", ModeType.ACTION, 0),
+
     SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 1),
     SAVE_PLAYER("Save Player Props", ModeType.ACTION, 1),
     LOAD_PLAYER("Load Player Props", ModeType.ACTION, 1),

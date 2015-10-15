@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.*;
-import com.bitdecay.jump.level.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
 import com.bitdecay.jump.leveleditor.render.mouse.MouseButton;
 import com.bitdecay.jump.leveleditor.tools.BitColors;

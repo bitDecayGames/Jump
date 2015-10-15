@@ -1,8 +1,9 @@
-package com.bitdecay.jump.level;
+package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.level.Direction;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**

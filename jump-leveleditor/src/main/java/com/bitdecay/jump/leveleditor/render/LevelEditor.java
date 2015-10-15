@@ -21,6 +21,10 @@ import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.*;
+import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelBuilderListener;
+import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
@@ -76,25 +80,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         @Override
         public void levelChanged(Level level) {
-            world.setLevel(level);
-            world.setObjects(buildBodies(level.otherObjects));
-            BitBody player = maybeGetPlayer();
-            if (player != null) {
-                world.addBody(player);
-            }
-            world.resetTimePassed();
+            loadLevel(level);
         }
 
         @Override
         public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
-            world.setGridOffset(gridOffset);
-            world.setGrid(grid);
-            BitBody player = maybeGetPlayer();
-            world.setObjects(buildBodies(otherObjects));
-            if (player != null) {
-                world.addBody(player);
-            }
-            world.resetTimePassed();
+            loadLevel(gridOffset, grid, otherObjects);
         }
     };
 
@@ -291,8 +282,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private void drawLevelEdit() {
         spriteBatch.begin();
         spriteBatch.setColor(1, 1, 1, .3f);
-        for (TileObject obj : curLevelBuilder.tileObjects) {
-            spriteBatch.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+        for (int x = 0; x < curLevelBuilder.grid.length; x++) {
+            for (int y = 0; y < curLevelBuilder.grid[0].length; y++) {
+                TileObject obj = curLevelBuilder.grid[x][y];
+                if (obj != null) {
+                    spriteBatch.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+                }
+            }
         }
         spriteBatch.end();
 
@@ -378,7 +374,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
 
         if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-            Gdx.app.exit();
+            loadLevel(curLevelBuilder.optimizeLevel());
         }
 
         if (Gdx.input.isKeyPressed(Keys.DEL) || Gdx.input.isKeyPressed(Keys.BACKSPACE)) {
@@ -465,6 +461,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void setMode(OptionsMode mode) {
         if (mouseModes.containsKey(mode)) {
             mouseMode = mouseModes.get(mode);
+        } else if (OptionsMode.UNDO.equals(mode)) {
+            curLevelBuilder.undo();
+        } else if (OptionsMode.REDO.equals(mode)) {
+            curLevelBuilder.redo();
         } else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
             // set base directory. Allow textures to be loaded from it.
         } else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
@@ -483,7 +483,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     public void saveLevel() {
-        setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
+        LevelUtilities.saveLevel(curLevelBuilder);
     }
 
     public void loadLevel() {
@@ -492,6 +492,26 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             setLevelBuilder(loadLevel);
             setCamToOrigin();
             stepWorld = false;
+        }
+    }
+
+    private void loadLevel(Level level) {
+        loadLevel(level.gridOffset, level.gridObjects, level.otherObjects);
+    }
+
+    private void loadLevel(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
+        world.setGridOffset(gridOffset);
+        world.setGrid(grid);
+        world.setObjects(buildBodies(otherObjects));
+        resetPlayer();
+        world.resetTimePassed();
+        stepWorld = false;
+    }
+
+    protected void resetPlayer() {
+        BitBody player = maybeGetPlayer();
+        if (player != null) {
+            world.addBody(player);
         }
     }
 

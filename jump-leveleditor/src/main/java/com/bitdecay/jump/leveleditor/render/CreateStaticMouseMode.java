@@ -10,7 +10,7 @@ import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
 import com.bitdecay.jump.leveleditor.render.mouse.MouseButton;
 

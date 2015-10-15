@@ -2,7 +2,7 @@ package com.bitdecay.jump.leveleditor.render.mouse;
 
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelBuilder;
 
 /**
  * Created by Monday on 10/6/2015.

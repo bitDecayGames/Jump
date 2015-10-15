@@ -6,7 +6,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
-import com.bitdecay.jump.level.TileObject;
+import com.bitdecay.jump.level.builder.TileObject;
 
 /**
  * A Pseudo-Physics simulation world. Will step according to all body's

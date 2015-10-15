@@ -1,10 +1,10 @@
-package com.bitdecay.jump.level;
+package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.bitdecay.jump.level.TileBody;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="objectType")
@@ -20,8 +20,9 @@ public class TileObject extends LevelObject {
 		// Here for JSON
 	}
 
-	public TileObject(BitRectangle rect) {
+	public TileObject(BitRectangle rect, boolean oneway) {
 		super(rect);
+		this.oneway = oneway;
 	}
 
 	@Override
