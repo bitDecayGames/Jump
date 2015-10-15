@@ -1,8 +1,9 @@
-package com.bitdecay.jump.level;
+package com.bitdecay.jump.level.builder;
 
 import java.util.Collection;
 
 import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.level.Level;
 
 /**
  * A simple listener. Only needs to listen for level changed because
