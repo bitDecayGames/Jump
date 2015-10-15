@@ -16,7 +16,6 @@ import java.util.List;
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
 public class PathedLevelObject extends LevelObject {
 	public List<PathPoint> pathPoints;
-	public float speed;
 	public boolean pendulum;
 
 	public PathedLevelObject() {
@@ -26,13 +25,11 @@ public class PathedLevelObject extends LevelObject {
 	/**
 	 * @param rect the rectangle to become the body
 	 * @param points path points relative to where rect is
-	 * @param speed how fast the object should move
 	 * @param pendulum use true for back and forth, false for loop
 	 */
-	public PathedLevelObject(BitRectangle rect, List<PathPoint> points, float speed, boolean pendulum) {
+	public PathedLevelObject(BitRectangle rect, List<PathPoint> points, boolean pendulum) {
 		super(rect);
 		this.pathPoints = points;
-		this.speed = speed;
 		this.pendulum = pendulum;
 	}
 
@@ -43,9 +40,9 @@ public class PathedLevelObject extends LevelObject {
 		body.bodyType = BodyType.KINETIC;
 
 		List<PathPoint> path = new ArrayList<>();
-		pathPoints.forEach(point -> path.add(new PathPoint(rect.xy.plus(point.destination.x, point.destination.y), point.stayTime)));
+		pathPoints.forEach(point -> path.add(new PathPoint(rect.xy.plus(point.destination.x, point.destination.y), point.speed, point.stayTime)));
 
-		body.controller = new PathedBodyController(path, pendulum, speed);
+		body.controller = new PathedBodyController(path, pendulum);
 		return body;
 	}
 }

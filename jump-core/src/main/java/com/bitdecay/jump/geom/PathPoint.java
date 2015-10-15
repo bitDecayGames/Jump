@@ -5,14 +5,16 @@ package com.bitdecay.jump.geom;
  */
 public class PathPoint {
     public BitPoint destination;
+    public float speed;
     public float stayTime;
 
     public PathPoint() {
         // Here for JSON
     }
 
-    public PathPoint(BitPoint point, float stay) {
+    public PathPoint(BitPoint point, float speed, float stay) {
         destination = point;
+        this.speed = speed;
         stayTime = stay;
     }
 }

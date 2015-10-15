@@ -82,6 +82,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             if (player != null) {
                 world.addBody(player);
             }
+            world.resetTimePassed();
         }
 
         @Override
@@ -93,6 +94,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             if (player != null) {
                 world.addBody(player);
             }
+            world.resetTimePassed();
         }
     };
 
@@ -228,7 +230,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         uiBatch.begin();
         renderStrings();
-        renderMouseCoords();
+        renderExtraUIHints();
         renderVersion();
         uiBatch.end();
 
@@ -267,8 +269,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         extraStrings.clear();
     }
 
-    private void renderMouseCoords() {
+    private void renderExtraUIHints() {
         font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
+        font.draw(uiBatch, String.format("World time: %.2f", world.getTimePassed()), 100, 20);
     }
 
     private void renderVersion() {
@@ -406,13 +409,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        mouseMode.mouseDown(getMouseCoords(), button);
+        mouseMode.mouseDown(getMouseCoords(), MouseButton.getButton(button));
         return super.touchDown(screenX, screenY, pointer, button);
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        mouseMode.mouseUp(getMouseCoords(), button);
+        mouseMode.mouseUp(getMouseCoords(), MouseButton.getButton(button));
         return super.touchUp(screenX, screenY, pointer, button);
     }
 

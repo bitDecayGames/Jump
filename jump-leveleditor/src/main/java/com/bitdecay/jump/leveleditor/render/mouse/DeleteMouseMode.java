@@ -10,7 +10,7 @@ public class DeleteMouseMode extends BaseMouseMode {
     }
 
     @Override
-    protected void mouseUpLogic(BitPointInt point) {
+    protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         if (startPoint.equals(endPoint)) {
             // only delete if the user didn't move the mouse. UX nicety.
             builder.selectObject(point, false);

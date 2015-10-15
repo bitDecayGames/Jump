@@ -30,7 +30,7 @@ public class SetPlayerMouseMode extends BaseMouseMode {
     }
 
     @Override
-    protected void mouseUpLogic(BitPointInt point) {
+    protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
             if (lastPlayer != null) {
                 world.removeBody(lastPlayer);

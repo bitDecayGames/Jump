@@ -12,6 +12,7 @@ import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
+import com.bitdecay.jump.leveleditor.render.mouse.MouseButton;
 
 public class CreateStaticMouseMode extends BaseMouseMode {
 
@@ -27,7 +28,7 @@ public class CreateStaticMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseDown(BitPointInt point, int button) {
+    public void mouseDown(BitPointInt point, MouseButton button) {
         startPoint = GeomUtils.snap(point, builder.tileSize);
     }
 
@@ -38,7 +39,7 @@ public class CreateStaticMouseMode extends BaseMouseMode {
     }
 
     @Override
-    public void mouseUpLogic(BitPointInt point) {
+    public void mouseUpLogic(BitPointInt point, MouseButton button) {
         endPoint = GeomUtils.snap(point, builder.tileSize);
         BitBody staticBody = new BitBody();
         staticBody.bodyType = BodyType.STATIC;

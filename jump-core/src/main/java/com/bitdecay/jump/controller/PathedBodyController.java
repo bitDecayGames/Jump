@@ -12,7 +12,6 @@ import java.util.List;
 public class PathedBodyController implements BitBodyController{
     public List<PathPoint> path;
     public boolean pendulum;
-    private float speed;
 
     private float pause;
 
@@ -20,18 +19,18 @@ public class PathedBodyController implements BitBodyController{
     boolean forward;
     PathPoint targetPoint;
 
-    public PathedBodyController(List<PathPoint> path, boolean pendulum, float speed) {
+    public PathedBodyController(List<PathPoint> path, boolean pendulum) {
         this.path = path;
         this.pendulum = pendulum;
-        this.speed = speed;
 
-        index = 0;
+        index = -1;
         forward = true;
     }
 
     @Override
     public void update(float delta, BitBody body) {
         if (pause > 0) {
+            body.velocity.set(0, 0);
             pause -= delta;
 
         } else {
@@ -39,13 +38,13 @@ public class PathedBodyController implements BitBodyController{
                 pickNextPathPoint();
             }
             BitPoint difference = targetPoint.destination.minus(body.aabb.xy);
-            if (Math.abs(difference.len()) < speed * delta) {
-                body.velocity.set(0, 0);
-                body.aabb.xy.set(targetPoint.destination);
+            if (Math.abs(difference.len()) < targetPoint.speed * delta) {
+                // make it so we land perfectly on our target and then pause
+                body.velocity.set(difference.scale(1/delta));
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
-                body.velocity.set(difference.normalize().scale(speed));
+                body.velocity.set(difference.normalize().scale(targetPoint.speed));
             }
         }
     }
