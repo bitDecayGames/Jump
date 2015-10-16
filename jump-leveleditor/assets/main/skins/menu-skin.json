@@ -14,6 +14,10 @@
       "name": "button",
       "color": "white"
     },
+    "button-white-down": {
+      "name": "button_down",
+      "color": "white"
+    }
     "simple-down-white": {
       "name": "simple-down",
       "color": "white"
@@ -30,10 +34,19 @@
   "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
     "button": {
       "up": "button-white" ,
-      "down": "button-white",
+      "down": "button-white-down",
       "font": "defaultFont",
       "fontColor": "black",
-      "pressedOffsetY": -4
+      "downFontColor": "white",
+      "pressedOffsetY": -2
+    },
+    "toggle-button": {
+      "up": "button-white" ,
+      "checked": "button-white-down",
+      "font": "defaultFont",
+      "fontColor": "black",
+      "checkedFontColor": "white",
+      "pressedOffsetY": -2
     },
     "flare": {
       "up": "flare-black" ,

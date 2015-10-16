@@ -13,9 +13,18 @@ button
   orig: 48, 48
   offset: 0, 0
   index: -1
+button_down
+  rotate: false
+  xy: 156, 4
+  size: 48, 48
+  split: 15, 16, 12, 18
+  pad: 15, 16, -1, -1
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 flare
   rotate: false
-  xy: 206, 4
+  xy: 256, 4
   size: 48, 48
   split: 19, 13, 20, 7
   orig: 48, 48
@@ -23,7 +32,7 @@ flare
   index: -1
 flare-down
   rotate: false
-  xy: 156, 4
+  xy: 206, 4
   size: 48, 48
   split: 15, 7, 12, 18
   pad: 8, 7, 12, 18
@@ -46,7 +55,7 @@ flareUp
   index: -1
 simple
   rotate: false
-  xy: 306, 4
+  xy: 356, 4
   size: 48, 48
   split: 5, 5, 5, 5
   pad: 4, 5, 5, 5
@@ -55,7 +64,7 @@ simple
   index: -1
 simple-down
   rotate: false
-  xy: 256, 4
+  xy: 306, 4
   size: 48, 48
   split: 5, 5, 5, 5
   orig: 48, 48

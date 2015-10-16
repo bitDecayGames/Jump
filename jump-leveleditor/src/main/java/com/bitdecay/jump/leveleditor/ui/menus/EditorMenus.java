@@ -1,10 +1,13 @@
 package com.bitdecay.jump.leveleditor.ui.menus;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -110,9 +113,15 @@ public class EditorMenus {
         menu.setWidth(stage.getWidth());
         menu.align(Align.top);
 
+        ButtonGroup createGroup = new ButtonGroup();
+        createGroup.setUncheckLast(true);
+        createGroup.setMaxCheckCount(1);
+        createGroup.setMinCheckCount(1);
+
         for(OptionsMode mode : OptionsMode.values()) {
             if(mode.group == 0) {
-                TextButton button = new TextButton(mode.label, skin, "button");
+                TextButton button = new TextButton(mode.label, skin, "toggle-button");
+                createGroup.add(button);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
