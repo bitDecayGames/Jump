@@ -105,7 +105,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                             lastPoint = pathNode;
                             renderer.setColor(BitColors.DARK_NAVY);
                             renderer.rect(pathNode.destination.x, pathNode.destination.y, body.aabb.width, body.aabb.height);
-                            renderer.setColor(Color.FIREBRICK);
+                            renderer.setColor(Color.PINK);
                             renderer.circle(pathNode.destination.x + body.aabb.width / 2, pathNode.destination.y + body.aabb.height / 2, 4);
                         } else {
                             renderer.setColor(BitColors.DARK_NAVY);

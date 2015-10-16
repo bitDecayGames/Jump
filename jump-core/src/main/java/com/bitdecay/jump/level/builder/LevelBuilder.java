@@ -76,7 +76,6 @@ public class LevelBuilder {
 		BuilderAction createKineticAction = new BuilderAction(BuilderAction.Type.ADD, kObj);
 		pushAction(createKineticAction);
 
-		otherObjects.add(kObj);
 		for (LevelBuilderListener listener : listeners) {
 			listener.updateGrid(gridOffset, grid, otherObjects);
 		}
@@ -235,15 +234,9 @@ public class LevelBuilder {
 	}
 
 	public void deleteSelected() {
-		for (LevelObject obj : selection) {
-			BitPointInt gridCell = getOccupiedCell(obj);
-			grid[gridCell.x][gridCell.y] = null;
-			updateNeighbors(gridCell.x, gridCell.y);
-		}
+		BuilderAction deleteAction = new BuilderAction(BuilderAction.Type.DELETE, selection.toArray(new LevelObject[selection.size()]));
+		pushAction(deleteAction);
 		selection.clear();
-		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
-		}
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
@@ -258,17 +251,29 @@ public class LevelBuilder {
 				}
 			}
 		}
+		otherObjects.forEach(object -> {
+			if (selectionArea.contains(object.rect)) {
+				selection.add(object);
+			}
+		});
 	}
 
 	public void selectObject(BitPointInt startPoint, boolean add) {
 		if (!add) {
 			selection.clear();
 		}
+		otherObjects.forEach(object -> {
+			if (object.rect.contains(startPoint)) {
+				selection.add(object);
+				return;
+			}
+		});
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				LevelObject object = grid[x][y];
 				if (object != null && object.rect.contains(startPoint)) {
 					selection.add(object);
+					return;
 				}
 			}
 		}
