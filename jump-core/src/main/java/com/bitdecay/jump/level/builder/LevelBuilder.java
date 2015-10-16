@@ -162,7 +162,7 @@ public class LevelBuilder {
 		for (LevelObject obj : objects) {
 			gridX = (int) ((obj.rect.xy.x / tileSize) - gridOffset.x);
 			gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
-			if (grid[gridX][gridY] == obj) {
+			if (ArrayUtilities.onGrid(grid, gridX, gridY) && grid[gridX][gridY] == obj) {
 				grid[gridX][gridY] = null;
 				updateNeighbors(gridX, gridY);
 			}
