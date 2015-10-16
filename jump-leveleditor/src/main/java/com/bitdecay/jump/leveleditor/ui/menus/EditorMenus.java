@@ -126,7 +126,6 @@ public class EditorMenus {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         levelEditor.setMode(mode);
-//                        button.setChecked(true);
                     }
                 });
                 menu.add(button).height(30);
