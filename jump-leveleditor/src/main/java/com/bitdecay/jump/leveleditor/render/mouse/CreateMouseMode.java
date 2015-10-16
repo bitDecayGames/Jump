@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class CreateMouseMode extends BaseMouseMode {
 
@@ -35,7 +36,7 @@ public class CreateMouseMode extends BaseMouseMode {
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
         if (startPoint != null && endPoint != null) {
-            shaper.setColor(Color.RED);
+            shaper.setColor(BitColors.NEW);
             shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
         }
     }

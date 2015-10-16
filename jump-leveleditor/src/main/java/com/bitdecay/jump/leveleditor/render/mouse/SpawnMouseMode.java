@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class SpawnMouseMode extends BaseMouseMode {
 
@@ -20,9 +21,9 @@ public class SpawnMouseMode extends BaseMouseMode {
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
         if (endPoint != null) {
-            shaper.setColor(Color.YELLOW);
+            shaper.setColor(BitColors.SPAWN_OUTER);
             shaper.circle(endPoint.x, endPoint.y, 7);
-            shaper.setColor(Color.RED);
+            shaper.setColor(BitColors.SPAWN);
             shaper.circle(endPoint.x, endPoint.y, 4);
         }
     }

@@ -13,6 +13,7 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
 import com.bitdecay.jump.leveleditor.render.mouse.MouseButton;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class CreateStaticMouseMode extends BaseMouseMode {
 
@@ -66,7 +67,7 @@ public class CreateStaticMouseMode extends BaseMouseMode {
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
         if (startPoint != null && endPoint != null) {
-            shaper.setColor(Color.RED);
+            shaper.setColor(BitColors.NEW);
             shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
         }
     }
