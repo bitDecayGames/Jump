@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.controller.PathedBodyController;
-import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.PathPoint;
@@ -33,7 +32,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         view.translate(-view.width / 2, -view.height / 2);
         renderer.setProjectionMatrix(cam.combined);
         renderer.begin(ShapeType.Line);
-        renderer.setColor(Color.WHITE);
+        renderer.setColor(BitColors.STATIC_OBJECT);
         BitBody[][] gridObjects = world.getGrid();
         for (int x = 0; x < gridObjects.length; x++) {
             BitBody[] column = gridObjects[x];
@@ -54,25 +53,20 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                     }
                     if (((TileBody) levelObject).collisionAxis != null) {
                         // currently we are just assuming it's a one-way platform
-                        renderer.setColor(Color.WHITE);
                         renderer.line(leftX, topY, rightX, topY);
                         continue;
                     }
 
                     if ((nValue & Direction.UP) == 0) {
-                        renderer.setColor(Color.WHITE);
                         renderer.line(leftX, topY, rightX, topY);
                     }
                     if ((nValue & Direction.DOWN) == 0) {
-                        renderer.setColor(Color.WHITE);
                         renderer.line(leftX, bottomY, rightX, bottomY);
                     }
                     if ((nValue & Direction.LEFT) == 0) {
-                        renderer.setColor(Color.WHITE);
                         renderer.line(leftX, bottomY, leftX, topY);
                     }
                     if ((nValue & Direction.RIGHT) == 0) {
-                        renderer.setColor(Color.WHITE);
                         renderer.line(rightX, bottomY, rightX, topY);
                     }
                 }
@@ -82,11 +76,11 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         renderBodies(renderer, world.getKineticBodies());
         renderBodies(renderer, world.getStaticBodies());
 
-        renderer.setColor(Color.YELLOW);
+        renderer.setColor(BitColors.COLLISION);
         for (BitRectangle col : world.unresolvedCollisions) {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
-        renderer.setColor(Color.RED);
+        renderer.setColor(BitColors.RESOLVED_COLLISION);
         for (BitRectangle col : world.resolvedCollisions) {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
@@ -96,21 +90,21 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
         for (BitBody body : bodies) {
             if (body.controller != null && body.controller instanceof PathedBodyController) {
-                renderer.setColor(Color.FIREBRICK);
+                renderer.setColor(BitColors.KINETIC_PATH);
                 PathPoint lastPoint = null;
                 PathedBodyController controller = (PathedBodyController) body.controller;
                 if (controller.path.size() > 1) {
                     for (PathPoint pathNode : controller.path) {
                         if (lastPoint == null) {
                             lastPoint = pathNode;
-                            renderer.setColor(BitColors.DARK_NAVY);
+                            renderer.setColor(BitColors.BACKGROUND_KINETIC);
                             renderer.rect(pathNode.destination.x, pathNode.destination.y, body.aabb.width, body.aabb.height);
-                            renderer.setColor(Color.PINK);
+                            renderer.setColor(BitColors.SELECTABLE);
                             renderer.circle(pathNode.destination.x + body.aabb.width / 2, pathNode.destination.y + body.aabb.height / 2, 4);
                         } else {
-                            renderer.setColor(BitColors.DARK_NAVY);
+                            renderer.setColor(BitColors.BACKGROUND_KINETIC);
                             renderer.rect(pathNode.destination.x, pathNode.destination.y, body.aabb.width, body.aabb.height);
-                            renderer.setColor(Color.FIREBRICK);
+                            renderer.setColor(BitColors.KINETIC_PATH);
                             renderer.line(lastPoint.destination.x + body.aabb.width/2, lastPoint.destination.y + body.aabb.height/2, pathNode.destination.x + body.aabb.width/2, pathNode.destination.y + body.aabb.height/2);
                             renderer.circle(pathNode.destination.x + body.aabb.width/2, pathNode.destination.y + body.aabb.height/2, 4);
                             lastPoint = pathNode;
@@ -122,24 +116,24 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 }
             }
             if (!body.active) {
-                renderer.setColor(Color.GRAY);
+                renderer.setColor(BitColors.INACTIVE_OBJECT);
             } else if (body.parent != null) {
-                renderer.setColor(Color.MAGENTA);
+                renderer.setColor(BitColors.CHILD_OBJECT);
             } else if (body.children.size() > 0) {
-                renderer.setColor(Color.PURPLE);
+                renderer.setColor(BitColors.PARENT_OBJECT);
             } else {
                 switch (body.bodyType) {
                     case DYNAMIC:
-                        renderer.setColor(Color.CYAN);
+                        renderer.setColor(BitColors.DYNAMIC_OBJECT);
                         break;
                     case KINETIC:
-                        renderer.setColor(Color.BLUE);
+                        renderer.setColor(BitColors.KINETIC_OBJECT);
                         break;
                     case STATIC:
-                        renderer.setColor(Color.TEAL);
+                        renderer.setColor(BitColors.STATIC_OBJECT);
                         break;
                     default:
-                        renderer.setColor(Color.WHITE);
+                        renderer.setColor(BitColors.STATIC_OBJECT);
                         break;
                 }
             }
@@ -148,7 +142,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             if (body.velocity.x != 0 || body.velocity.y != 0) {
                 float x = body.aabb.xy.x + body.aabb.width / 2;
                 float y = body.aabb.xy.y + body.aabb.height / 2;
-                renderer.setColor(Color.PINK);
+                renderer.setColor(BitColors.SPEED);
                 renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
             }
         }

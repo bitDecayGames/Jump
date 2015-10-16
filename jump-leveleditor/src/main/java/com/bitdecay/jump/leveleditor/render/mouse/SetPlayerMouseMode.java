@@ -10,6 +10,7 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 public class SetPlayerMouseMode extends BaseMouseMode {
@@ -47,7 +48,7 @@ public class SetPlayerMouseMode extends BaseMouseMode {
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
         if (startPoint != null && endPoint != null) {
-            shaper.setColor(Color.ORANGE);
+            shaper.setColor(BitColors.SPAWN);
             shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
         }
     }

@@ -137,42 +137,42 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
         if (MouseButton.RIGHT.equals(mouseButtonDown)) {
             // render speed line
             if (startPoint != null && speedPoint != null) {
-                shaper.setColor(Color.GOLD);
+                shaper.setColor(BitColors.SPEED);
                 shaper.line(startPoint.x, startPoint.y, speedPoint.x, speedPoint.y);
                 LevelEditor.addStringForRender(String.format("%.0f speed", platformSpeed), new BitPoint(speedPoint.x, speedPoint.y + 10));
             }
         }
         if (platform == null) {
             if (startPoint != null && endPoint != null) {
-                shaper.setColor(Color.RED);
+                shaper.setColor(BitColors.NEW);
                 shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
             }
         } else {
             if (startPoint != null && pausePoint != null) {
-                shaper.setColor(Color.WHITE);
+                shaper.setColor(BitColors.TIME);
                 shaper.line(startPoint.x, startPoint.y, pausePoint.x, pausePoint.y);
                 LevelEditor.addStringForRender(String.format("%.1f seconds", platformPause), new BitPoint(pausePoint.x, pausePoint.y + 10));
             }
-            shaper.setColor(Color.BLUE);
+            shaper.setColor(BitColors.KINETIC_OBJECT);
             shaper.rect(platform.xy.x, platform.xy.y, platform.width, platform.height);
-            shaper.setColor(Color.FIREBRICK);
+            shaper.setColor(BitColors.KINETIC_PATH);
             PathPoint lastPoint = null;
             for (PathPoint point : pathPoints) {
                 if (lastPoint == null) {
                     lastPoint = point;
                 } else {
-                    shaper.setColor(BitColors.DARK_NAVY);
+                    shaper.setColor(BitColors.BACKGROUND_KINETIC);
                     shaper.rect(point.destination.x - platform.width / 2, point.destination.y - platform.height / 2, platform.width, platform.height);
-                    shaper.setColor(Color.FIREBRICK);
+                    shaper.setColor(BitColors.KINETIC_PATH);
                     shaper.line(lastPoint.destination.x, lastPoint.destination.y, point.destination.x, point.destination.y);
                     shaper.circle(point.destination.x, point.destination.y, 4);
                     lastPoint = point;
                 }
             }
             if (currentPoint != null && !MouseButton.RIGHT.equals(mouseButtonDown)) {
-                shaper.setColor(Color.GREEN);
+                shaper.setColor(BitColors.NEW);
                 shaper.rect(currentPoint.x - platform.width / 2, currentPoint.y - platform.height / 2, platform.width, platform.height);
-                shaper.setColor(Color.FIREBRICK);
+                shaper.setColor(BitColors.KINETIC_PATH);
                 shaper.line(lastPoint.destination.x, lastPoint.destination.y, currentPoint.x, currentPoint.y);
             }
         }

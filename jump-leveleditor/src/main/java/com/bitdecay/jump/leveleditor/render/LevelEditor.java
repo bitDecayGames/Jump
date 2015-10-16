@@ -26,6 +26,7 @@ import com.bitdecay.jump.level.builder.LevelBuilderListener;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.setup.EditorToolbox;
@@ -103,7 +104,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         uiBatch = new SpriteBatch();
         shaper = new ShapeRenderer();
 
-        font.setColor(Color.YELLOW);
+        font.setColor(BitColors.UI_TEXT);
 
         curLevelBuilder = new LevelBuilder(16);
         curLevelBuilder.addListener(levelListener);
@@ -232,7 +233,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void renderSpecial() {
         shaper.setProjectionMatrix(uiBatch.getProjectionMatrix());
-        shaper.setColor(Color.WHITE);
+        shaper.setColor(BitColors.MISC);
         if (stepWorld) {
             shaper.begin(ShapeType.Line);
             shaper.polygon(new float[]{20, 20, 70, 45, 20, 70, 20, 20});
@@ -246,7 +247,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void debugRender() {
         shaper.begin(ShapeType.Line);
-        shaper.setColor(Color.OLIVE);
+        shaper.setColor(BitColors.GRID_SIZE);
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
                 curLevelBuilder.grid.length * curLevelBuilder.tileSize, curLevelBuilder.grid[0].length * curLevelBuilder.tileSize);
         shaper.end();
@@ -293,7 +294,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         spriteBatch.end();
 
         shaper.begin(ShapeType.Line);
-        shaper.setColor(Color.GREEN);
+        shaper.setColor(BitColors.SELECTION);
         for (LevelObject obj : curLevelBuilder.selection) {
             shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
         }
@@ -313,7 +314,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void drawGrid() {
         shaper.begin(ShapeType.Line);
-        shaper.setColor(.1f, .1f, .1f, 1f);
+        shaper.setColor(BitColors.GRID_LINES);
         Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.tileSize, -curLevelBuilder.tileSize, 0));
         BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.tileSize);
         Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.tileSize, 0));
@@ -329,7 +330,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void drawOrigin() {
-        shaper.setColor(Color.MAROON);
+        shaper.setColor(BitColors.ORIGIN);
         shaper.begin(ShapeType.Filled);
         shaper.circle(0, 0, camera.zoom * (curLevelBuilder.tileSize / 3));
         shaper.end();
