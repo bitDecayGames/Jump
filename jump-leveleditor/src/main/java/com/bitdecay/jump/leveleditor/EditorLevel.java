@@ -29,6 +29,7 @@ public class EditorLevel implements EditorHook {
 
     public EditorLevel() {
         world.setGravity(0, -900);
+        world.setTileSize(16);
     }
 
     @Override
@@ -49,8 +50,8 @@ public class EditorLevel implements EditorHook {
     }
 
     @Override
-    public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
-        loadLevel(gridOffset, grid, otherObjects);
+    public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize) {
+        loadLevel(gridOffset, grid, otherObjects, tileSize);
     }
 
     private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
@@ -62,12 +63,13 @@ public class EditorLevel implements EditorHook {
     }
 
     private void loadLevel(Level level) {
-        loadLevel(level.gridOffset, level.gridObjects, level.otherObjects);
+        loadLevel(level.gridOffset, level.gridObjects, level.otherObjects, level.tileSize);
     }
 
-    private void loadLevel(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
+    private void loadLevel(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize) {
         world.setGridOffset(gridOffset);
         world.setGrid(grid);
+        world.setTileSize(tileSize);
         world.setObjects(buildBodies(otherObjects));
         world.resetTimePassed();
 
