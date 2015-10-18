@@ -25,6 +25,7 @@ import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.builder.LevelBuilderListener;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.TileObject;
+import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
@@ -74,22 +75,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private TextureRegion[] fallbackTiles;
     private TextureRegion fullSet;
 
-    private BitWorld world;
-    private LibGDXWorldRenderer worldRenderer;
-
-    private LevelBuilderListener levelListener = new LevelBuilderListener() {
-
-        @Override
-        public void levelChanged(Level level) {
-            loadLevel(level);
-        }
-
-        @Override
-        public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
-            loadLevel(gridOffset, grid, otherObjects);
-        }
-    };
-
     private PlayerInputHandler playerController;
 
     private EditorToolbox toolBox = new EditorToolbox();
@@ -98,7 +83,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private boolean stepWorld = true;
     private boolean singleStep = false;
 
-    public LevelEditor() {
+    private EditorHook hooker;
+
+    public LevelEditor(EditorHook hooker) {
+        this.hooker = hooker;
         setUpMenus();
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
@@ -107,19 +95,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         font.setColor(BitColors.UI_TEXT);
 
         curLevelBuilder = new LevelBuilder(16);
-        curLevelBuilder.addListener(levelListener);
+        curLevelBuilder.addListener(hooker);
 
         camera = new OrthographicCamera(1600, 900);
         setCamToOrigin();
-
-        world = new BitWorld();
-        world.setGravity(0, -900);
-
-        world.setGridOffset(curLevelBuilder.gridOffset);
-        world.setTileSize(curLevelBuilder.tileSize);
-        world.setGrid(curLevelBuilder.grid);
-
-        worldRenderer = new LibGDXWorldRenderer(world, camera);
 
         playerBody = new JumperBody();
         playerBody.bodyType = BodyType.DYNAMIC;
@@ -128,13 +107,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.ONEWAY, new CreateOneWayMouseMode(curLevelBuilder));
-        mouseModes.put(OptionsMode.STATIC, new CreateStaticMouseMode(curLevelBuilder, world));
+        mouseModes.put(OptionsMode.STATIC, new CreateStaticMouseMode(curLevelBuilder, null));
         mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
         playerController = new PlayerInputHandler();
-        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, world, playerController, playerBody));
+        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, null, playerController, playerBody));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
         uiKeys = new HashMap<>();
@@ -204,13 +183,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         debugRender();
         if (singleStep) {
             singleStep = false;
-            world.step(1/120f);
+            hooker.update(BitWorld.STEP_SIZE);
         } else if (stepWorld) {
-            world.step(delta);
+            hooker.update(delta);
         } else {
-            world.nonStep(delta);
+            hooker.update(0);
         }
-        worldRenderer.render();
+        hooker.render(camera);
         drawLevelEdit();
         drawOrigin();
 
@@ -263,7 +242,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void renderExtraUIHints() {
         font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
-        font.draw(uiBatch, String.format("World time: %.2f", world.getTimePassed()), 100, 20);
+        //font.draw(uiBatch, String.format("World time: %.2f", world.getTimePassed()), 100, 20);
     }
 
     private void renderVersion() {
@@ -375,7 +354,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
 
         if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-            loadLevel(curLevelBuilder.optimizeLevel());
+            // need to figure out if we want to keep this around still or just trash it
+            curLevelBuilder.optimizeLevel();
         }
 
         if (Gdx.input.isKeyPressed(Keys.DEL) || Gdx.input.isKeyPressed(Keys.BACKSPACE)) {
@@ -496,23 +476,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
-    private void loadLevel(Level level) {
-        loadLevel(level.gridOffset, level.gridObjects, level.otherObjects);
-    }
-
-    private void loadLevel(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects) {
-        world.setGridOffset(gridOffset);
-        world.setGrid(grid);
-        world.setObjects(buildBodies(otherObjects));
-        resetPlayer();
-        world.resetTimePassed();
-        stepWorld = false;
-    }
-
     protected void resetPlayer() {
         BitBody player = maybeGetPlayer();
         if (player != null) {
-            world.addBody(player);
+           // world.addBody(player);
         }
     }
 

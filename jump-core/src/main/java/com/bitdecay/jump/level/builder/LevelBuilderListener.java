@@ -20,5 +20,5 @@ public interface LevelBuilderListener {
 	//
 	//	public void objectsRemoved(Collection<LevelObject> objects);
 
-	public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects);
+	public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize);
 }

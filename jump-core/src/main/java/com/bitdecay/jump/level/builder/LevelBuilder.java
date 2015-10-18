@@ -77,7 +77,7 @@ public class LevelBuilder {
 		pushAction(createKineticAction);
 
 		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
+			listener.updateGrid(gridOffset, grid, otherObjects, tileSize);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class LevelBuilder {
 			}
 		}
 		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
+			listener.updateGrid(gridOffset, grid, otherObjects, tileSize);
 		}
 	}
 
@@ -168,7 +168,7 @@ public class LevelBuilder {
 			}
 		}
 		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
+			listener.updateGrid(gridOffset, grid, otherObjects, tileSize);
 		}
 	}
 

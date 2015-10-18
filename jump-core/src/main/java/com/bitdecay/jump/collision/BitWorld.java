@@ -27,7 +27,7 @@ public class BitWorld {
 
 	private float timePassed;
 
-	private int tileSize = 32;
+	private int tileSize = 0;
 	private BitPointInt gridOffset = new BitPointInt(0, 0);
 	private BitBody[][] gridObjects = new BitBody[0][0];
 	private List<BitBody> dynamicBodies = new ArrayList<>();
@@ -85,6 +85,9 @@ public class BitWorld {
 		if (gridObjects == null) {
 			System.err.println("No level has been set into the world. Exiting...");
 			System.exit(-1);
+		} else if (tileSize <= 0) {
+			System.err.println("Tile size has not been set. Exiting");
+			System.exit(-1);
 		}
 		//		delta *= .05f;
 		boolean stepped = false;
@@ -102,12 +105,13 @@ public class BitWorld {
 		return stepped;
 	}
 
-	public void nonStep(float delta) {
+	public void nonStep() {
 		doAddRemoves();
 	}
 
 	private void internalStep(final float delta) {
 		if (delta <= 0) {
+			nonStep();
 			return;
 		}
 		timePassed += delta;
