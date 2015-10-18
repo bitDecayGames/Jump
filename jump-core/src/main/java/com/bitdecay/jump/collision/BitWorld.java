@@ -102,12 +102,13 @@ public class BitWorld {
 		return stepped;
 	}
 
-	public void nonStep(float delta) {
+	public void nonStep() {
 		doAddRemoves();
 	}
 
 	private void internalStep(final float delta) {
 		if (delta <= 0) {
+			nonStep();
 			return;
 		}
 		timePassed += delta;

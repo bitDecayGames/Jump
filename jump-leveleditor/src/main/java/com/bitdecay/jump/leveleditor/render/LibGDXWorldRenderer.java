@@ -17,7 +17,7 @@ import java.util.List;
 
 public class LibGDXWorldRenderer implements BitWorldRenderer {
     private BitWorld world;
-    private OrthographicCamera cam;
+    public OrthographicCamera cam;
     private ShapeRenderer renderer;
 
     public LibGDXWorldRenderer(BitWorld world, OrthographicCamera cam) {
