@@ -242,7 +242,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void renderExtraUIHints() {
         font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
-        //font.draw(uiBatch, String.format("World time: %.2f", world.getTimePassed()), 100, 20);
     }
 
     private void renderVersion() {
@@ -473,13 +472,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             setLevelBuilder(loadLevel);
             setCamToOrigin();
             stepWorld = false;
-        }
-    }
-
-    protected void resetPlayer() {
-        BitBody player = maybeGetPlayer();
-        if (player != null) {
-           // world.addBody(player);
         }
     }
 
