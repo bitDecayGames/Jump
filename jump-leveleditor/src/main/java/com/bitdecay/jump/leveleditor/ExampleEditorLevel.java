@@ -23,11 +23,11 @@ import java.util.Collection;
 /**
  * Created by Monday on 10/18/2015.
  */
-public class EditorLevel implements EditorHook {
+public class ExampleEditorLevel implements EditorHook {
     private BitWorld world = new BitWorld();
     LibGDXWorldRenderer renderer = new LibGDXWorldRenderer(world, null);
 
-    public EditorLevel() {
+    public ExampleEditorLevel() {
         world.setGravity(0, -900);
         world.setTileSize(16);
     }
