@@ -1,6 +1,7 @@
 package com.bitdecay.jump.leveleditor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
@@ -15,6 +16,7 @@ import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.LibGDXWorldRenderer;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 import java.util.ArrayList;
@@ -27,13 +29,18 @@ public class ExampleEditorLevel implements EditorHook {
     private BitWorld world = new BitWorld();
     LibGDXWorldRenderer renderer = new LibGDXWorldRenderer(world, null);
 
+    ShapeRenderer shaper = new ShapeRenderer();
+
+    Level currentLevel;
+    PlayerInputHandler playerController = new PlayerInputHandler();
+
     public ExampleEditorLevel() {
         world.setGravity(0, -900);
-        world.setTileSize(16);
     }
 
     @Override
     public void update(float delta) {
+        playerController.update();
         world.step(delta);
     }
 
@@ -42,16 +49,21 @@ public class ExampleEditorLevel implements EditorHook {
         // currently has no custom rendering
         renderer.cam = cam;
         renderer.render();
+
+        if (currentLevel != null && currentLevel.spawn != null) {
+            shaper.setProjectionMatrix(cam.combined);
+            shaper.begin(ShapeRenderer.ShapeType.Filled);
+            shaper.setColor(BitColors.SPAWN_OUTER);
+            shaper.circle(currentLevel.spawn.x, currentLevel.spawn.y, 7);
+            shaper.setColor(BitColors.SPAWN);
+            shaper.circle(currentLevel.spawn.x, currentLevel.spawn.y, 4);
+            shaper.end();
+        }
     }
 
     @Override
     public void levelChanged(Level level) {
         loadLevel(level);
-    }
-
-    @Override
-    public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize) {
-        loadLevel(gridOffset, grid, otherObjects, tileSize);
     }
 
     private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
@@ -63,20 +75,23 @@ public class ExampleEditorLevel implements EditorHook {
     }
 
     private void loadLevel(Level level) {
-        loadLevel(level.gridOffset, level.gridObjects, level.otherObjects, level.tileSize);
-    }
-
-    private void loadLevel(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize) {
-        world.setGridOffset(gridOffset);
-        world.setGrid(grid);
-        world.setTileSize(tileSize);
-        world.setObjects(buildBodies(otherObjects));
+        currentLevel = level;
+        world.setTileSize(16);
+        world.setGridOffset(level.gridOffset);
+        world.setGrid(level.gridObjects);
+        world.setTileSize(level.tileSize);
+        world.setObjects(buildBodies(level.otherObjects));
         world.resetTimePassed();
 
         BitBody playerBody = new JumperBody();
         playerBody.bodyType = BodyType.DYNAMIC;
-        PlayerInputHandler playerController = new PlayerInputHandler();
+        playerController = new PlayerInputHandler();
         playerBody.aabb = new BitRectangle(0,0,16,32);
+
+        if (level.spawn != null) {
+            playerBody.aabb.xy.set(level.spawn.x, level.spawn.y);
+        }
+
         playerBody.stateWatcher = new JumperStateWatcher();
         playerController.setBody(playerBody, ControlMap.defaultMapping);
         world.addBody(playerBody);

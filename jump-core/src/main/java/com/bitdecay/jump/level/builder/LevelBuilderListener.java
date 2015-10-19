@@ -13,12 +13,5 @@ import com.bitdecay.jump.level.Level;
  *
  */
 public interface LevelBuilderListener {
-	public void levelChanged(Level level);
-
-	//
-	//	public void objectsAdded(Collection<LevelObject> objects);
-	//
-	//	public void objectsRemoved(Collection<LevelObject> objects);
-
-	public void updateGrid(BitPointInt gridOffset, TileObject[][] grid, Collection<LevelObject> otherObjects, int tileSize);
+	void levelChanged(Level level);
 }

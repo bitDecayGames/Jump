@@ -14,8 +14,8 @@ public enum OptionsMode {
     SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 1),
     SAVE_PLAYER("Save Player Props", ModeType.ACTION, 1),
     LOAD_PLAYER("Load Player Props", ModeType.ACTION, 1),
+    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 1),
 
-    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 2),
     SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
 
     SAVE_LEVEL("Save Level", ModeType.ACTION, -1),

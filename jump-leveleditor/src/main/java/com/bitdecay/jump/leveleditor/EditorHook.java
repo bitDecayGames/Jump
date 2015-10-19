@@ -1,5 +1,6 @@
 package com.bitdecay.jump.leveleditor;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.bitdecay.jump.level.builder.LevelBuilderListener;
 
