@@ -83,17 +83,14 @@ public class ExampleEditorLevel implements EditorHook {
         world.setObjects(buildBodies(level.otherObjects));
         world.resetTimePassed();
 
-        BitBody playerBody = new JumperBody();
-        playerBody.bodyType = BodyType.DYNAMIC;
-        playerController = new PlayerInputHandler();
-        playerBody.aabb = new BitRectangle(0,0,16,32);
-
         if (level.spawn != null) {
-            playerBody.aabb.xy.set(level.spawn.x, level.spawn.y);
+            BitBody playerBody = new JumperBody();
+            playerBody.bodyType = BodyType.DYNAMIC;
+            playerController = new PlayerInputHandler();
+            playerBody.aabb = new BitRectangle(level.spawn.x,level.spawn.y,16,32);
+            playerBody.stateWatcher = new JumperStateWatcher();
+            playerController.setBody(playerBody, ControlMap.defaultMapping);
+            world.addBody(playerBody);
         }
-
-        playerBody.stateWatcher = new JumperStateWatcher();
-        playerController.setBody(playerBody, ControlMap.defaultMapping);
-        world.addBody(playerBody);
     }
 }

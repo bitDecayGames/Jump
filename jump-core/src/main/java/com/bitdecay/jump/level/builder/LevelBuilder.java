@@ -293,10 +293,10 @@ public class LevelBuilder {
 		BitPointInt max = getMaxXY();
 
 		if (min.x == Integer.MAX_VALUE || min.y == Integer.MAX_VALUE || max.x == Integer.MIN_VALUE || max.y == Integer.MIN_VALUE) {
-			min.x = -10 * tileSize;
-			min.y = -10 * tileSize;
-			max.x = 10 * tileSize;
-			max.y = 10 * tileSize;
+			min.x = -START_SIZE/2 * tileSize;
+			min.y = -START_SIZE/2 * tileSize;
+			max.x = START_SIZE/2 * tileSize;
+			max.y = START_SIZE/2 * tileSize;
 		}
 
 		TileObject[][] optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
