@@ -89,7 +89,12 @@ public class BitWorld {
 			System.err.println("Tile size has not been set. Exiting");
 			System.exit(-1);
 		}
-		//		delta *= .05f;
+		
+		if (delta <= 0) {
+			nonStep();
+			return false;
+		}
+
 		boolean stepped = false;
 		//add any left over time from last call to step();
 		delta += extraStepTime;
@@ -110,10 +115,6 @@ public class BitWorld {
 	}
 
 	private void internalStep(final float delta) {
-		if (delta <= 0) {
-			nonStep();
-			return;
-		}
 		timePassed += delta;
 		// make sure world contains everything it should
 		doAddRemoves();
