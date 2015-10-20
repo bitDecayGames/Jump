@@ -6,13 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
-@JsonSubTypes({
-
-		@JsonSubTypes.Type(value=MovingObject.class),
-		@JsonSubTypes.Type(value=PathedLevelObject.class),
-		@JsonSubTypes.Type(value=TileObject.class)
-})
 public abstract class LevelObject {
 	public BitRectangle rect;
 
@@ -26,4 +19,6 @@ public abstract class LevelObject {
 
 	@JsonIgnore
 	public abstract BitBody buildBody();
+
+	public abstract String name();
 }

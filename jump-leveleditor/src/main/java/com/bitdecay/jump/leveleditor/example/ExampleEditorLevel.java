@@ -1,4 +1,4 @@
-package com.bitdecay.jump.leveleditor;
+package com.bitdecay.jump.leveleditor.example;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,13 +13,16 @@ import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.TileObject;
+import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Monday on 10/18/2015.
@@ -101,5 +104,10 @@ public class ExampleEditorLevel implements EditorHook {
             playerController.setBody(playerBody, ControlMap.defaultMapping);
             world.addBody(playerBody);
         }
+    }
+
+    @Override
+    public List<LevelObject> getCustomObjects() {
+        return Arrays.asList(new SecretThing(), new SecretThing(), new SecretThing(), new SecretThing(), new SecretThing());
     }
 }

@@ -7,7 +7,6 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.TileBody;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="objectType")
 public class TileObject extends LevelObject {
 	public int material;
 
@@ -37,5 +36,10 @@ public class TileObject extends LevelObject {
 			body.collisionAxis = GeomUtils.Y_AXIS;
 		}
 		return body;
+	}
+
+	@Override
+	public String name() {
+		return "Tile Platform";
 	}
 }

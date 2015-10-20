@@ -2,21 +2,24 @@ package com.bitdecay.jump.leveleditor.ui.menus;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,14 +36,17 @@ public class EditorMenus {
     private Map<MenuPage, Actor> menus = new HashMap<>();
     private Actor currentMenu;
 
-    public EditorMenus(LevelEditor levelEditor) {
+    public EditorMenus(LevelEditor levelEditor, EditorHook hooker) {
         this.levelEditor = levelEditor;
         TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal("skins/ui.atlas"));
         skin = new Skin(Gdx.files.internal("skins/menu-skin.json"), menuAtlas);
         stage = new Stage();
+//        stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         menus.put(MenuPage.MainMenu, buildMainMenu());
         menus.put(MenuPage.CreateMenu, buildCreateMenu());
         menus.put(MenuPage.PlayerMenu, buildPlayerMenu());
+//        menus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
+        buildObjectMenu(hooker.getCustomObjects());
         menuTransition(MenuPage.MainMenu);
     }
 
@@ -164,6 +170,36 @@ public class EditorMenus {
         }
 
         addBackButtonAndFinalizeMenu(menu, MenuPage.MainMenu);
+        return menu;
+    }
+
+    private Actor buildObjectMenu(List<LevelObject> objects) {
+        Table menu = new Table();
+        menu.setWidth(stage.getWidth() / 5);
+        menu.align(Align.topRight);
+        TextureRegion texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
+
+        for (LevelObject object : objects) {
+            ImageButton button = new ImageButton(new TextureRegionDrawable(new TextureRegionDrawable(texture)));
+            button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    System.out.println("Ya clicked " + object.name());
+                    levelEditor.dropObject(object.getClass());
+                }
+//
+            });
+            menu.add(button);
+            menu.row();
+            Label label = new Label(object.name(), skin);
+            menu.add(label).padBottom(20);
+            menu.row();
+        }
+
+        menu.setVisible(true);
+        menu.setX(stage.getWidth() - stage.getWidth()/5);
+        menu.setY(stage.getHeight()-100);
+        stage.addActor(menu);
         return menu;
     }
 

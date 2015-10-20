@@ -103,6 +103,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
+        mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder));
 
         playerController = new PlayerInputHandler();
         mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(hooker.getWorld(), playerController));
@@ -112,7 +113,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void setUpMenus() {
-        menus = new EditorMenus(this);
+        menus = new EditorMenus(this, hooker);
         InputMultiplexer inputMux = new InputMultiplexer();
         inputMux.addProcessor(menus.getStage());
         inputMux.addProcessor(this);
@@ -449,5 +450,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 e.printStackTrace();
             }
         }
+    }
+
+    public void dropObject(Class objectClass) {
+        ((DropObjectMode)mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
+        setMode(OptionsMode.DROP_OBJECT);
     }
 }
