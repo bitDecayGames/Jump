@@ -5,37 +5,35 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.*;
+import com.bitdecay.jump.level.FileUtils;
+import com.bitdecay.jump.level.Level;
+import com.bitdecay.jump.level.LevelUtilities;
 import com.bitdecay.jump.level.builder.LevelBuilder;
-import com.bitdecay.jump.level.builder.LevelBuilderListener;
 import com.bitdecay.jump.level.builder.LevelObject;
-import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
-import com.bitdecay.jump.leveleditor.tools.BitColors;
-import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
-import com.bitdecay.jump.leveleditor.setup.EditorToolbox;
-import com.bitdecay.jump.leveleditor.ui.*;
+import com.bitdecay.jump.leveleditor.tools.BitColors;
+import com.bitdecay.jump.leveleditor.ui.OptionsMode;
+import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
+import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
+import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,21 +61,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public LevelBuilder curLevelBuilder;
 
     private OrthographicCamera camera;
+    private LibGDXWorldRenderer worldRenderer;
     private ShapeRenderer shaper;
+
     private Map<OptionsMode, MouseMode> mouseModes;
     private MouseMode mouseMode;
 
     private Map<Integer, JDialog> uiKeys;
 
-    private JumperBody playerBody;
-
-    private Map<String, TextureRegion[]> materialMap;
-    private TextureRegion[] fallbackTiles;
-    private TextureRegion fullSet;
-
     private PlayerInputHandler playerController;
-
-    private EditorToolbox toolBox = new EditorToolbox();
 
     // a flags to control whether we are moving the world forward or not
     private boolean stepWorld = true;
@@ -100,8 +92,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         camera = new OrthographicCamera(1600, 900);
         setCamToOrigin();
 
-        playerBody = new JumperBody();
-        playerBody.bodyType = BodyType.DYNAMIC;
+        worldRenderer = new LibGDXWorldRenderer();
+
 
         mouseModes = new HashMap<>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
@@ -113,43 +105,18 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
 
         playerController = new PlayerInputHandler();
-        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(curLevelBuilder, null, playerController, playerBody));
+        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(hooker.getWorld(), playerController));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
         uiKeys = new HashMap<>();
-
-        JDialog buttonsDialog = new OptionsUI(this, toolBox);
-        buttonsDialog.setTitle("Tools");
-
-        uiKeys.put(Keys.T, buttonsDialog);
-
-        JDialog playerTweakDialog = new PropModUI(this, playerBody);
-        playerTweakDialog.setTitle("Player Props");
-
-        uiKeys.put(Keys.P, playerTweakDialog);
-
-        materialMap = new HashMap<>();
-
-        fullSet = new TextureRegion(new Texture(Gdx.files.internal(EDITOR_ASSETS_FOLDER + "/fallbacktileset.png")));
-
-        fallbackTiles = fullSet.split(16, 16)[0];
     }
 
     private void setUpMenus() {
         menus = new EditorMenus(this);
-
         InputMultiplexer inputMux = new InputMultiplexer();
         inputMux.addProcessor(menus.getStage());
         inputMux.addProcessor(this);
         Gdx.input.setInputProcessor(inputMux);
-    }
-
-    private Collection<BitBody> buildBodies(Collection<LevelObject> otherObjects) {
-        ArrayList<BitBody> bodies = new ArrayList<BitBody>();
-        for (LevelObject levelObject : otherObjects) {
-            bodies.add(levelObject.buildBody());
-        }
-        return bodies;
     }
 
     private void setCamToOrigin() {
@@ -180,7 +147,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.setProjectionMatrix(camera.combined);
 
         drawGrid();
-        debugRender();
         if (singleStep) {
             singleStep = false;
             hooker.update(BitWorld.STEP_SIZE);
@@ -190,7 +156,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             hooker.update(0);
         }
         hooker.render(camera);
-        drawLevelEdit();
+        worldRenderer.render(hooker.getWorld(), camera);
+        debugRender();
         drawOrigin();
 
         spriteBatch.begin();
@@ -226,10 +193,22 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void debugRender() {
         shaper.begin(ShapeType.Line);
+        shaper.setColor(BitColors.SELECTION);
+        for (LevelObject obj : curLevelBuilder.selection) {
+            shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+        }
+        if (curLevelBuilder.spawn != null) {
+            shaper.setColor(BitColors.SPAWN_OUTER);
+            shaper.circle(curLevelBuilder.spawn.x, curLevelBuilder.spawn.y, 7);
+            shaper.setColor(BitColors.SPAWN);
+            shaper.circle(curLevelBuilder.spawn.x, curLevelBuilder.spawn.y, 4);
+        }
         shaper.setColor(BitColors.GRID_SIZE);
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
                 curLevelBuilder.grid.length * curLevelBuilder.tileSize, curLevelBuilder.grid[0].length * curLevelBuilder.tileSize);
         shaper.end();
+
+
     }
 
     private void renderStrings() {
@@ -242,6 +221,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void renderExtraUIHints() {
         font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
+        font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 100, 20);
     }
 
     private void renderVersion() {
@@ -256,38 +236,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
      */
     public static void addStringForRender(String text, BitPoint location) {
         extraStrings.put(text, location);
-    }
-
-    private void drawLevelEdit() {
-        spriteBatch.begin();
-        spriteBatch.setColor(1, 1, 1, .3f);
-        for (int x = 0; x < curLevelBuilder.grid.length; x++) {
-            for (int y = 0; y < curLevelBuilder.grid[0].length; y++) {
-                TileObject obj = curLevelBuilder.grid[x][y];
-                if (obj != null) {
-                    spriteBatch.draw(getMaterial(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
-                }
-            }
-        }
-        spriteBatch.end();
-
-        shaper.begin(ShapeType.Line);
-        shaper.setColor(BitColors.SELECTION);
-        for (LevelObject obj : curLevelBuilder.selection) {
-            shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
-        }
-        shaper.end();
-    }
-
-    private TextureRegion[] getMaterial(int material) {
-        //		String matLoc = curLevelBuilder.level.materials.get(material);
-        //		if (matLoc != null && !matLoc.isEmpty()) {
-        //			TextureRegion[] materialImages = materialMap.get(curLevelBuilder.level.baseMaterialDir + matLoc);
-        //			if (materialImages != null) {
-        //				return materialImages;
-        //			}
-        //		}
-        return fallbackTiles;
     }
 
     private void drawGrid() {

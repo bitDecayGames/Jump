@@ -16,18 +16,14 @@ import com.bitdecay.jump.leveleditor.tools.BitColors;
 import java.util.List;
 
 public class LibGDXWorldRenderer implements BitWorldRenderer {
-    private BitWorld world;
-    public OrthographicCamera cam;
     private ShapeRenderer renderer;
 
-    public LibGDXWorldRenderer(BitWorld world, OrthographicCamera cam) {
-        this.world = world;
-        this.cam = cam;
+    public LibGDXWorldRenderer() {
         renderer = new ShapeRenderer();
     }
 
     @Override
-    public void render() {
+    public void render(BitWorld world, OrthographicCamera cam) {
         BitRectangle view = new BitRectangle(cam.position.x, cam.position.y, cam.viewportWidth * cam.zoom, cam.viewportHeight * cam.zoom);
         view.translate(-view.width / 2, -view.height / 2);
         renderer.setProjectionMatrix(cam.combined);

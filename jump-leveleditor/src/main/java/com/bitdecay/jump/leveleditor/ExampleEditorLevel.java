@@ -1,22 +1,21 @@
 package com.bitdecay.jump.leveleditor;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.Level;
-import com.bitdecay.jump.level.builder.LevelBuilderListener;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
-import com.bitdecay.jump.leveleditor.render.LibGDXWorldRenderer;
-import com.bitdecay.jump.leveleditor.tools.BitColors;
+import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 import java.util.ArrayList;
@@ -26,16 +25,17 @@ import java.util.Collection;
  * Created by Monday on 10/18/2015.
  */
 public class ExampleEditorLevel implements EditorHook {
-    private BitWorld world = new BitWorld();
-    LibGDXWorldRenderer renderer = new LibGDXWorldRenderer(world, null);
+    BitWorld world = new BitWorld();
 
-    ShapeRenderer shaper = new ShapeRenderer();
+    SpriteBatch batch = new SpriteBatch();
+    TextureRegion[] sampleTiles;
 
     Level currentLevel;
     PlayerInputHandler playerController = new PlayerInputHandler();
 
     public ExampleEditorLevel() {
         world.setGravity(0, -900);
+        sampleTiles = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/fallbacktileset.png"))).split(16, 16)[0];
     }
 
     @Override
@@ -46,19 +46,27 @@ public class ExampleEditorLevel implements EditorHook {
 
     @Override
     public void render(OrthographicCamera cam) {
-        // currently has no custom rendering
-        renderer.cam = cam;
-        renderer.render();
+        batch.setProjectionMatrix(cam.combined);
+        drawLevelEdit();
+    }
 
-        if (currentLevel != null && currentLevel.spawn != null) {
-            shaper.setProjectionMatrix(cam.combined);
-            shaper.begin(ShapeRenderer.ShapeType.Filled);
-            shaper.setColor(BitColors.SPAWN_OUTER);
-            shaper.circle(currentLevel.spawn.x, currentLevel.spawn.y, 7);
-            shaper.setColor(BitColors.SPAWN);
-            shaper.circle(currentLevel.spawn.x, currentLevel.spawn.y, 4);
-            shaper.end();
+    @Override
+    public BitWorld getWorld() {
+        return world;
+    }
+
+    private void drawLevelEdit() {
+        batch.begin();
+        batch.setColor(1, 1, 1, .3f);
+        for (int x = 0; x < currentLevel.gridObjects.length; x++) {
+            for (int y = 0; y < currentLevel.gridObjects[0].length; y++) {
+                TileObject obj = currentLevel.gridObjects[x][y];
+                if (obj != null) {
+                    batch.draw(sampleTiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+                }
+            }
         }
+        batch.end();
     }
 
     @Override
@@ -74,6 +82,7 @@ public class ExampleEditorLevel implements EditorHook {
         return bodies;
     }
 
+    // Normally you would build the level here -- create objects and add them to your game lists and the world, etc.
     private void loadLevel(Level level) {
         currentLevel = level;
         world.setTileSize(16);

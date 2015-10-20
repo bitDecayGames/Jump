@@ -17,7 +17,7 @@ import com.bitdecay.jump.level.builder.TileObject;
  *
  */
 public class BitWorld {
-	public static final String VERSION = "0.1.2";
+	public static final String VERSION = "0.2";
 	public static final float STEP_SIZE = 1 / 120f;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
@@ -89,7 +89,7 @@ public class BitWorld {
 			System.err.println("Tile size has not been set. Exiting");
 			System.exit(-1);
 		}
-		
+
 		if (delta <= 0) {
 			nonStep();
 			return false;
