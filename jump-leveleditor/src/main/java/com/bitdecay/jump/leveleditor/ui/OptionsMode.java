@@ -16,8 +16,6 @@ public enum OptionsMode {
     LOAD_PLAYER("Load Player Props", ModeType.ACTION, 1),
     SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 1),
 
-    SET_MAT_DIR("Set Material Directory", ModeType.ACTION, 2),
-
     SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
     LOAD_LEVEL("Load Level", ModeType.ACTION, -1);
 
@@ -25,7 +23,7 @@ public enum OptionsMode {
     public final ModeType type;
     public final int group;
 
-    private OptionsMode(String label, ModeType type, int group) {
+    OptionsMode(String label, ModeType type, int group) {
         this.label = label;
         this.type = type;
         this.group = group;

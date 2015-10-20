@@ -445,8 +445,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             curLevelBuilder.undo();
         } else if (OptionsMode.REDO.equals(mode)) {
             curLevelBuilder.redo();
-        } else if (OptionsMode.SET_MAT_DIR.equals(mode)) {
-            // set base directory. Allow textures to be loaded from it.
         } else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
             saveProps();
         } else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
