@@ -300,11 +300,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             }
         }
 
-        if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-            // need to figure out if we want to keep this around still or just trash it
-            curLevelBuilder.optimizeLevel();
-        }
-
         if (Gdx.input.isKeyPressed(Keys.DEL) || Gdx.input.isKeyPressed(Keys.BACKSPACE)) {
             curLevelBuilder.deleteSelected();
         }
