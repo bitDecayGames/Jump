@@ -271,7 +271,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) {
             stepWorld = !stepWorld;
         }
-        if (!stepWorld && Gdx.input.isKeyJustPressed(Keys.PLUS)) {
+        if (!stepWorld && (Gdx.input.isKeyJustPressed(Keys.PLUS) || Gdx.input.isKeyJustPressed(Keys.EQUALS))) {
             singleStep = true;
         }
 

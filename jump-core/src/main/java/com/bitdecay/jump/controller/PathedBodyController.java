@@ -35,12 +35,18 @@ public class PathedBodyController implements BitBodyController{
 
         } else {
             if (targetPoint == null) {
-                pickNextPathPoint();
+                targetPoint = pickNextPathPoint(true);
             }
             BitPoint difference = targetPoint.destination.minus(body.aabb.xy);
-            if (Math.abs(difference.len()) < targetPoint.speed * delta) {
-                // make it so we land perfectly on our target and then pause
-                body.velocity.set(difference.scale(1/delta));
+            float distanceToGo = Math.abs(difference.len());
+            float travelThisFrame = targetPoint.speed * delta;
+            if (distanceToGo < travelThisFrame) {
+                // Find how far along the next path we should have moved because of overshooting our current target
+                float remainder = travelThisFrame - distanceToGo;
+                float percent = remainder / travelThisFrame;
+                float normalizedTravel = pickNextPathPoint(false).speed * delta * percent;
+                BitPoint trueMovement = difference.plus(pickNextPathPoint(false).destination.minus(targetPoint.destination).normalize().scale(normalizedTravel));
+                body.velocity.set(trueMovement.scale(1 / delta));
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
@@ -49,26 +55,30 @@ public class PathedBodyController implements BitBodyController{
         }
     }
 
-    private void pickNextPathPoint() {
+    private PathPoint pickNextPathPoint(boolean updateIndex) {
+        int nextIndex = index;
         if (forward) {
-            if (index + 1 == path.size()) {
+            if (nextIndex + 1 == path.size()) {
                 if (pendulum) {
-                    index--;
+                    nextIndex--;
                     forward = false;
                 } else {
-                    index = 0;
+                    nextIndex = 0;
                 }
             } else {
-                index++;
+                nextIndex++;
             }
         } else {
             if (index - 1 == -1) {
-                index++;
+                nextIndex++;
                 forward = true;
             } else {
-                index--;
+                nextIndex--;
             }
         }
-        targetPoint = path.get(index);
+        if (updateIndex) {
+            index = nextIndex;
+        }
+        return path.get(nextIndex);
     }
 }
