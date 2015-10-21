@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
+import com.sun.org.apache.bcel.internal.generic.Type;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the
@@ -59,7 +60,7 @@ public class LevelBuilder {
 		grid = level.gridObjects;
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
-		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<LevelObject>();
+		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
@@ -75,10 +76,6 @@ public class LevelBuilder {
 
 		BuilderAction createKineticAction = new BuilderAction(BuilderAction.Type.ADD, kObj);
 		pushAction(createKineticAction);
-
-		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
-		}
 	}
 
 	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway) {
@@ -114,25 +111,6 @@ public class LevelBuilder {
 		}
 	}
 
-	private void addObjects(List<LevelObject> objects) {
-		int gridX;
-		int gridY;
-		for (LevelObject obj : objects) {
-			if (obj instanceof TileObject) {
-				ensureGridFitsObject((TileObject)obj);
-				gridX = (int) ((obj.rect.xy.x / tileSize) - gridOffset.x);
-				gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
-				grid[gridX][gridY] = (TileObject)obj;
-				updateNeighbors(gridX, gridY);
-			} else {
-				otherObjects.add(obj);
-			}
-		}
-		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
-		}
-	}
-
 	private void ensureGridFitsObject(TileObject obj) {
 		BitPointInt objCell = getOccupiedCell(obj);
 		while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
@@ -153,6 +131,23 @@ public class LevelBuilder {
 		}
 	}
 
+	private void addObjects(List<LevelObject> objects) {
+		int gridX;
+		int gridY;
+		for (LevelObject obj : objects) {
+			if (obj instanceof TileObject) {
+				ensureGridFitsObject((TileObject)obj);
+				gridX = (int) ((obj.rect.xy.x / tileSize) - gridOffset.x);
+				gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
+				grid[gridX][gridY] = (TileObject)obj;
+				updateNeighbors(gridX, gridY);
+			} else {
+				otherObjects.add(obj);
+			}
+		}
+		fireToListeners();
+	}
+
 	private void removeObjects(List<LevelObject> objects) {
 		// clean up out of other objects
 		otherObjects.removeAll(objects);
@@ -167,8 +162,13 @@ public class LevelBuilder {
 				updateNeighbors(gridX, gridY);
 			}
 		}
+		fireToListeners();
+	}
+
+	private void fireToListeners() {
+		Level optimizedLevel = optimizeLevel();
 		for (LevelBuilderListener listener : listeners) {
-			listener.updateGrid(gridOffset, grid, otherObjects);
+			listener.levelChanged(optimizedLevel);
 		}
 	}
 
@@ -294,6 +294,13 @@ public class LevelBuilder {
 		BitPointInt min = getMinXY();
 		BitPointInt max = getMaxXY();
 
+		if (min.x == Integer.MAX_VALUE || min.y == Integer.MAX_VALUE || max.x == Integer.MIN_VALUE || max.y == Integer.MIN_VALUE) {
+			min.x = -START_SIZE/2 * tileSize;
+			min.y = -START_SIZE/2 * tileSize;
+			max.x = START_SIZE/2 * tileSize;
+			max.y = START_SIZE/2 * tileSize;
+		}
+
 		TileObject[][] optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
 
 		int xOffset = (min.x / tileSize) - gridOffset.x;
@@ -347,6 +354,7 @@ public class LevelBuilder {
 
 	public void addListener(LevelBuilderListener levelListener) {
 		listeners.add(levelListener);
+		fireToListeners();
 	}
 
 	public void removeListener(LevelBuilderListener levelListener) {
@@ -355,5 +363,6 @@ public class LevelBuilder {
 
 	public void setSpawn(BitPointInt point) {
 		spawn = point;
+		fireToListeners();
 	}
 }

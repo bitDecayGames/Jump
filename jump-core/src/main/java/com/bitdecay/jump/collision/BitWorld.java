@@ -17,7 +17,7 @@ import com.bitdecay.jump.level.builder.TileObject;
  *
  */
 public class BitWorld {
-	public static final String VERSION = "0.1.2";
+	public static final String VERSION = "0.2";
 	public static final float STEP_SIZE = 1 / 128f;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
@@ -27,7 +27,7 @@ public class BitWorld {
 
 	private float timePassed;
 
-	private int tileSize = 32;
+	private int tileSize = 0;
 	private BitPointInt gridOffset = new BitPointInt(0, 0);
 	private BitBody[][] gridObjects = new BitBody[0][0];
 	private List<BitBody> dynamicBodies = new ArrayList<>();
@@ -85,8 +85,16 @@ public class BitWorld {
 		if (gridObjects == null) {
 			System.err.println("No level has been set into the world. Exiting...");
 			System.exit(-1);
+		} else if (tileSize <= 0) {
+			System.err.println("Tile size has not been set. Exiting");
+			System.exit(-1);
 		}
-		//		delta *= .05f;
+
+		if (delta <= 0) {
+			nonStep();
+			return false;
+		}
+
 		boolean stepped = false;
 		//add any left over time from last call to step();
 		delta += extraStepTime;
@@ -102,14 +110,11 @@ public class BitWorld {
 		return stepped;
 	}
 
-	public void nonStep(float delta) {
+	public void nonStep() {
 		doAddRemoves();
 	}
 
 	private void internalStep(final float delta) {
-		if (delta <= 0) {
-			return;
-		}
 		timePassed += delta;
 		// make sure world contains everything it should
 		doAddRemoves();

@@ -22,7 +22,7 @@ public class BitColors {
     public static final Color SPEED = Color.LIME;
     public static final Color TIME = Color.GOLDENROD;
 
-    public static final Color SPAWN = Color.ORANGE;
+    public static final Color SPAWN = Color.MAROON;
     public static final Color SPAWN_OUTER = Color.YELLOW;
 
     public static final Color COLLISION = Color.ORANGE;

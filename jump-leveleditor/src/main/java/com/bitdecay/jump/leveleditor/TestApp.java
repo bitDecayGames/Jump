@@ -7,7 +7,8 @@ public class TestApp extends Game {
 
     @Override
     public void create() {
-        setScreen(new LevelEditor());
+        ExampleEditorLevel level = new ExampleEditorLevel();
+        setScreen(new LevelEditor(level));
     }
 
 }
