@@ -184,13 +184,6 @@ public class EditorMenus {
 
         Table menu = new Table();
         menu.setVisible(true);
-        menu.setFillParent(true);
-        menu.setOrigin(Align.topRight);
-        menu.align(Align.right);
-//        menu.setX(stage.getWidth() - 500);
-//        menu.setY(stage.getHeight() - 500);
-
-        menu.setDebug(true);
 
         TextureRegion texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
 
@@ -200,14 +193,14 @@ public class EditorMenus {
         buttonGroup.setMinCheckCount(1);
 
         ScrollPane scrollPane = new ScrollPane(menu, skin);
-        parentMenu.add(scrollPane);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
 
-        scrollPane.setDebug(true);
+        parentMenu.add(scrollPane);
 
         int column = 1;
         for (LevelObject object : objects) {
             Table itemTable = new Table();
-//            itemTable.setFillParent(true);
             TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(texture));
             SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
             ImageButton button = new ImageButton(upDrawable, downSprite, downSprite);
@@ -217,19 +210,22 @@ public class EditorMenus {
                     System.out.println("Ya clicked " + object.name());
                     levelEditor.dropObject(object.getClass());
                 }
-//
             });
             buttonGroup.add(button);
             itemTable.add(button);
             itemTable.row();
             Label label = new Label(object.name(), skin);
             itemTable.add(label).padBottom(20);
-            menu.add(itemTable).padRight(20);
+
             if (column % 2 == 0) {
+                menu.add(itemTable).padRight(20);
                 menu.row();
+            } else {
+                menu.add(itemTable).padLeft(15).padRight(20);
             }
             column++;
         }
+        menu.padBottom(-20);
 
         stage.addActor(parentMenu);
         return menu;

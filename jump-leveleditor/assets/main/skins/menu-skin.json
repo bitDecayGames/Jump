@@ -18,18 +18,6 @@
       "name": "button_down",
       "color": "white"
     }
-    "simple-down-white": {
-      "name": "simple-down",
-      "color": "white"
-    },
-    "flare-black": {
-      "name": "flare",
-      "color": "black"
-    },
-    "flare-down-black": {
-      "name": "flare-down",
-      "color": "black"
-    }
   },
   "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
     "button": {
@@ -47,13 +35,6 @@
       "fontColor": "black",
       "checkedFontColor": "white",
       "pressedOffsetY": -2
-    },
-    "flare": {
-      "up": "flare-black" ,
-      "down": "flare-down-black",
-      "font": "defaultFont",
-      "fontColor": "white",
-      "pressedOffsetY": -4
     }
   },
   "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
@@ -64,12 +45,12 @@
   },
   "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
     "default": {
-      "background": "button-white",
-      "corner": "button-white",
-      "hScroll": "button-white",
-      "hScrollKnob": "button-white",
-      "vScroll": "button-white",
-      "vScrollKnob": "button-white"
+      "background": "scrollPane",
+      "corner": "scrollPane",
+      "hScroll": "scrollChannel",
+      "hScrollKnob": "scrollKnob",
+      "vScroll": "scrollChannel",
+      "vScrollKnob": "scrollKnob"
     }
   }
 }
