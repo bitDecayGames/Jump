@@ -2,6 +2,7 @@ package com.bitdecay.jump.leveleditor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.level.builder.LevelBuilderListener;
 import com.bitdecay.jump.level.builder.LevelObject;
 
@@ -14,5 +15,5 @@ public interface EditorHook extends LevelBuilderListener {
     void update(float delta);
     void render(OrthographicCamera cam);
     BitWorld getWorld();
-    List<LevelObject> getCustomObjects();
+    List<RenderableLevelObject> getCustomObjects();
 }

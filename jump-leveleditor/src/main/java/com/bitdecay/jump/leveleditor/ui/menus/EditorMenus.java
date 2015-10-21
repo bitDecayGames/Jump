@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
@@ -175,7 +176,7 @@ public class EditorMenus {
         return menu;
     }
 
-    private Actor buildObjectMenu(List<LevelObject> objects) {
+    private Actor buildObjectMenu(List<RenderableLevelObject> objects) {
         Table parentMenu = new Table();
         parentMenu.setVisible(true);
         parentMenu.setFillParent(true);
@@ -185,13 +186,6 @@ public class EditorMenus {
         Table menu = new Table();
         menu.setVisible(true);
 
-        TextureRegion texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.setUncheckLast(true);
-        buttonGroup.setMaxCheckCount(1);
-        buttonGroup.setMinCheckCount(1);
-
         ScrollPane scrollPane = new ScrollPane(menu, skin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
@@ -199,11 +193,11 @@ public class EditorMenus {
         parentMenu.add(scrollPane);
 
         int column = 1;
-        for (LevelObject object : objects) {
+        for (RenderableLevelObject object : objects) {
             Table itemTable = new Table();
-            TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(texture));
+            TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(object.texture()));
             SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
-            ImageButton button = new ImageButton(upDrawable, downSprite, downSprite);
+            ImageButton button = new ImageButton(upDrawable, downSprite);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -211,7 +205,6 @@ public class EditorMenus {
                     levelEditor.dropObject(object.getClass());
                 }
             });
-            buttonGroup.add(button);
             itemTable.add(button);
             itemTable.row();
             Label label = new Label(object.name(), skin);
