@@ -245,9 +245,11 @@ public class LevelBuilder {
 	}
 
 	public void deleteSelected() {
-		BuilderAction deleteAction = new BuilderAction(BuilderAction.Type.DELETE, selection.toArray(new LevelObject[selection.size()]));
-		pushAction(deleteAction);
-		selection.clear();
+		if (selection.size() > 0) {
+			BuilderAction deleteAction = new BuilderAction(BuilderAction.Type.DELETE, selection.toArray(new LevelObject[selection.size()]));
+			pushAction(deleteAction);
+			selection.clear();
+		}
 	}
 
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
