@@ -88,6 +88,17 @@ public class LevelBuilder {
 		}
 	}
 
+	public void createObject(Class<? extends LevelObject> object, BitPointInt place) {
+		try {
+			LevelObject newObject = object.newInstance();
+			newObject.rect.xy.set(place.x, place.y);
+			BuilderAction createObjectAction = new BuilderAction(BuilderAction.Type.ADD, newObject);
+			pushAction(createObjectAction);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void undo() {
 		BuilderAction undoAction = popAction();
 		if (undoAction != null) {

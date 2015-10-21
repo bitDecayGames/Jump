@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
  * Created by Monday on 10/11/2015.
  */
 public class BitColors {
+    public static final Color GAME_OBJECT = Color.BROWN;
     public static final Color DYNAMIC_OBJECT = Color.CYAN;
     public static final Color KINETIC_OBJECT = Color.BLUE;
     public static final Color STATIC_OBJECT = Color.TEAL;

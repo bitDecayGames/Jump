@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Originally meant to let us add moving objects to the world, this has mostly been obsoleted by the PathedLevelObject
  * @see PathedLevelObject
  */
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="objectType")
 public class MovingObject extends LevelObject {
 
 	public float speed;
@@ -40,5 +39,10 @@ public class MovingObject extends LevelObject {
 			body.velocity.x = speed;
 		}
 		return body;
+	}
+
+	@Override
+	public String name() {
+		return "Moving Platform";
 	}
 }
