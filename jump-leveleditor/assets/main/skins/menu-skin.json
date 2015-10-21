@@ -61,5 +61,15 @@
       "font": "defaultFont",
       "fontColor": "white"
     }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+    "default": {
+      "background": "button-white",
+      "corner": "button-white",
+      "hScroll": "button-white",
+      "hScrollKnob": "button-white",
+      "vScroll": "button-white",
+      "vScrollKnob": "button-white"
+    }
   }
 }

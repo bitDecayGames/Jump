@@ -2,6 +2,7 @@ package com.bitdecay.jump.leveleditor.ui.menus;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.bitdecay.jump.level.builder.LevelObject;
@@ -174,13 +176,41 @@ public class EditorMenus {
     }
 
     private Actor buildObjectMenu(List<LevelObject> objects) {
+        Table parentMenu = new Table();
+        parentMenu.setVisible(true);
+        parentMenu.setFillParent(true);
+        parentMenu.setOrigin(Align.topRight);
+        parentMenu.align(Align.right);
+
         Table menu = new Table();
-        menu.setWidth(stage.getWidth() / 5);
-        menu.align(Align.topRight);
+        menu.setVisible(true);
+        menu.setFillParent(true);
+        menu.setOrigin(Align.topRight);
+        menu.align(Align.right);
+//        menu.setX(stage.getWidth() - 500);
+//        menu.setY(stage.getHeight() - 500);
+
+        menu.setDebug(true);
+
         TextureRegion texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
 
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.setUncheckLast(true);
+        buttonGroup.setMaxCheckCount(1);
+        buttonGroup.setMinCheckCount(1);
+
+        ScrollPane scrollPane = new ScrollPane(menu, skin);
+        parentMenu.add(scrollPane);
+
+        scrollPane.setDebug(true);
+
+        int column = 1;
         for (LevelObject object : objects) {
-            ImageButton button = new ImageButton(new TextureRegionDrawable(new TextureRegionDrawable(texture)));
+            Table itemTable = new Table();
+//            itemTable.setFillParent(true);
+            TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(texture));
+            SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
+            ImageButton button = new ImageButton(upDrawable, downSprite, downSprite);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -189,17 +219,19 @@ public class EditorMenus {
                 }
 //
             });
-            menu.add(button);
-            menu.row();
+            buttonGroup.add(button);
+            itemTable.add(button);
+            itemTable.row();
             Label label = new Label(object.name(), skin);
-            menu.add(label).padBottom(20);
-            menu.row();
+            itemTable.add(label).padBottom(20);
+            menu.add(itemTable).padRight(20);
+            if (column % 2 == 0) {
+                menu.row();
+            }
+            column++;
         }
 
-        menu.setVisible(true);
-        menu.setX(stage.getWidth() - stage.getWidth()/5);
-        menu.setY(stage.getHeight()-100);
-        stage.addActor(menu);
+        stage.addActor(parentMenu);
         return menu;
     }
 

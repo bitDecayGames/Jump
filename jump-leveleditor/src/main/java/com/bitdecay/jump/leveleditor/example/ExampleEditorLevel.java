@@ -108,6 +108,10 @@ public class ExampleEditorLevel implements EditorHook {
 
     @Override
     public List<LevelObject> getCustomObjects() {
-        return Arrays.asList(new SecretThing(), new SecretThing(), new SecretThing(), new SecretThing(), new SecretThing());
+        List<LevelObject> exampleItems = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            exampleItems.add(new SecretThing());
+        }
+        return exampleItems;
     }
 }
