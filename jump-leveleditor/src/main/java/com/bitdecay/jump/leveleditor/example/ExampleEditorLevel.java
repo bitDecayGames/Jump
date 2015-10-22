@@ -93,10 +93,14 @@ public class ExampleEditorLevel implements EditorHook {
         try {
             ArrayList<BitBody> bodies = new ArrayList<>();
             for (LevelObject levelObject : otherObjects) {
-                GameObject newObject;
-                newObject = (GameObject) builderMap.get(levelObject.getClass()).newInstance();
-                bodies.add(newObject.build(levelObject));
-                gameObjects.add(newObject);
+                if (builderMap.containsKey(levelObject.getClass())) {
+                    GameObject newObject;
+                    newObject = (GameObject) builderMap.get(levelObject.getClass()).newInstance();
+                    bodies.add(newObject.build(levelObject));
+                    gameObjects.add(newObject);
+                } else {
+                    bodies.add(levelObject.buildBody());
+                }
             }
             return bodies;
         } catch (Exception e) {
@@ -107,6 +111,8 @@ public class ExampleEditorLevel implements EditorHook {
 
     // Normally you would build the level here -- create objects and add them to your game lists and the world, etc.
     private void loadLevel(Level level) {
+        gameObjects.clear();
+
         currentLevel = level;
         world.setTileSize(16);
         world.setGridOffset(level.gridOffset);

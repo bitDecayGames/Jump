@@ -44,11 +44,9 @@ public class EditorMenus {
         TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal("skins/ui.atlas"));
         skin = new Skin(Gdx.files.internal("skins/menu-skin.json"), menuAtlas);
         stage = new Stage();
-//        stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         menus.put(MenuPage.MainMenu, buildMainMenu());
         menus.put(MenuPage.CreateMenu, buildCreateMenu());
         menus.put(MenuPage.PlayerMenu, buildPlayerMenu());
-//        menus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
         buildObjectMenu(hooker.getCustomObjects());
         menuTransition(MenuPage.MainMenu);
     }
