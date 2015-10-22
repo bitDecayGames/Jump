@@ -14,6 +14,7 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
     public LevelBuilder builder;
     public BitPointInt startPoint;
     public BitPointInt endPoint;
+    public BitPointInt currentLocation;
 
     public BaseMouseMode(LevelBuilder builder) {
         this.builder = builder;
@@ -26,6 +27,7 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
 
     @Override
     public void mouseDragged(BitPointInt point) {
+        currentLocation = point;
         endPoint = point;
     }
 
@@ -44,7 +46,7 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
 
     @Override
     public void mouseMoved(BitPointInt point) {
-
+        currentLocation = point;
     }
 
     @Override

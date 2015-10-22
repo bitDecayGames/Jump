@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="objectType")
 public class PathedLevelObject extends LevelObject {
 	public List<PathPoint> pathPoints;
 	public boolean pendulum;
@@ -41,5 +40,10 @@ public class PathedLevelObject extends LevelObject {
 
 		body.controller = new PathedBodyController(path, pendulum);
 		return body;
+	}
+
+	@Override
+	public String name() {
+		return "Pathed Platform";
 	}
 }

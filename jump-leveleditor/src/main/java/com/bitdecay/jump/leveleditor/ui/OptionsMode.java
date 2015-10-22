@@ -11,6 +11,8 @@ public enum OptionsMode {
     UNDO("Undo", ModeType.ACTION, 0),
     REDO("Redo", ModeType.ACTION, 0),
 
+    DROP_OBJECT("Drop Object", ModeType.MOUSE, 2),
+
     SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 1),
     SAVE_PLAYER("Save Player Props", ModeType.ACTION, 1),
     LOAD_PLAYER("Load Player Props", ModeType.ACTION, 1),

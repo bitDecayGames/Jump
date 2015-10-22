@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -77,6 +78,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private EditorHook hooker;
 
+    private FPSLogger fpsLogger = new FPSLogger();
+
     public LevelEditor(EditorHook hooker) {
         this.hooker = hooker;
         setUpMenus();
@@ -103,6 +106,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
+        mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
 
         playerController = new PlayerInputHandler();
         mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(hooker.getWorld(), playerController));
@@ -112,7 +116,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void setUpMenus() {
-        menus = new EditorMenus(this);
+        menus = new EditorMenus(this, hooker);
         InputMultiplexer inputMux = new InputMultiplexer();
         inputMux.addProcessor(menus.getStage());
         inputMux.addProcessor(this);
@@ -138,6 +142,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void render(float delta) {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        fpsLogger.log();
 
         handleInput();
         playerController.update();
@@ -449,5 +454,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 e.printStackTrace();
             }
         }
+    }
+
+    public void dropObject(Class objectClass) {
+        ((DropObjectMode)mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
+        setMode(OptionsMode.DROP_OBJECT);
     }
 }

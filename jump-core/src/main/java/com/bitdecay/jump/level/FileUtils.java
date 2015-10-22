@@ -17,6 +17,7 @@ public class FileUtils {
 	static {
 		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.enableDefaultTyping();
 	}
 
 	public static String toJson(Object obj) {
