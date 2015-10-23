@@ -1,6 +1,5 @@
 package com.bitdecay.jump.leveleditor.render.mouse;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
@@ -9,9 +8,14 @@ import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class CreateMouseMode extends BaseMouseMode {
+    protected int material = 0;
 
     public CreateMouseMode(LevelBuilder builder) {
         super(builder);
+    }
+
+    public void setMaterial(int material) {
+        this.material = material;
     }
 
     @Override
@@ -29,7 +33,7 @@ public class CreateMouseMode extends BaseMouseMode {
     public void mouseUpLogic(BitPointInt point, MouseButton button) {
         endPoint = GeomUtils.snap(point, builder.tileSize);
         if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
-            builder.createLevelObject(startPoint, endPoint, false);
+            builder.createLevelObject(startPoint, endPoint, false, material);
         }
     }
 

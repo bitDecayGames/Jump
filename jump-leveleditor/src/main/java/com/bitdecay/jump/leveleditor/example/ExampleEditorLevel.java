@@ -10,6 +10,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.gdx.level.EditorTileset;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.level.Level;
@@ -42,9 +43,12 @@ public class ExampleEditorLevel implements EditorHook {
 
     List<GameObject> gameObjects = new ArrayList<>();
 
+    Map<Integer, TextureRegion[]> tilesetMap = new HashMap<>();
+
     public ExampleEditorLevel() {
         world.setGravity(0, -900);
-        sampleTiles = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/fallbacktileset.png"))).split(16, 16)[0];
+        tilesetMap.put(0, new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/fallbacktileset.png"))).split(16, 16)[0]);
+        tilesetMap.put(1, new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/templatetileset.png"))).split(16, 16)[0]);
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ExampleEditorLevel implements EditorHook {
             for (int y = 0; y < currentLevel.gridObjects[0].length; y++) {
                 TileObject obj = currentLevel.gridObjects[x][y];
                 if (obj != null) {
-                    batch.draw(sampleTiles[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+                    batch.draw(tilesetMap.get(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
                 }
             }
         }
@@ -130,6 +134,13 @@ public class ExampleEditorLevel implements EditorHook {
             playerController.setBody(playerBody, ControlMap.defaultMapping);
             world.addBody(playerBody);
         }
+    }
+
+    @Override
+    public List<EditorTileset> getTilesets() {
+        TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
+        TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
+        return Arrays.asList(new EditorTileset(0, "Dirt", dirtThumb), new EditorTileset(1, "Ice", iceThumb));
     }
 
     @Override
