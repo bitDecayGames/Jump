@@ -8,7 +8,7 @@ import com.bitdecay.jump.level.*;
 /**
  * A wrapper object around a level to handle adding and removing things from the
  * level. Recreates the underlying level any time changes are made. It does this
- * to ensure that all level objects are of the proper size.<br>
+ * to ensure that all level newObjects are of the proper size.<br>
  * <br>
  * If this causes performance issues down the road with larger levels, we will
  * figure out what to do then. For now it works quite well.
@@ -73,7 +73,7 @@ public class LevelBuilder {
 		}
 		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, pendulum);
 
-		BuilderAction createKineticAction = new BuilderAction(BuilderAction.Type.ADD, kObj);
+		BuilderAction createKineticAction = new BuilderAction(Arrays.asList(kObj), Collections.emptyList());
 		pushAction(createKineticAction);
 	}
 
@@ -82,7 +82,7 @@ public class LevelBuilder {
 		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
 				newObjects.add(new TileObject(rect, oneway, material)));
 		if (newObjects.size() > 0) {
-			BuilderAction createLevelObjectAction = new BuilderAction(BuilderAction.Type.ADD, newObjects.toArray(new LevelObject[newObjects.size()]));
+			BuilderAction createLevelObjectAction = new BuilderAction(newObjects, Collections.emptyList());
 			pushAction(createLevelObjectAction);
 		}
 	}
@@ -91,7 +91,7 @@ public class LevelBuilder {
 		try {
 			LevelObject newObject = object.newInstance();
 			newObject.rect.xy.set(place.x, place.y);
-			BuilderAction createObjectAction = new BuilderAction(BuilderAction.Type.ADD, newObject);
+			BuilderAction createObjectAction = new BuilderAction(Arrays.asList(newObject), Collections.emptyList());
 			pushAction(createObjectAction);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,22 +101,16 @@ public class LevelBuilder {
 	public void undo() {
 		BuilderAction undoAction = popAction();
 		if (undoAction != null) {
-			if (BuilderAction.Type.ADD.equals(undoAction.type)) {
-				removeObjects(undoAction.objects);
-			} else if (BuilderAction.Type.DELETE.equals(undoAction.type)) {
-				addObjects(undoAction.objects);
-			}
+			removeObjects(undoAction.newObjects);
+			undoAction.newObjects.addAll(addObjects(undoAction.removeObjects));
 		}
 	}
 
 	public void redo() {
 		if (lastAction < actions.size()-1) {
 			BuilderAction redoAction = actions.get(lastAction+1);
-			if (BuilderAction.Type.ADD.equals(redoAction.type)) {
-				addObjects(redoAction.objects);
-			} else if (BuilderAction.Type.DELETE.equals(redoAction.type)) {
-				removeObjects(redoAction.objects);
-			}
+			redoAction.removeObjects.addAll(addObjects(redoAction.newObjects));
+			removeObjects(redoAction.removeObjects);
 			lastAction++;
 		}
 	}
@@ -141,7 +135,8 @@ public class LevelBuilder {
 		}
 	}
 
-	private void addObjects(List<LevelObject> objects) {
+	private Set<LevelObject> addObjects(Set<LevelObject> objects) {
+		Set<LevelObject> removedObjects = new HashSet<>();
 		int gridX;
 		int gridY;
 		for (LevelObject obj : objects) {
@@ -149,6 +144,9 @@ public class LevelBuilder {
 				ensureGridFitsObject((TileObject)obj);
 				gridX = (int) ((obj.rect.xy.x / tileSize) - gridOffset.x);
 				gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
+				if (grid[gridX][gridY] != null) {
+					removedObjects.add(grid[gridX][gridY]);
+				}
 				grid[gridX][gridY] = (TileObject)obj;
 				updateNeighbors(gridX, gridY);
 			} else {
@@ -156,10 +154,11 @@ public class LevelBuilder {
 			}
 		}
 		fireToListeners();
+		return removedObjects;
 	}
 
-	private void removeObjects(List<LevelObject> objects) {
-		// clean up out of other objects
+	private void removeObjects(Set<LevelObject> objects) {
+		// clean up out of other newObjects
 		otherObjects.removeAll(objects);
 		// clean out our grid
 		int gridX;
@@ -270,7 +269,7 @@ public class LevelBuilder {
 
 	public void deleteSelected() {
 		if (selection.size() > 0) {
-			BuilderAction deleteAction = new BuilderAction(BuilderAction.Type.DELETE, selection.toArray(new LevelObject[selection.size()]));
+			BuilderAction deleteAction = new BuilderAction(Collections.emptyList(), selection);
 			pushAction(deleteAction);
 			selection.clear();
 		}
