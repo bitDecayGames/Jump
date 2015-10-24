@@ -72,7 +72,7 @@ public class SATResolution {
                                 float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
                                 float lastPosition = body.lastPosition.dot(axisOver.axis);
 
-                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) < Math.abs(resolutionPosition)) {
+                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || (lastPosition < resolutionPosition)) {
                                     validCollision = false;
                                 }
                             }

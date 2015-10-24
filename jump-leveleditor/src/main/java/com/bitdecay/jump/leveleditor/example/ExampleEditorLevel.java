@@ -1,7 +1,6 @@
 package com.bitdecay.jump.leveleditor.example;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -82,7 +81,7 @@ public class ExampleEditorLevel implements EditorHook {
             for (int y = 0; y < currentLevel.gridObjects[0].length; y++) {
                 TileObject obj = currentLevel.gridObjects[x][y];
                 if (obj != null) {
-                    batch.draw(tilesetMap.get(obj.material)[obj.nValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+                    batch.draw(tilesetMap.get(obj.material)[obj.renderNValue], obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
                 }
             }
         }

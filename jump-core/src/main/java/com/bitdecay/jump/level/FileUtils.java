@@ -71,7 +71,12 @@ public class FileUtils {
 	}
 
 	public static <T> T loadFileAs(Class<T> clazz) {
-		return loadFileAs(clazz, loadFile());
+		String file = loadFile();
+		if (file == null || file.length() <= 0) {
+			return null;
+		} else {
+			return loadFileAs(clazz, file);
+		}
 	}
 
 	public static <T> T loadFileAs(Class<T> clazz, File file) {

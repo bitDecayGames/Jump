@@ -15,7 +15,7 @@ public class SpawnMouseMode extends BaseMouseMode {
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
-        builder.setSpawn(point);
+         builder.setSpawn(point);
     }
 
     @Override
