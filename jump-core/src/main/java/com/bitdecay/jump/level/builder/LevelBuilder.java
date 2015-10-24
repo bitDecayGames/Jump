@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
-import com.sun.org.apache.bcel.internal.generic.Type;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the
@@ -78,10 +77,10 @@ public class LevelBuilder {
 		pushAction(createKineticAction);
 	}
 
-	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway) {
+	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
 		List<LevelObject> newObjects = new ArrayList<>();
 		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
-				newObjects.add(new TileObject(rect, oneway)));
+				newObjects.add(new TileObject(rect, oneway, material)));
 		if (newObjects.size() > 0) {
 			BuilderAction createLevelObjectAction = new BuilderAction(BuilderAction.Type.ADD, newObjects.toArray(new LevelObject[newObjects.size()]));
 			pushAction(createLevelObjectAction);
@@ -305,20 +304,23 @@ public class LevelBuilder {
 		BitPointInt min = getMinXY();
 		BitPointInt max = getMaxXY();
 
+		TileObject[][] optimizedGrid;
+
 		if (min.x == Integer.MAX_VALUE || min.y == Integer.MAX_VALUE || max.x == Integer.MIN_VALUE || max.y == Integer.MIN_VALUE) {
 			min.x = -START_SIZE/2 * tileSize;
 			min.y = -START_SIZE/2 * tileSize;
 			max.x = START_SIZE/2 * tileSize;
 			max.y = START_SIZE/2 * tileSize;
-		}
+			optimizedGrid = new TileObject[START_SIZE][START_SIZE];
+		} else {
+			optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
 
-		TileObject[][] optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
-
-		int xOffset = (min.x / tileSize) - gridOffset.x;
-		int yOffset = (min.y / tileSize) - gridOffset.y;
-		for (int x = 0; x < optimizedGrid.length; x++) {
-			for (int y = 0; y < optimizedGrid[0].length; y++) {
-				optimizedGrid[x][y] = grid[x+xOffset][y+yOffset];
+			int xOffset = (min.x / tileSize) - gridOffset.x;
+			int yOffset = (min.y / tileSize) - gridOffset.y;
+			for (int x = 0; x < optimizedGrid.length; x++) {
+				for (int y = 0; y < optimizedGrid[0].length; y++) {
+					optimizedGrid[x][y] = grid[x+xOffset][y+yOffset];
+				}
 			}
 		}
 

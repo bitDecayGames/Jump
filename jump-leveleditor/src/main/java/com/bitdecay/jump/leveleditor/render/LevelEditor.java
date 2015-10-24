@@ -460,4 +460,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         ((DropObjectMode)mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
         setMode(OptionsMode.DROP_OBJECT);
     }
+
+    public void setMaterial(int tileset) {
+        ((CreateMouseMode)mouseModes.get(OptionsMode.CREATE)).setMaterial(tileset);
+        ((CreateOneWayMouseMode)mouseModes.get(OptionsMode.ONEWAY)).setMaterial(tileset);
+    }
 }

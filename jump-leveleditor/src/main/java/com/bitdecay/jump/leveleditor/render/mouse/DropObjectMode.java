@@ -63,6 +63,6 @@ public class DropObjectMode extends BaseMouseMode{
 
     @Override
     public String getToolTip() {
-        return "Delete";
+        return "Drop Custom Object";
     }
 }
