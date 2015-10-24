@@ -11,5 +11,4 @@ public class Launcher {
         config.height = 900;
         new LwjglApplication(new TestApp(), config);
     }
-
 }

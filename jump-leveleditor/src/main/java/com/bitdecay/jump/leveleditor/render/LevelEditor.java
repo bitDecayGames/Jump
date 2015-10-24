@@ -408,19 +408,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
-    public void saveLevel() {
-        LevelUtilities.saveLevel(curLevelBuilder);
-    }
-
-    public void loadLevel() {
-        Level loadLevel = LevelUtilities.loadLevel();
-        if (loadLevel != null) {
-            setLevelBuilder(loadLevel);
-            setCamToOrigin();
-            stepWorld = false;
-        }
-    }
-
     private void saveProps() {
         BitBody player = maybeGetPlayer();
         if (player != null) {

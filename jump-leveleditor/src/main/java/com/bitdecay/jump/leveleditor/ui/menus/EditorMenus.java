@@ -64,6 +64,7 @@ public class EditorMenus {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 topMenuTransition(MenuPage.CreateMenu);
+                levelEditor.setMode(OptionsMode.SELECT);
             }
         });
         menu.add(toolsBtn).height(30);
@@ -161,7 +162,15 @@ public class EditorMenus {
             }
         }
 
-        addBackButtonAndFinalizeMenu(menu, MenuPage.MainMenu);
+        addBackButtonAndFinalizeMenu(menu, new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                topMenuTransition(MenuPage.MainMenu);
+                rightMenuTransition(null);
+                levelEditor.setMode(OptionsMode.SELECT);
+                createGroup.setChecked(OptionsMode.SELECT.label);
+            }
+        });
         return menu;
     }
 
@@ -183,7 +192,16 @@ public class EditorMenus {
             }
         }
 
-        addBackButtonAndFinalizeMenu(menu, MenuPage.MainMenu);
+        addBackButtonAndFinalizeMenu(menu, new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        topMenuTransition(MenuPage.MainMenu);
+                        rightMenuTransition(null);
+                        levelEditor.setMode(OptionsMode.SELECT);
+                    }
+                });
+
+
         return menu;
     }
 
@@ -273,17 +291,10 @@ public class EditorMenus {
         return parentMenu;
     }
 
-    private void addBackButtonAndFinalizeMenu(Table menu, MenuPage backTo) {
+    private void addBackButtonAndFinalizeMenu(Table menu, ClickListener backAction) {
         TextButton backBtn;
         backBtn = new TextButton("back", skin, "button");
-        backBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                topMenuTransition(backTo);
-                rightMenuTransition(null);
-                levelEditor.setMode(OptionsMode.SELECT);
-            }
-        });
+        backBtn.addListener(backAction);
         menu.add(backBtn).height(30);
         menu.align(Align.topLeft);
         menu.setFillParent(true);

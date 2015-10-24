@@ -198,41 +198,66 @@ public class LevelBuilder {
 	}
 
 	private void updateNeighbors(int x, int y) {
+		updateOwnNeighbors(x, y);
+
+		updateOwnNeighbors(x+1, y);
+		updateOwnNeighbors(x-1, y);
+		updateOwnNeighbors(x, y+1);
+		updateOwnNeighbors(x, y-1);
+	}
+
+	public void updateOwnNeighbors(int x, int y) {
+		if (!ArrayUtilities.onGrid(grid, x, y) || grid[x][y] == null) {
+			return;
+		}
+
 		// check right
-		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null && !grid[x + 1][y].oneway) {
-			if (grid[x][y] == null) {
-				grid[x + 1][y].nValue &= Direction.NOT_LEFT;
+		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
+			if (grid[x+1][y].oneway) {
+				grid[x][y].collideNValue &= Direction.NOT_RIGHT;
 			} else {
-				grid[x][y].nValue |= Direction.RIGHT;
-				grid[x + 1][y].nValue |= Direction.LEFT;
+				grid[x][y].collideNValue |= Direction.RIGHT;
 			}
+			grid[x][y].renderNValue |= Direction.RIGHT;
+		} else {
+			grid[x][y].collideNValue &= Direction.NOT_RIGHT;
+			grid[x][y].renderNValue &= Direction.NOT_RIGHT;
 		}
 		// check left
-		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null && !grid[x - 1][y].oneway) {
-			if (grid[x][y] == null) {
-				grid[x - 1][y].nValue &= Direction.NOT_RIGHT;
+		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
+			if (grid[x-1][y].oneway) {
+				grid[x][y].collideNValue &= Direction.NOT_LEFT;
 			} else {
-				grid[x][y].nValue |= Direction.LEFT;
-				grid[x - 1][y].nValue |= Direction.RIGHT;
+				grid[x][y].collideNValue |= Direction.LEFT;
 			}
+			grid[x][y].renderNValue |= Direction.LEFT;
+		} else {
+			grid[x][y].collideNValue &= Direction.NOT_LEFT;
+			grid[x][y].renderNValue &= Direction.NOT_LEFT;
 		}
 		// check up
-		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null && !grid[x][y + 1].oneway) {
-			if (grid[x][y] == null) {
-				grid[x][y + 1].nValue &= Direction.NOT_DOWN;
+		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
+			if (grid[x][y+1].oneway) {
+				grid[x][y].collideNValue &= Direction.NOT_UP;
 			} else {
-				grid[x][y].nValue |= Direction.UP;
-				grid[x][y + 1].nValue |= Direction.DOWN;
+				grid[x][y].collideNValue |= Direction.UP;
 			}
+			grid[x][y].renderNValue |= Direction.UP;
+		} else {
+			grid[x][y].collideNValue &= Direction.NOT_UP;
+			grid[x][y].renderNValue &= Direction.NOT_UP;
 		}
 		// check down
-		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null && !grid[x][y - 1].oneway) {
-			if (grid[x][y] == null) {
-				grid[x][y - 1].nValue &= Direction.NOT_UP;
+		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
+			if (grid[x][y-1].oneway) {
+				grid[x][y].collideNValue &= Direction.NOT_DOWN;
 			} else {
-				grid[x][y].nValue |= Direction.DOWN;
-				grid[x][y - 1].nValue |= Direction.UP;
+				grid[x][y].collideNValue |= Direction.DOWN;
 			}
+			grid[x][y].renderNValue |= Direction.DOWN;
+		} else {
+			grid[x][y].collideNValue &= Direction.NOT_DOWN;
+			grid[x][y].renderNValue &= Direction.NOT_DOWN;
 		}
 	}
 
