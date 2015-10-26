@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
@@ -25,6 +24,7 @@ import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.LevelUtilities;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.builder.SpawnObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
@@ -33,6 +33,7 @@ import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
 import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
+import com.bitdecay.jump.properties.BitBodyProperties;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -70,8 +71,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private Map<Integer, JDialog> uiKeys;
 
-    private PlayerInputHandler playerController;
-
     // a flags to control whether we are moving the world forward or not
     private boolean stepWorld = true;
     private boolean singleStep = false;
@@ -108,8 +107,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
 
-        playerController = new PlayerInputHandler();
-        mouseModes.put(OptionsMode.SET_TEST_PLAYER, new SetPlayerMouseMode(hooker.getWorld(), playerController));
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
         uiKeys = new HashMap<>();
@@ -145,7 +142,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         fpsLogger.log();
 
         handleInput();
-        playerController.update();
 
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -204,9 +200,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
         if (curLevelBuilder.spawn != null) {
             shaper.setColor(BitColors.SPAWN_OUTER);
-            shaper.circle(curLevelBuilder.spawn.x, curLevelBuilder.spawn.y, 7);
+            shaper.circle(curLevelBuilder.spawn.rect.xy.x, curLevelBuilder.spawn.rect.xy.y, SpawnObject.OUTER_DIAMETER);
             shaper.setColor(BitColors.SPAWN);
-            shaper.circle(curLevelBuilder.spawn.x, curLevelBuilder.spawn.y, 4);
+            shaper.circle(curLevelBuilder.spawn.rect.xy.x, curLevelBuilder.spawn.rect.xy.y, SpawnObject.INNER_DIAMETER);
         }
         shaper.setColor(BitColors.GRID_SIZE);
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
@@ -327,10 +323,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         camera.translate(mouseCoordinates.x, mouseCoordinates.y);
     }
 
-    private BitBody maybeGetPlayer() {
-        return ((SetPlayerMouseMode) mouseModes.get(OptionsMode.SET_TEST_PLAYER)).lastPlayer;
-    }
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         mouseMode.mouseDown(getMouseCoords(), MouseButton.getButton(button));
@@ -409,17 +401,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void saveProps() {
-        BitBody player = maybeGetPlayer();
-        if (player != null) {
-            FileUtils.saveToFile(player);
-        }
+//        BitBody player = maybeGetPlayer();
+//        if (player != null) {
+//            FileUtils.saveToFile(player);
+//        }
     }
 
     private void loadProps() {
-        BitBody player = maybeGetPlayer();
-        if (player != null) {
-            player = FileUtils.loadFileAs(JumperBody.class);
-        }
+//        BitBody player = maybeGetPlayer();
+//        if (player != null) {
+//            player = FileUtils.loadFileAs(BitBodyProperties.class);
+//        }
     }
 
     private void setLevelBuilder(Level level) {
@@ -433,14 +425,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     @Override
     public void propertyChanged(String prop, Object value) {
         System.out.println(prop + " = " + value);
-        BitBody player = maybeGetPlayer();
-        if (player != null) {
-            try {
-                player.set(prop, value);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        BitBody player = maybeGetPlayer();
+//        if (player != null) {
+//            try {
+//                player.set(prop, value);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void dropObject(Class objectClass) {

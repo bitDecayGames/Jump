@@ -188,7 +188,7 @@ public class BitWorld {
 	}
 
 	public void updateDynamics(BitBody body, float delta) {
-		if (body.gravitational) {
+		if (body.props.gravitational) {
 			body.velocity.add(gravity.scale(delta));
 		}
 	}
