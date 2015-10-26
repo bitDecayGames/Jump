@@ -48,8 +48,10 @@ public class DropObjectMode extends BaseMouseMode{
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
-        builder.createObject(objectClass, currentLocation);
-        editor.setMode(OptionsMode.SELECT);
+        if (reference != null) {
+            builder.createObject(objectClass, currentLocation);
+            reference = null;
+        }
     }
 
     @Override
