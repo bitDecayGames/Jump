@@ -5,6 +5,7 @@ import com.bitdecay.jump.controller.BitBodyController;
 import com.bitdecay.jump.exception.BitBodySerializeException;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.properties.BitBodyProperties;
 import com.bitdecay.jump.state.BitBodyStateWatcher;
 
 import java.util.ArrayList;
@@ -13,6 +14,12 @@ import java.util.List;
 import java.util.Set;
 
 public class BitBody {
+
+    /**
+     * Basic properties defining the configurable behavior of this body
+     */
+    public BitBodyProperties props = new BitBodyProperties();
+
     /**
      * Contains the position and size data for this body
      */
@@ -92,48 +99,11 @@ public class BitBody {
     public BitPoint velocity = new BitPoint(0, 0);
 
     /**
-     * The acceleration of the body
-     */
-    public BitPoint acceleration = new BitPoint(0, 0);
-
-    /**
-     * The max speed of the body
-     */
-    public BitPoint maxSpeed = new BitPoint(150, 0);
-
-    /**
-     * A flag for whether or not gravity should affect this body
-     */
-    public boolean gravitational = true;
-
-    /**
      * A list of subscribed listeners for contact information as it happens
      */
     private List<ContactListener> contactListeners = new ArrayList<>();
 
     public BitBody(){}
-
-    /**
-     * Copy constructor
-     * @param other the other body to make a copy of
-     */
-    public BitBody(BitBody other) {
-        this.aabb = new BitRectangle(other.aabb);
-        this.parent = other.parent;
-        this.children = new HashSet<>(other.children);
-        this.grounded = other.grounded;
-        this.facing = other.facing;
-        this.controller = null; // this can't be easily copied from one body to another
-        this.stateWatcher = null; // this can't be easily copied from one body to another
-        this.currentAttempt = new BitPoint(other.currentAttempt);
-        this.lastResolution = new BitPoint(other.lastResolution);
-        this.active = other.active;
-        this.bodyType = other.bodyType;
-        this.velocity = new BitPoint(other.velocity);
-        this.acceleration = new BitPoint(other.acceleration);
-        this.maxSpeed = new BitPoint(other.maxSpeed);
-        this.gravitational = other.gravitational;
-    }
 
     public void set(String prop, Object value) throws BitBodySerializeException {
         try {
