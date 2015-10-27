@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.controller.PathedBodyController;
+import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.PathPoint;
@@ -89,6 +90,9 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
         for (BitBody body : bodies) {
+            if (body.stateWatcher != null) {
+                LevelEditor.addStringForRender(body.stateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20));
+            }
             if (body.controller != null && body.controller instanceof PathedBodyController) {
                 renderer.setColor(BitColors.KINETIC_PATH);
                 PathPoint lastPoint = null;

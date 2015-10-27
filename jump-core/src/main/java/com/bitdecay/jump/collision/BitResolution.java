@@ -23,9 +23,6 @@ public abstract class BitResolution {
 	protected BitPoint resolution = new BitPoint(0, 0);
 	protected BitBody body;
 
-	public boolean haltX;
-	public boolean haltY;
-
 	public BitResolution(BitBody body) {
 		this.body = body;
 		resolvedPosition = new BitRectangle(body.aabb);
@@ -36,12 +33,6 @@ public abstract class BitResolution {
 		// set final resolution values
 		resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
 		resolution.y = resolvedPosition.xy.y - body.aabb.xy.y;
-		if (resolution.y != 0) {
-			haltY = true;
-		}
-		if (resolution.x != 0) {
-			haltX = true;
-		}
 	}
 
 	/**
@@ -50,12 +41,4 @@ public abstract class BitResolution {
 	 * squeezed between two bodies)
 	 */
 	public abstract void satisfy(BitWorld world);
-
-	public boolean haltX() {
-		return haltX;
-	}
-
-	public boolean haltY() {
-		return haltY;
-	}
 }
