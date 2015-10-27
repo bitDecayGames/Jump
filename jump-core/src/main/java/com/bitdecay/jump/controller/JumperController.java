@@ -31,12 +31,6 @@ public class JumperController extends BasicBodyController {
 		} else {
 			return;
 		}
-
-		if (Math.abs(BitWorld.gravity.y - body.lastResolution.y) > Math.abs(BitWorld.gravity.y)) {
-			// if the body was resolved against the gravity's y, we assume grounded.
-			// CONSIDER: 4-directional gravity might become a possibility.
-			body.grounded = true;
-		}
 		if (!body.grounded) {
 			if (jumping) {
 				jumpVariableHeightWindow += delta;
@@ -96,7 +90,7 @@ public class JumperController extends BasicBodyController {
 			}
 		}
 		if (props.jumpHittingHeadStopsJump){
-			if(Math.abs(BitWorld.gravity.y - body.lastResolution.y) < Math.abs(BitWorld.gravity.y)){
+			if (BitWorld.gravity.dot(body.lastResolution) > 0) {
 				jumping = false;
 			}
 		}
