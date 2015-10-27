@@ -24,6 +24,10 @@ public class SpawnObject extends LevelObject{
 
         // filler for now. Eventually the UI will let this be loaded/saved/tweaked
         JumperProperties props = new JumperProperties();
+        props.airAcceleration.set(600, 0);
+        props.airDeceleration.set(300, 0);
+        props.acceleration.set(600, 0);
+        props.deceleration.set(300, 0);
         props.jumpCount = 2;
         props.jumpStrength = 300;
         props.jumpDoubleJumpStrength = 150;
