@@ -35,4 +35,6 @@ public class BitBodyProperties {
      * A flag for whether or not gravity should affect this body
      */
     public boolean gravitational = true;
+
+    public float gravityModifier = 1.0f;
 }
