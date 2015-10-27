@@ -38,6 +38,11 @@
             <version>${version}</version>
         </dependency>
         <dependency>
+            <groupId>com.bitdecay</groupId>
+            <artifactId>jump-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commonsVersion}</version>
