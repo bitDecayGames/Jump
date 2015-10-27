@@ -20,4 +20,8 @@ The projects are laid out as follows:
 * jump-leveleditor - This project is basically the level editor (jump backend with gdx frontend)
 * jump-common - This is a project just for intermediate things, right now it only used for player action state. jump-core sets the 'action state' of some objects (such as player jumping, player running, etc), and these cause events to be fired that can be listened for.
 
+
+*going to take this out*
 Thanks for reading this all the way through!
+
+Ughh...
