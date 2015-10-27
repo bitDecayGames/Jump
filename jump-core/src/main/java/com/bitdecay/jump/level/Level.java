@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.builder.SpawnObject;
 import com.bitdecay.jump.level.builder.TileObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,7 +18,7 @@ public class Level {
 	 * objects.
 	 */
 	public BitPointInt gridOffset;
-	public BitPointInt spawn;
+	public SpawnObject spawn;
 
 	public Level() {
 		// Here for JSON persistence/parsing

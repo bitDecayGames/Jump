@@ -188,8 +188,8 @@ public class BitWorld {
 	}
 
 	public void updateDynamics(BitBody body, float delta) {
-		if (body.gravitational) {
-			body.velocity.add(gravity.scale(delta));
+		if (body.props.gravitational) {
+			body.velocity.add(gravity.scale(body.props.gravityModifier).scale(delta));
 		}
 	}
 
@@ -362,11 +362,9 @@ public class BitWorld {
 	private void applyResolution(BitBody body, BitResolution resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution);
-			if (resolution.haltX) {
-				body.velocity.x = 0;
-			}
-			if (resolution.haltY) {
-				body.velocity.y = 0;
+			body.velocity.add(resolution.resolution.dividedBy(BitWorld.STEP_SIZE));
+			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
+				body.grounded = true;
 			}
 		}
 		body.lastResolution = resolution.resolution;

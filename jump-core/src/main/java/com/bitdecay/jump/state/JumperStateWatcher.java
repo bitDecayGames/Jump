@@ -2,6 +2,7 @@ package com.bitdecay.jump.state;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.Facing;
+import com.bitdecay.jump.common.State;
 
 public class JumperStateWatcher extends AbstractStateWatcher {
 
@@ -11,7 +12,7 @@ public class JumperStateWatcher extends AbstractStateWatcher {
 	@Override
 	public void update(BitBody body) {
 		boolean facingLeft = Facing.LEFT.equals(body.facing);
-		JumperState newState = state;
+		State newState = state;
 		if (body.grounded) {
 			if (Math.abs(body.velocity.x) < .01f) {
 				if (body.lastResolution.x != 0) {
@@ -34,7 +35,6 @@ public class JumperStateWatcher extends AbstractStateWatcher {
 			}
 		}
 		if (!newState.equals(state)) {
-			//			System.out.println(newState);
 			state = newState;
 			fireListeners(state);
 		}

@@ -1,5 +1,6 @@
 package com.bitdecay.jump.state;
 
+import com.bitdecay.jump.common.State;
 import com.bitdecay.jump.common.StateListener;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.List;
 
 public abstract class AbstractStateWatcher implements BitBodyStateWatcher {
 	private List<StateListener> listeners = new ArrayList<StateListener>();
-	protected JumperState state;
+	protected State state;
 
 	@Override
 	public void addListener(StateListener listener) {
@@ -19,14 +20,14 @@ public abstract class AbstractStateWatcher implements BitBodyStateWatcher {
 		listeners.remove(listener);
 	}
 
-	protected void fireListeners(JumperState state) {
+	protected void fireListeners(State state) {
 		for (StateListener l : listeners) {
 			l.stateChanged(state);
 		}
 	}
 
 	@Override
-	public Object getState() {
+	public State getState() {
 		return state;
 	}
 }

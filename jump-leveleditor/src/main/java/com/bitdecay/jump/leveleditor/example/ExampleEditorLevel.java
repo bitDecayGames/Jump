@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.gdx.level.EditorTileset;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
@@ -22,6 +21,7 @@ import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
+import com.bitdecay.jump.properties.JumperProperties;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 import java.util.*;
@@ -125,10 +125,12 @@ public class ExampleEditorLevel implements EditorHook {
         world.resetTimePassed();
 
         if (level.spawn != null) {
-            BitBody playerBody = new JumperBody();
+            BitBody playerBody = new BitBody();
+            playerBody.props = level.spawn.props;
+
             playerBody.bodyType = BodyType.DYNAMIC;
             playerController = new PlayerInputHandler();
-            playerBody.aabb = new BitRectangle(level.spawn.x,level.spawn.y,16,32);
+            playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
             playerBody.stateWatcher = new JumperStateWatcher();
             playerController.setBody(playerBody, ControlMap.defaultMapping);
             world.addBody(playerBody);

@@ -33,7 +33,7 @@ public class LevelBuilder {
 	public int tileSize;
 	public TileObject[][] grid;
 	public BitPointInt gridOffset;
-	public BitPointInt spawn;
+	public SpawnObject spawn;
 
 	public List<LevelBuilderListener> listeners;
 
@@ -399,7 +399,7 @@ public class LevelBuilder {
 	}
 
 	public void setSpawn(BitPointInt point) {
-		spawn = point;
+		spawn = new SpawnObject(point);
 		fireToListeners();
 	}
 }
