@@ -3,7 +3,6 @@ package com.bitdecay.jump.level.builder;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.properties.BitBodyProperties;
 import com.bitdecay.jump.properties.JumperProperties;
 
 /**
@@ -13,7 +12,7 @@ public class SpawnObject extends LevelObject{
     public static final int INNER_DIAMETER = 4;
     public static final int OUTER_DIAMETER = 8;
 
-    public BitBodyProperties props;
+    public JumperProperties props;
 
     public SpawnObject() {
         // Here for JSON
