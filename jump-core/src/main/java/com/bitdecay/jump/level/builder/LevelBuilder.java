@@ -60,6 +60,7 @@ public class LevelBuilder {
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
+		spawn = level.spawn;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
