@@ -59,41 +59,37 @@ public class SATResolution {
             dotProd = relativeMovement.dot(axisOver.axis);
             if (dotProd != 0 && !MathUtils.sameSign(dotProd, axisOver.distance)) {
                 if (otherBody instanceof TileBody) {
-                    boolean validCollision = true;
                     if (!axisValidForNValue(axisOver, (TileBody) otherBody)) {
                         continue;
                     }
+                    // confirm that body came from past this thing
+                    float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
+                    float lastPosition = body.lastPosition.dot(axisOver.axis);
+
+                    if (!MathUtils.sameSign(resolutionPosition, lastPosition)) {
+                        continue;
+                    }
+
+                    if (axisOver.distance < 0 && (lastPosition > resolutionPosition)) {
+                        continue;
+                    }
+
+                    if (axisOver.distance > 0 && lastPosition < resolutionPosition) {
+                        continue;
+                    }
+
                     if (((TileBody) otherBody).collisionAxis != null) {
                         if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis)) {
                             if (axisOver.distance < 0) {
-                                validCollision = false;
-                            } else {
-                                // confirm that body came from past this thing
-                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
-                                float lastPosition = body.lastPosition.dot(axisOver.axis);
-
-                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || (lastPosition < resolutionPosition)) {
-                                    validCollision = false;
-                                }
+                                continue;
                             }
                         } else if (axisOver.axis.equals(((TileBody) otherBody).collisionAxis.times(-1))) {
                             if (axisOver.distance > 0) {
-                                validCollision = false;
-                            } else {
-                                // confirm that body came from past this thing
-                                float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
-                                float lastPosition = body.lastPosition.dot(axisOver.axis);
-
-                                if (!MathUtils.sameSign(resolutionPosition, lastPosition) || Math.abs(lastPosition) > Math.abs(resolutionPosition)) {
-                                    validCollision = false;
-                                }
+                                continue;
                             }
                         } else {
-                            validCollision = false;
+                            continue;
                         }
-                    }
-                    if (!validCollision) {
-                        continue;
                     }
                 }
                 axis = axisOver.axis;
