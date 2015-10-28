@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.render.mouse.MouseMode;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.PropModUI;
@@ -16,8 +17,11 @@ public class PropertyInspectMode extends BaseMouseMode implements PropModUICallb
     private PropModUI ui;
     private Object selectedObject;
 
-    public PropertyInspectMode(LevelBuilder builder) {
+    private LevelEditor editor;
+
+    public PropertyInspectMode(LevelBuilder builder, LevelEditor editor) {
         super(builder);
+        this.editor = editor;
     }
 
     @Override
@@ -45,6 +49,6 @@ public class PropertyInspectMode extends BaseMouseMode implements PropModUICallb
 
     @Override
     public void propertyChanged(String prop, Object value) {
-        builder.fireToListeners();
+        editor.queueReload();
     }
 }

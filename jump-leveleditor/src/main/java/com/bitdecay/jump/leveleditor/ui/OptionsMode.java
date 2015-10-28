@@ -3,7 +3,6 @@ package com.bitdecay.jump.leveleditor.ui;
 public enum OptionsMode {
     SELECT("Select", ModeType.MOUSE, 0),
     MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
-    STATIC("Static", ModeType.MOUSE, 0),
     DELETE("Delete", ModeType.MOUSE, 0),
     PROPERTY_INSPECT("Inspect", ModeType.MOUSE, 0),
 

@@ -13,29 +13,16 @@ public class IntComponentBuilder implements ComponentBuilder {
 
     @Override
     public List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
-        JSlider slider = new JSlider(0, 1000, 0);
-        slider.setMajorTickSpacing(100);
-        slider.setMinorTickSpacing(25);
-        slider.setValue(field.getInt(thing));
-        slider.addChangeListener(new ChangeListener() {
-             @Override
-             public void stateChanged(ChangeEvent e) {
-                 if (!slider.getValueIsAdjusting()) {
-                     try {
-                         field.set(thing, ((JSlider) e.getSource()).getValue());
-                         callback.propertyChanged(field.getName(), thing);
-                     } catch (IllegalArgumentException | IllegalAccessException e1) {
-                         // TODO Auto-generated catch block
-                         e1.printStackTrace();
-                     }
-                 }
-             }
-         }
-
-        );
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
-        return Arrays.asList(slider);
+        return Arrays.asList(ComponentUtils.buildSlider(field.getInt(thing), 0, 1000, new Callable() {
+            @Override
+            public void call(Object value) {
+                try {
+                    field.set(thing, value);
+                    callback.propertyChanged(field.getName(), thing);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
     }
-
 }
