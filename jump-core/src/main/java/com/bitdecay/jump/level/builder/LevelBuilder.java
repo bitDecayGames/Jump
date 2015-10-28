@@ -60,6 +60,7 @@ public class LevelBuilder {
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
+		spawn = level.spawn;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
@@ -174,7 +175,7 @@ public class LevelBuilder {
 		fireToListeners();
 	}
 
-	private void fireToListeners() {
+	public void fireToListeners() {
 		Level optimizedLevel = optimizeLevel();
 		for (LevelBuilderListener listener : listeners) {
 			listener.levelChanged(optimizedLevel);
@@ -311,6 +312,12 @@ public class LevelBuilder {
 					selection.add(object);
 					return;
 				}
+			}
+		}
+		if (spawn != null) {
+			// This is gross. I don't like.
+			if (spawn.rect.xy.minus(startPoint).len() < SpawnObject.OUTER_DIAMETER) {
+				selection.add(spawn);
 			}
 		}
 	}
