@@ -19,3 +19,19 @@ The projects are laid out as follows:
 * jump-gdx - libGDX specific things such as image and sound utilities, rendering, etc.
 * jump-leveleditor - This project is basically the level editor (jump backend with gdx frontend)
 * jump-common - This is a project just for intermediate things, right now it only used for player action state. jump-core sets the 'action state' of some objects (such as player jumping, player running, etc), and these cause events to be fired that can be listened for.
+
+
+## Working with Intellij
+Getting this project up and running in intellij is like a dream.  All you have to do is:
+- Tell intellij that you want a new project from Version Control and select the GitHub option
+- From there, you might see a popup that says something along the lines of "Convert to Maven Project", go ahead and click the link
+- Now, automagically, all of your projects are imported, all the source files are marked, all the asset folders are marked, and you can start programming!
+
+If for some reason, you didn't get the popup about converting to a maven project, and your projects on the left didn't seem to get imported correctly just do this:
+- Right click on the root Jump project folder
+- Select "Add Framework Support..." from the menu (at the top usually)
+- Select the Maven checkbox
+- Select next
+- And everything should resolve itself.  Intellij sees the poms and uses them to build your *.iml files (or updates them if they are already there)
+
+You should always run a ```mvn clean compile``` before you really get started, just to make sure everything is in order.
