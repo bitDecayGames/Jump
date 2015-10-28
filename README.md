@@ -28,3 +28,10 @@ Getting this project up and running in intellij is like a dream.  All you have t
 - Now, automagically, all of your projects are imported, all the source files are marked, all the asset folders are marked, and you can start programming!
 
 If for some reason, you didn't get the popup about converting to a maven project, and your projects on the left didn't seem to get imported correctly just do this:
+- Right click on the root Jump project folder
+- Select "Add Framework Support..." from the menu (at the top usually)
+- Select the Maven checkbox
+- Select next
+- And everything should resolve itself.  Intellij sees the poms and uses them to build your *.iml files (or updates them if they are already there)
+
+You should always run a ```mvn clean compile``` before you really get started, just to make sure everything is in order.
