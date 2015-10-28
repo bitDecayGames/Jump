@@ -25,12 +25,14 @@ public class FloatComponentBuilder implements ComponentBuilder {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                try {
-                    field.set(thing, ((JSlider) e.getSource()).getValue() / 100f);
-                    callback.propertyChanged(field.getName(), thing);
-                } catch (IllegalArgumentException | IllegalAccessException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                if (!slider.getValueIsAdjusting()) {
+                    try {
+                        field.set(thing, ((JSlider) e.getSource()).getValue() / 100f);
+                        callback.propertyChanged(field.getName(), thing);
+                    } catch (IllegalArgumentException | IllegalAccessException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
             }
         });

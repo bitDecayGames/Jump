@@ -22,15 +22,16 @@ public class BitPointComponentBuilder implements ComponentBuilder {
         xslider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                try {
-                    Field field2 = bitPoint.getClass().getField("x");
-                    field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
-                    callback.propertyChanged(field2.getName(), thing);
-                } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                if (!xslider.getValueIsAdjusting()) {
+                    try {
+                        Field field2 = bitPoint.getClass().getField("x");
+                        field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
+                        callback.propertyChanged(field2.getName(), thing);
+                    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
-                //				callback.propertyChanged(field.getName(), new BitPoint(((JSlider) e.getSource()).getValue() / 100f, yslider.getValue() / 100f));
             }
         });
         xslider.setPaintTicks(true);
@@ -43,15 +44,16 @@ public class BitPointComponentBuilder implements ComponentBuilder {
         yslider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                try {
-                    Field field2 = bitPoint.getClass().getField("y");
-                    field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
-                    callback.propertyChanged(field2.getName(), thing);
-                } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                if (!yslider.getValueIsAdjusting()) {
+                    try {
+                        Field field2 = bitPoint.getClass().getField("y");
+                        field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
+                        callback.propertyChanged(field2.getName(), thing);
+                    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
-                //				callback.propertyChanged(field.getName(), new BitPoint(xslider.getValue(), ((JSlider) e.getSource()).getValue()));
             }
         });
         yslider.setPaintTicks(true);

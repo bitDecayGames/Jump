@@ -18,17 +18,21 @@ public class IntComponentBuilder implements ComponentBuilder {
         slider.setMinorTickSpacing(25);
         slider.setValue(field.getInt(thing));
         slider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                try {
-                    field.set(thing, ((JSlider) e.getSource()).getValue());
-                    callback.propertyChanged(field.getName(), thing);
-                } catch (IllegalArgumentException | IllegalAccessException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-            }
-        });
+             @Override
+             public void stateChanged(ChangeEvent e) {
+                 if (!slider.getValueIsAdjusting()) {
+                     try {
+                         field.set(thing, ((JSlider) e.getSource()).getValue());
+                         callback.propertyChanged(field.getName(), thing);
+                     } catch (IllegalArgumentException | IllegalAccessException e1) {
+                         // TODO Auto-generated catch block
+                         e1.printStackTrace();
+                     }
+                 }
+             }
+         }
+
+        );
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         return Arrays.asList(slider);
