@@ -1,6 +1,7 @@
 package com.bitdecay.jump.leveleditor.ui;
 
-import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.leveleditor.ui.component.ComponentBuilder;
+import com.bitdecay.jump.leveleditor.ui.component.ComponentBuilderFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,14 +17,14 @@ public class PropModUI extends JDialog {
     private JScrollPane scrollPane;
     private JPanel items;
 
-    public PropModUI(PropModUICallback callback, BitBody body) {
+    public PropModUI(PropModUICallback callback, Object thing) {
         super();
         scrollPane = new JScrollPane();
         items = new JPanel();
         items.setLayout(new BoxLayout(items, BoxLayout.Y_AXIS));
         scrollPane.getViewport().add(items);
         this.callback = callback;
-        setProperties(body);
+        setProperties(thing);
         add(scrollPane);
         setMinimumSize(new Dimension(400, 800));
         setMaximumSize(new Dimension(400, 800));
@@ -34,46 +35,22 @@ public class PropModUI extends JDialog {
         setAlwaysOnTop(true);
     }
 
-    public void setProperties(BitBody body) {
+    public void setProperties(Object thing) {
         items.removeAll();
-        List<Field> fields = new ArrayList<Field>();
-        fields.addAll(Arrays.asList(body.getClass().getSuperclass().getDeclaredFields()));
-        fields.addAll(Arrays.asList(body.getClass().getDeclaredFields()));
-        fields.sort(new Comparator<Field>() {
-            @Override
-            public int compare(Field o1, Field o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        boolean first = true;
-        for (Field field : fields) {
-            System.out.println(field.getName());
-            if (!first) {
-                items.add(new JSeparator(JSeparator.CENTER));
-            } else {
-                first = false;
-            }
-            try {
-                ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getName());
-                if (builder != null) {
-                    List<JComponent> component = builder.build(field, body, callback);
-                    if (component != null) {
-                        JLabel label = new JLabel(field.getName());
-                        items.add(label);
-                        for (JComponent jComponent : component) {
-                            items.add(jComponent);
-                        }
-                        items.add(Box.createVerticalStrut(5));
-                    }
-                } else {
-                    throw new Exception();
-                }
-            } catch (Exception e) {
-                System.out.println("Unable to build component for " + field.getName() + " of type " + field.getType());
-            }
 
+        try {
+            ComponentBuilder builder = ComponentBuilderFactory.getBuilder(ComponentBuilderFactory.GENERIC_BUILDER);
+            for (JComponent component : builder.build(null, thing, callback)) {
+                items.add(component);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         revalidate();
         repaint();
+    }
+
+    public void close() {
+        this.dispose();
     }
 }
