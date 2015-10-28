@@ -14,26 +14,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
-import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.FileUtils;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.LevelUtilities;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.SpawnObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
-import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
 import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
-import com.bitdecay.jump.properties.BitBodyProperties;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -106,6 +102,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
+        mouseModes.put(OptionsMode.PROPERTY_INSPECT, new PropertyInspectMode(curLevelBuilder));
 
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
@@ -139,7 +136,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void render(float delta) {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        fpsLogger.log();
+//        fpsLogger.log();
 
         handleInput();
 

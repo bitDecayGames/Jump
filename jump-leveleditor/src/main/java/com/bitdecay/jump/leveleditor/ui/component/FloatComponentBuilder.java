@@ -1,6 +1,6 @@
-package com.bitdecay.jump.leveleditor.ui;
+package com.bitdecay.jump.leveleditor.ui.component;
 
-import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FloatComponentBuilder implements ComponentBuilder {
     @Override
-    public List<JComponent> build(Field field, BitBody body, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
+    public List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
         JSlider slider = new JSlider(0, 100, 0);
         Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
         for (int i = 0; i <= 10; i++) {
@@ -20,13 +20,14 @@ public class FloatComponentBuilder implements ComponentBuilder {
         }
         slider.setLabelTable(labelTable);
         slider.setMajorTickSpacing(1);
-        slider.setValue((int) (field.getFloat(body) * 100));
+        slider.setValue((int) (field.getFloat(thing) * 100));
         slider.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(ChangeEvent e) {
                 try {
-                    field.set(body, ((JSlider) e.getSource()).getValue() / 100f);
+                    field.set(thing, ((JSlider) e.getSource()).getValue() / 100f);
+                    callback.propertyChanged(field.getName(), thing);
                 } catch (IllegalArgumentException | IllegalAccessException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();

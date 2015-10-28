@@ -1,7 +1,7 @@
-package com.bitdecay.jump.leveleditor.ui;
+package com.bitdecay.jump.leveleditor.ui.component;
 
-import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -13,8 +13,8 @@ import java.util.List;
 public class BitPointComponentBuilder implements ComponentBuilder {
 
     @Override
-    public List<JComponent> build(Field field, BitBody body, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
-        BitPoint bitPoint = (BitPoint) field.get(body);
+    public List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
+        BitPoint bitPoint = (BitPoint) field.get(thing);
         JSlider xslider = new JSlider(-200, 200, 0);
         xslider.setMajorTickSpacing(50);
         xslider.setMinorTickSpacing(10);
@@ -25,6 +25,7 @@ public class BitPointComponentBuilder implements ComponentBuilder {
                 try {
                     Field field2 = bitPoint.getClass().getField("x");
                     field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
+                    callback.propertyChanged(field2.getName(), thing);
                 } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -45,6 +46,7 @@ public class BitPointComponentBuilder implements ComponentBuilder {
                 try {
                     Field field2 = bitPoint.getClass().getField("y");
                     field2.set(bitPoint, ((JSlider) e.getSource()).getValue());
+                    callback.propertyChanged(field2.getName(), thing);
                 } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
