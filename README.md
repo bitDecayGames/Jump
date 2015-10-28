@@ -35,3 +35,16 @@ If for some reason, you didn't get the popup about converting to a maven project
 - And everything should resolve itself.  Intellij sees the poms and uses them to build your *.iml files (or updates them if they are already there)
 
 You should always run a ```mvn clean compile``` before you really get started, just to make sure everything is in order.
+
+Also to note.  If your .iml files get deleted and you are now having build errors/compile errors because of it.  Do not fret!
+- Close down intellij
+- Open it back up again
+- You should probably see a dialog about failure to import project, just pick the "Remove project without deleting files" option
+- From there, go into File -> Project Structure
+- Navigate to the Modules section
+- Click the + button
+- Select Import Module
+- Choose the root Jump folder and press ok
+- On the popup, say that you want to import it from existing sources and select the Maven option
+
+You should now have your project all put back together.  If it STILL didn't work, you might try starting over with a fresh workspace, importing the project from GitHub, and then copying over the file changes you made into the new workspace, and then delete the old workspace.
