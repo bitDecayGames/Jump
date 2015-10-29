@@ -403,4 +403,8 @@ public class LevelBuilder {
 		spawn = new SpawnObject(point);
 		fireToListeners();
 	}
+
+	public boolean hasChanges() {
+		return actions.size() > 0 && lastAction > 0;
+	}
 }

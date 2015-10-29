@@ -53,4 +53,12 @@
       "vScrollKnob": "scrollKnob"
     }
   }
+  "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
+    "default": {
+      "background": "scrollPane",
+      "titleFont": "defaultFont",
+      "titleFontColor": "white",
+      "stageBackground": "scrollPane"
+    }
+  }
 }

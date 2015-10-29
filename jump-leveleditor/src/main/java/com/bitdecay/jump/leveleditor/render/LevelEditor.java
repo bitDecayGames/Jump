@@ -11,9 +11,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
@@ -349,10 +353,18 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     @Override
     public void dispose() {
+        saveIfChanges();
     }
 
     @Override
     public void hide() {
+        saveIfChanges();
+    }
+
+    private void saveIfChanges() {
+        if (curLevelBuilder.hasChanges()) {
+            LevelUtilities.saveLevel(curLevelBuilder);
+        }
     }
 
     @Override

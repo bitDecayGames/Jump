@@ -9,6 +9,6 @@ public class Launcher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = 1600;
         config.height = 900;
-        new LwjglApplication(new TestApp(), config);
+        new LwjglApplication(new EditorApp(), config);
     }
 }
