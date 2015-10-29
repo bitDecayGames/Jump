@@ -34,6 +34,7 @@ import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
 
@@ -73,6 +74,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private EditorHook hooker;
 
+    /**
+     * Since some calls to refresh can come from Swing threads, we need to fire listeners from
+     * the GDX thread and this is the cheapest way I can think of to achieve that.
+     */
+    private AtomicBoolean refresh = new AtomicBoolean(false);
+
     private FPSLogger fpsLogger = new FPSLogger();
 
     public LevelEditor(EditorHook hooker) {
@@ -97,11 +104,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.ONEWAY, new CreateOneWayMouseMode(curLevelBuilder));
-        mouseModes.put(OptionsMode.STATIC, new CreateStaticMouseMode(curLevelBuilder, null));
         mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
+        mouseModes.put(OptionsMode.PROPERTY_INSPECT, new PropertyInspectMode(curLevelBuilder, this));
 
         mouseMode = mouseModes.get(OptionsMode.SELECT);
 
@@ -135,7 +142,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void render(float delta) {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        fpsLogger.log();
+//        fpsLogger.log();
+        if (refresh.get()) {
+            refresh.set(false);
+            curLevelBuilder.fireToListeners();
+        }
 
         handleInput();
 
@@ -439,5 +450,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void setMaterial(int tileset) {
         ((CreateMouseMode)mouseModes.get(OptionsMode.CREATE)).setMaterial(tileset);
         ((CreateOneWayMouseMode)mouseModes.get(OptionsMode.ONEWAY)).setMaterial(tileset);
+    }
+
+    public void queueReload() {
+        refresh.set(true);
     }
 }

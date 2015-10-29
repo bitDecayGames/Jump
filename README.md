@@ -19,3 +19,32 @@ The projects are laid out as follows:
 * jump-gdx - libGDX specific things such as image and sound utilities, rendering, etc.
 * jump-leveleditor - This project is basically the level editor (jump backend with gdx frontend)
 * jump-common - This is a project just for intermediate things, right now it only used for player action state. jump-core sets the 'action state' of some objects (such as player jumping, player running, etc), and these cause events to be fired that can be listened for.
+
+
+## Working with Intellij
+Getting this project up and running in intellij is like a dream.  All you have to do is:
+- Tell intellij that you want a new project from Version Control and select the GitHub option
+- From there, you might see a popup that says something along the lines of "Convert to Maven Project", go ahead and click the link
+- Now, automagically, all of your projects are imported, all the source files are marked, all the asset folders are marked, and you can start programming!
+
+If for some reason, you didn't get the popup about converting to a maven project, and your projects on the left didn't seem to get imported correctly just do this:
+- Right click on the root Jump project folder
+- Select "Add Framework Support..." from the menu (at the top usually)
+- Select the Maven checkbox
+- Select next
+- And everything should resolve itself.  Intellij sees the poms and uses them to build your *.iml files (or updates them if they are already there)
+
+You should always run a ```mvn clean compile``` before you really get started, just to make sure everything is in order.
+
+Also to note.  If your .iml files get deleted and you are now having build errors/compile errors because of it.  Do not fret!
+- Close down intellij
+- Open it back up again
+- You should probably see a dialog about failure to import project, just pick the "Remove project without deleting files" option
+- From there, go into File -> Project Structure
+- Navigate to the Modules section
+- Click the + button
+- Select Import Module
+- Choose the root Jump folder and press ok
+- On the popup, say that you want to import it from existing sources and select the Maven option
+
+You should now have your project all put back together.  If it STILL didn't work, you might try starting over with a fresh workspace, importing the project from GitHub, and then copying over the file changes you made into the new workspace, and then delete the old workspace.

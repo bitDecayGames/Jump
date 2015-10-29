@@ -175,7 +175,7 @@ public class LevelBuilder {
 		fireToListeners();
 	}
 
-	private void fireToListeners() {
+	public void fireToListeners() {
 		Level optimizedLevel = optimizeLevel();
 		for (LevelBuilderListener listener : listeners) {
 			listener.levelChanged(optimizedLevel);
@@ -312,6 +312,12 @@ public class LevelBuilder {
 					selection.add(object);
 					return;
 				}
+			}
+		}
+		if (spawn != null) {
+			// This is gross. I don't like.
+			if (spawn.rect.xy.minus(startPoint).len() < SpawnObject.OUTER_DIAMETER) {
+				selection.add(spawn);
 			}
 		}
 	}
