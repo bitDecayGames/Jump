@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class AbstractStateWatcher implements BitBodyStateWatcher {
 	private List<StateListener> listeners = new ArrayList<StateListener>();
-	protected State state;
+	protected State state = JumperState.RIGHT_STANDING;
 
 	@Override
 	public void addListener(StateListener listener) {
