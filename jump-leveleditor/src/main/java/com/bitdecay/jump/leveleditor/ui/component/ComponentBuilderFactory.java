@@ -27,6 +27,11 @@ public class ComponentBuilderFactory {
     }
 
     public static ComponentBuilder getBuilder(String name) {
-        return components.get(name);
+        ComponentBuilder builder = components.get(name);
+        if (builder == null) {
+            return components.get(GENERIC_BUILDER);
+        } else {
+            return builder;
+        }
     }
 }
