@@ -35,6 +35,8 @@ public class LevelBuilder {
 	public BitPointInt gridOffset;
 	public SpawnObject spawn;
 
+	public int background;
+
 	public List<LevelBuilderListener> listeners;
 
 	public LevelBuilder(int tileSize) {
@@ -362,6 +364,7 @@ public class LevelBuilder {
 		optimizedLevel.gridObjects = optimizedGrid;
 		optimizedLevel.otherObjects = otherObjects;
 		optimizedLevel.spawn = spawn;
+		optimizedLevel.background = background;
 
 		return optimizedLevel;
 	}
@@ -408,5 +411,9 @@ public class LevelBuilder {
 	public void setSpawn(BitPointInt point) {
 		spawn = new SpawnObject(point);
 		fireToListeners();
+	}
+
+	public void setBackground(int id) {
+		this.background = id;
 	}
 }

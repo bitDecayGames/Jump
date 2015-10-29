@@ -154,7 +154,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         spriteBatch.setProjectionMatrix(camera.combined);
         shaper.setProjectionMatrix(camera.combined);
 
-        drawGrid();
         if (singleStep) {
             singleStep = false;
             hooker.update(BitWorld.STEP_SIZE);
@@ -164,6 +163,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             hooker.update(0);
         }
         hooker.render(camera);
+        drawGrid();
         worldRenderer.render(hooker.getWorld(), camera);
         debugRender();
         drawOrigin();
