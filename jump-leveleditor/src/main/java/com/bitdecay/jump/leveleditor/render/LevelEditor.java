@@ -11,13 +11,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
@@ -363,7 +359,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void saveIfChanges() {
         if (curLevelBuilder.hasChanges()) {
-            LevelUtilities.saveLevel(curLevelBuilder);
+            JOptionPane.showMessageDialog(null, "Some changes have not been saved");
+            LevelUtilities.saveLevel(curLevelBuilder, false);
         }
     }
 
@@ -398,7 +395,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         } else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
             loadProps();
         } else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
-            setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
+            setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder, true));
         } else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
             Level loadLevel = LevelUtilities.loadLevel();
             if (loadLevel != null) {

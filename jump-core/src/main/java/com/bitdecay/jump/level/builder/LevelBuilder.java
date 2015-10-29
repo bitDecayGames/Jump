@@ -48,6 +48,8 @@ public class LevelBuilder {
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
 		otherObjects = new ArrayList<>();
+		actions = new LinkedList<>();
+		lastAction = -1;
 	}
 
 	public LevelBuilder(Level level) {
@@ -64,6 +66,8 @@ public class LevelBuilder {
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
+		actions = new LinkedList<>();
+		lastAction = -1;
 	}
 
 	public void createKineticObject(BitRectangle rect, List<PathPoint> path, boolean pendulum) {
@@ -330,6 +334,7 @@ public class LevelBuilder {
 		BitPointInt max = getMaxXY();
 
 		TileObject[][] optimizedGrid;
+		BitPointInt optimizedOffset = new BitPointInt();
 
 		if (min.x == Integer.MAX_VALUE || min.y == Integer.MAX_VALUE || max.x == Integer.MIN_VALUE || max.y == Integer.MIN_VALUE) {
 			min.x = -START_SIZE/2 * tileSize;
@@ -337,6 +342,8 @@ public class LevelBuilder {
 			max.x = START_SIZE/2 * tileSize;
 			max.y = START_SIZE/2 * tileSize;
 			optimizedGrid = new TileObject[START_SIZE][START_SIZE];
+			optimizedOffset.x = -START_SIZE/2;
+			optimizedOffset.y = -START_SIZE/2;
 		} else {
 			optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
 
@@ -349,12 +356,12 @@ public class LevelBuilder {
 			}
 		}
 
-		grid = optimizedGrid;
-		gridOffset = new BitPointInt(min.x / tileSize, min.y / tileSize);
+		optimizedOffset.x = (min.x / tileSize);
+		optimizedOffset.y = (min.y / tileSize);
 
-		optimizedLevel.gridOffset = new BitPointInt(gridOffset.x, gridOffset.y);
+		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.gridObjects = optimizedGrid;
-		optimizedLevel.otherObjects = otherObjects;
+		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
 		optimizedLevel.spawn = spawn;
 
 		return optimizedLevel;
@@ -405,6 +412,6 @@ public class LevelBuilder {
 	}
 
 	public boolean hasChanges() {
-		return actions.size() > 0 && lastAction > 0;
+		return actions.size() > 0 && lastAction > -1;
 	}
 }
