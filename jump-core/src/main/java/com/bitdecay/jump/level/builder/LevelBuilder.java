@@ -348,11 +348,8 @@ public class LevelBuilder {
 			max.x = START_SIZE/2 * tileSize;
 			max.y = START_SIZE/2 * tileSize;
 			optimizedGrid = new TileObject[START_SIZE][START_SIZE];
-			optimizedOffset.x = -START_SIZE/2;
-			optimizedOffset.y = -START_SIZE/2;
 		} else {
 			optimizedGrid = new TileObject[(max.x - min.x) / tileSize][(max.y - min.y) / tileSize];
-
 			int xOffset = (min.x / tileSize) - gridOffset.x;
 			int yOffset = (min.y / tileSize) - gridOffset.y;
 			for (int x = 0; x < optimizedGrid.length; x++) {
