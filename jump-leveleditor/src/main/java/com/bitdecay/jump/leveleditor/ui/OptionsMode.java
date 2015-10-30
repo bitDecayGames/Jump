@@ -16,6 +16,7 @@ public enum OptionsMode {
     LOAD_PLAYER("Load Player Props", ModeType.ACTION, 3),
     SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 3),
 
+    BACKGROUND("Set Background", ModeType.MOUSE, 4),
 
     SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
     LOAD_LEVEL("Load Level", ModeType.ACTION, -1),

@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.bitdecay.jump.gdx.level.EditorTileset;
+import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
@@ -49,6 +49,7 @@ public class EditorMenus {
         topMenus.put(MenuPage.PlayerMenu, buildPlayerMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
+        rightMenus.put(MenuPage.BackgroundMenu, buildBackgroundMenu(hooker.getBackgrounds()));
         topMenuTransition(MenuPage.MainMenu);
     }
 
@@ -164,6 +165,21 @@ public class EditorMenus {
             }
         }
 
+        for(OptionsMode mode : OptionsMode.values()) {
+            if(mode.group == 4) {
+                TextButton button = new TextButton(mode.label, skin, "toggle-button");
+                createGroup.add(button);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        levelEditor.setMode(mode);
+                        rightMenuTransition(MenuPage.BackgroundMenu);
+                    }
+                });
+                menu.add(button).height(30);
+            }
+        }
+
         addBackButtonAndFinalizeMenu(menu, new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -207,7 +223,7 @@ public class EditorMenus {
         return menu;
     }
 
-    private Actor buildTilesetMenu(List<EditorTileset> tilesets) {
+    private Actor buildTilesetMenu(List<EditorIdentifierObject> tilesets) {
         Table parentMenu = new Table();
         parentMenu.setVisible(false);
         parentMenu.setFillParent(true);
@@ -222,7 +238,7 @@ public class EditorMenus {
 
         parentMenu.add(scrollPane);
 
-        for (EditorTileset object : tilesets) {
+        for (EditorIdentifierObject object : tilesets) {
             Table itemTable = new Table();
             TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(object.texture));
             SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
@@ -231,6 +247,47 @@ public class EditorMenus {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     levelEditor.setMaterial(object.id);
+                }
+            });
+            itemTable.add(button);
+            itemTable.row();
+            Label label = new Label(object.displayName, skin);
+            itemTable.add(label).padBottom(20);
+
+            menu.add(itemTable).padRight(20);
+            menu.row();
+        }
+        menu.padBottom(-20);
+
+        stage.addActor(parentMenu);
+        return parentMenu;
+    }
+
+    private Actor buildBackgroundMenu(List<EditorIdentifierObject> backgrounds) {
+        Table parentMenu = new Table();
+        parentMenu.setVisible(false);
+        parentMenu.setFillParent(true);
+        parentMenu.setOrigin(Align.topRight);
+        parentMenu.align(Align.right);
+
+        Table menu = new Table();
+
+        ScrollPane scrollPane = new ScrollPane(menu, skin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+
+        parentMenu.add(scrollPane);
+
+        for (EditorIdentifierObject object : backgrounds) {
+            Table itemTable = new Table();
+            TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(object.texture));
+            SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
+            ImageButton button = new ImageButton(upDrawable, downSprite);
+            button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    levelEditor.curLevelBuilder.setBackground(object.id);
+                    levelEditor.curLevelBuilder.fireToListeners();
                 }
             });
             itemTable.add(button);

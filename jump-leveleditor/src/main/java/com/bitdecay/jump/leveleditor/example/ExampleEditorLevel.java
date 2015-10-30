@@ -1,14 +1,16 @@
 package com.bitdecay.jump.leveleditor.example;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.gdx.level.EditorTileset;
+import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.level.Level;
@@ -21,7 +23,6 @@ import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.leveleditor.input.ControlMap;
 import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
-import com.bitdecay.jump.properties.JumperProperties;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
 import java.util.*;
@@ -60,11 +61,26 @@ public class ExampleEditorLevel implements EditorHook {
     public void render(OrthographicCamera cam) {
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
+        drawBackground(cam);
         drawLevelEdit();
         for (GameObject object : gameObjects) {
             object.render(batch);
         }
         batch.end();
+    }
+
+    private void drawBackground(final OrthographicCamera cam) {
+        // Crappy example background rendering
+        if (currentLevel.background == -1) {
+            return;
+        }
+        TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
+        TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
+        Vector3 zero = cam.unproject(new Vector3(0, Gdx.graphics.getHeight(), 0));
+        TextureRegion background = currentLevel.background == 0 ? dirtThumb : iceThumb;
+        batch.setColor(Color.DARK_GRAY);
+        batch.draw(background, zero.x, zero.y, cam.viewportWidth * cam.zoom, cam.viewportHeight * cam.zoom);
+        batch.setColor(Color.WHITE);
     }
 
     @Override
@@ -138,10 +154,18 @@ public class ExampleEditorLevel implements EditorHook {
     }
 
     @Override
-    public List<EditorTileset> getTilesets() {
+    public List<EditorIdentifierObject> getTilesets() {
         TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
         TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
-        return Arrays.asList(new EditorTileset(0, "Dirt", dirtThumb), new EditorTileset(1, "Ice", iceThumb));
+        return Arrays.asList(new EditorIdentifierObject(0, "Dirt", dirtThumb), new EditorIdentifierObject(1, "Ice", iceThumb));
+    }
+
+    @Override
+    public List<EditorIdentifierObject> getBackgrounds() {
+        TextureRegion noneThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/noneThumb.png")));
+        TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
+        TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
+        return Arrays.asList(new EditorIdentifierObject(-1, "None", noneThumb), new EditorIdentifierObject(0, "Surface Background", dirtThumb), new EditorIdentifierObject(1, "Cavern Background", iceThumb));
     }
 
     @Override

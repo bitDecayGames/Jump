@@ -35,6 +35,8 @@ public class LevelBuilder {
 	public BitPointInt gridOffset;
 	public SpawnObject spawn;
 
+	public int background;
+
 	public List<LevelBuilderListener> listeners;
 
 	public LevelBuilder(int tileSize) {
@@ -366,6 +368,7 @@ public class LevelBuilder {
 		optimizedLevel.gridObjects = optimizedGrid;
 		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
 		optimizedLevel.spawn = spawn;
+		optimizedLevel.background = background;
 
 		return optimizedLevel;
 	}
@@ -414,6 +417,10 @@ public class LevelBuilder {
 		fireToListeners();
 	}
 
+	public void setBackground(int id) {
+		this.background = id;
+	}
+	
 	public boolean hasChanges() {
 		return actions.size() > 0 && lastAction > -1;
 	}

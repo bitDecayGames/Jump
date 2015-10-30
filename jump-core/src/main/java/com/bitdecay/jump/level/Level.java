@@ -19,6 +19,7 @@ public class Level {
 	 */
 	public BitPointInt gridOffset;
 	public SpawnObject spawn;
+	public int background;
 
 	public Level() {
 		// Here for JSON persistence/parsing
@@ -36,5 +37,6 @@ public class Level {
 		otherObjects = level.otherObjects;
 		gridOffset = level.gridOffset;
 		spawn = level.spawn;
+		background = level.background;
 	}
 }
