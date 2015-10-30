@@ -20,4 +20,14 @@ public class MathUtils {
 	public static boolean sameSign(float num1, float num2) {
 		return ((num1<0) == (num2<0));
 	}
+
+	public static boolean opposing(float num1, float num2) {
+		if (num1 > 0) {
+			return num2 < 0;
+		} else if (num1 < 0) {
+			return num2 > 0;
+		} else {
+			return false;
+		}
+	}
 }
