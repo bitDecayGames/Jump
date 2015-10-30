@@ -66,7 +66,9 @@ public class SATResolution {
                     float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
                     float lastPosition = body.lastPosition.dot(axisOver.axis);
 
-                    if (!MathUtils.sameSign(resolutionPosition, lastPosition)) {
+                    if (MathUtils.opposing(resolutionPosition, lastPosition)) {
+                        // all collisions should push a body backwards according to the
+                        // relative movement. If it's not doing so, it's not a valid case.
                         continue;
                     }
 
