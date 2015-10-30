@@ -2,6 +2,7 @@ package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.level.builder.LevelBuilder;
 
+import javax.swing.*;
 import java.io.File;
 
 public class LevelUtilities {
@@ -18,7 +19,12 @@ public class LevelUtilities {
 		return null;
 	}
 
-	public static Level saveLevel(LevelBuilder builder) {
+	public static Level saveLevel(LevelBuilder builder, boolean canCancel) {
+		if(canCancel) {
+			UIManager.put("FileChooser.cancelButtonText", "Cancel");
+		} else {
+			UIManager.put("FileChooser.cancelButtonText", "Don't Save");
+		}
 		Level level = builder.optimizeLevel();
 		String savedContent = FileUtils.saveToFile(level);
 		if (savedContent != null) {

@@ -360,10 +360,19 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     @Override
     public void dispose() {
+        saveIfChanges();
     }
 
     @Override
     public void hide() {
+        saveIfChanges();
+    }
+
+    private void saveIfChanges() {
+        if (curLevelBuilder.hasChanges()) {
+            JOptionPane.showMessageDialog(null, "Some changes have not been saved");
+            LevelUtilities.saveLevel(curLevelBuilder, false);
+        }
     }
 
     @Override
@@ -397,7 +406,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         } else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
             loadProps();
         } else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
-            setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder));
+            setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder, true));
         } else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
             Level loadLevel = LevelUtilities.loadLevel();
             if (loadLevel != null) {
