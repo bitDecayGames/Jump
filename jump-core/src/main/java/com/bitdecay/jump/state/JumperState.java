@@ -18,7 +18,9 @@ public enum JumperState implements State {
 	RIGHT_AIR_AGAINST_WALL,
 	LEFT_AIR_AGAINST_WALL,
 	RIGHT_GROUNDED_AGAINST_WALL,
-	LEFT_GROUNDED_AGAINST_WALL;
+	LEFT_GROUNDED_AGAINST_WALL,
+	RIGHT_PUSHED,
+	LEFT_PUSHED;
 
 	@JsonCreator
 	public static JumperState forValue(String value) {

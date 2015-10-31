@@ -63,7 +63,7 @@ public class SATResolution {
                         continue;
                     }
                     // confirm that body came from past this thing
-                    float resolutionPosition = body.aabb.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
+                    float resolutionPosition = resolvedPosition.xy.plus(axisOver.axis.times(axisOver.distance)).dot(axisOver.axis);
                     float lastPosition = body.lastPosition.dot(axisOver.axis);
 
                     if (MathUtils.opposing(resolutionPosition, lastPosition)) {

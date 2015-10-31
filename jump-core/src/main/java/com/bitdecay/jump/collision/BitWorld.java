@@ -18,7 +18,8 @@ import com.bitdecay.jump.level.builder.TileObject;
  */
 public class BitWorld {
 	public static final String VERSION = "0.2";
-	public static final float STEP_SIZE = 1 / 128f;
+	public static final float STEP_PER_SEC = 128f;
+	public static final float STEP_SIZE = 1 / STEP_PER_SEC;
 	/**
 	 * Holds left-over time when there isn't enough time for a full
 	 * {@link #STEP_SIZE}
@@ -197,7 +198,7 @@ public class BitWorld {
 		for (BitBody child : body.children) {
 			/*
 			 * we make sure to move the child just slightly less
-			 * than the parent to guarantee that it still
+			 * than the parents to guarantee that it still
 			 * collides if nothing else influences it's motion
 			 */
 			BitPoint influence = body.currentAttempt.shrink(MathUtils.FLOAT_PRECISION);
@@ -219,7 +220,7 @@ public class BitWorld {
 		// all dynamicBodies are assumed to be not grounded unless a collision happens this step.
 		body.grounded = false;
 		// all dynamicBodies assumed to be independent unless a lineage collision happens this step.
-		body.parent = null;
+		body.parents.clear();
 	}
 
 	private void doAddRemoves() {
@@ -362,7 +363,8 @@ public class BitWorld {
 	private void applyResolution(BitBody body, BitResolution resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution);
-			body.velocity.add(resolution.resolution.dividedBy(BitWorld.STEP_SIZE));
+			BitPoint velocityAdjustment = resolution.resolution.times(BitWorld.STEP_PER_SEC);
+			body.velocity.add(velocityAdjustment);
 			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
 				body.grounded = true;
 			}
@@ -371,10 +373,10 @@ public class BitWorld {
 	}
 
 	/**
-	 * A simple method that sees if there is a collision and adds it to the
-	 * {@link BitResolution} as something that needs to be handled at the time
-	 * of resolution.
-	 * 
+	 * A simple method that sees if there is a mid-scope collision and adds it to the
+	 * {@link BitResolution} as something that might need to be handled at
+	 * the time of resolution.
+	 *
 	 * @param body will always be a dynamic body with current code
 	 * @param against
 	 */
@@ -385,7 +387,6 @@ public class BitWorld {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
 			BitResolution resolution = pendingResolutions.get(body);
-			//TODO: This can definitely be made more efficient via a hash map or something of the like
 			for (BitCollision collision : resolution.collisions) {
 				if (collision.otherBody == against) {
 					return;

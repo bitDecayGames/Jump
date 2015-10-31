@@ -93,7 +93,7 @@ public class SATStrategy extends BitResolution {
     }
 
     /**
-     * Handles any interactions that may result from the collision. Things such as parent-child (when a body is
+     * Handles any interactions that may result from the collision. Things such as parents-child (when a body is
      * being moved by another body) bonds are enforced here.
      * @param world the world
      * @param body the body being resolved
@@ -102,17 +102,10 @@ public class SATStrategy extends BitResolution {
      */
     private void postResolve(BitWorld world, BitBody body, BitBody otherBody, SATResolution satRes) {
         if (BodyType.KINETIC.equals(otherBody.bodyType)) {
-            if (body.parent == null) {
-                // Attach as child if we were resolved by the kinetic object in the direction it is moving
-                if (satRes.result.dot(otherBody.currentAttempt) > 0) {
-                    body.parent = otherBody;
-                    otherBody.children.add(body);
-                }
-                // attach if we were resolved against gravity (aka we are standing on it)
-                if (satRes.axis.dot(world.gravity.x, world.gravity.y) < 0) {
-                    body.parent = otherBody;
-                    otherBody.children.add(body);
-                }
+            // attach if we were resolved against gravity (aka we are standing on it)
+            if (satRes.axis.dot(world.gravity.x, world.gravity.y) < 0) {
+                body.parents.add(otherBody);
+                otherBody.children.add(body);
             }
         }
     }
