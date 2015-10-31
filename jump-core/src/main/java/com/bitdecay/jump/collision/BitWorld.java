@@ -198,7 +198,7 @@ public class BitWorld {
 		for (BitBody child : body.children) {
 			/*
 			 * we make sure to move the child just slightly less
-			 * than the parent to guarantee that it still
+			 * than the parents to guarantee that it still
 			 * collides if nothing else influences it's motion
 			 */
 			BitPoint influence = body.currentAttempt.shrink(MathUtils.FLOAT_PRECISION);
@@ -220,7 +220,7 @@ public class BitWorld {
 		// all dynamicBodies are assumed to be not grounded unless a collision happens this step.
 		body.grounded = false;
 		// all dynamicBodies assumed to be independent unless a lineage collision happens this step.
-		body.parent = null;
+		body.parents.clear();
 	}
 
 	private void doAddRemoves() {
@@ -387,10 +387,12 @@ public class BitWorld {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
 			BitResolution resolution = pendingResolutions.get(body);
-			if (resolution.collisions.containsKey(against)) {
-				return;
+			for (BitCollision collision : resolution.collisions) {
+				if (collision.otherBody == against) {
+					return;
+				}
 			}
-			resolution.collisions.put(against, new BitCollision(insec, against));
+			resolution.collisions.add(new BitCollision(insec, against));
 		}
 	}
 

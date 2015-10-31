@@ -17,9 +17,9 @@ import java.util.PriorityQueue;
  */
 public abstract class BitResolution {
 	/**
-	 * A map of bodies to the collisions they caused with 'body'
+	 * A priority queue of bodies to the collisions they caused with 'body'
 	 */
-	public HashMap<BitBody, BitCollision> collisions = new HashMap<>();
+	public PriorityQueue<BitCollision> collisions = new PriorityQueue<>();
 
 	protected BitRectangle resolvedPosition;
 	protected BitPoint resolution = new BitPoint(0, 0);

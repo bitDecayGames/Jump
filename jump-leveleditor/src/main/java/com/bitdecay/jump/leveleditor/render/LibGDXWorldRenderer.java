@@ -73,9 +73,9 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 }
             }
         }
-        renderBodies(renderer, world.getDynamicBodies());
-        renderBodies(renderer, world.getKineticBodies());
         renderBodies(renderer, world.getStaticBodies());
+        renderBodies(renderer, world.getKineticBodies());
+        renderBodies(renderer, world.getDynamicBodies());
 
         renderer.setColor(BitColors.COLLISION);
         for (BitRectangle col : world.unresolvedCollisions) {
@@ -121,7 +121,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             }
             if (!body.active) {
                 renderer.setColor(BitColors.INACTIVE_OBJECT);
-            } else if (body.parent != null) {
+            } else if (body.parents.size() > 0) {
                 renderer.setColor(BitColors.CHILD_OBJECT);
             } else if (body.children.size() > 0) {
                 renderer.setColor(BitColors.PARENT_OBJECT);

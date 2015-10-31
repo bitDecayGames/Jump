@@ -26,9 +26,9 @@ public class BitBody {
 	public BitRectangle aabb = new BitRectangle(1, 1, 1, 1);
 
     /**
-     * Reference to the optional parent object
+     * Reference to the optional parents object
      */
-	public BitBody parent = null; //TODO: This can probably be made a list since a body can be moved by more than one body at a time
+	public Set<BitBody> parents = new HashSet<>();
 
 	/**
 	 * Holds children bodies of this body. Allows for 'attaching' bodies to each

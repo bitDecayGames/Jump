@@ -21,7 +21,13 @@ public class JumperStateWatcher extends AbstractStateWatcher {
 					newState = facingLeft ? JumperState.LEFT_STANDING : JumperState.RIGHT_STANDING;
 				}
 			} else {
-				newState = facingLeft ? JumperState.LEFT_RUNNING : JumperState.RIGHT_RUNNING;
+				if (body.lastResolution.x == 0 ) {
+					newState = facingLeft ? JumperState.LEFT_RUNNING : JumperState.RIGHT_RUNNING;
+				} else if (body.lastResolution.x < 0) {
+					newState = facingLeft ? JumperState.LEFT_RUNNING : JumperState.LEFT_PUSHED;
+				} else {
+					newState = facingLeft ? JumperState.RIGHT_PUSHED : JumperState.RIGHT_RUNNING;
+				}
 			}
 		} else {
 			if (body.lastResolution.x != 0) {
