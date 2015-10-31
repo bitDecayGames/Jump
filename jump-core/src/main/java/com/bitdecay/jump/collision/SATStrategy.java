@@ -26,7 +26,7 @@ public class SATStrategy extends BitResolution {
     @Override
     public void satisfy(BitWorld world) {
         // TODO: This method can probably made more efficient if needed down the road
-         List<BitPoint> directionsResolved = new ArrayList<>();
+        List<BitPoint> directionsResolved = new ArrayList<>();
         for (BitCollision collision : collisions.values()) {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
