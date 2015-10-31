@@ -17,8 +17,7 @@ import java.util.PriorityQueue;
  */
 public abstract class BitResolution {
 	/**
-	 * A priority queue that resolves the LARGEST collisions first. Larger
-	 * collisions (by area) are easier to determine accurate resolutions for.
+	 * A map of bodies to the collisions they caused with 'body'
 	 */
 	public HashMap<BitBody, BitCollision> collisions = new HashMap<>();
 
