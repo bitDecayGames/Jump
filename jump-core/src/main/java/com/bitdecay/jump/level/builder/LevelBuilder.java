@@ -420,7 +420,7 @@ public class LevelBuilder {
 	public void setBackground(int id) {
 		this.background = id;
 	}
-	
+
 	public boolean hasChanges() {
 		return actions.size() > 0 && lastAction > -1;
 	}

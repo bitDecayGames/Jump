@@ -26,7 +26,7 @@ public class ClassicStrategy extends BitResolution{
         // use a temp BitPoint to hold resolution values for each collision
         BitPoint tempResolution = new BitPoint(0, 0);
         BitPoint cumulativeResolution = new BitPoint(0, 0);
-        for (BitCollision collision : collisions) {
+        for (BitCollision collision : collisions.values()) {
             if (GeomUtils.intersection(resolvedPosition, collision.collisionZone) != null) {
                 // only deal with this if we are still needing to resolved
                 int resoDirection = resolve(tempResolution, cumulativeResolution, body, collision.otherBody);

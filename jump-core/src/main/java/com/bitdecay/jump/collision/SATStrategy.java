@@ -26,8 +26,8 @@ public class SATStrategy extends BitResolution {
     @Override
     public void satisfy(BitWorld world) {
         // TODO: This method can probably made more efficient if needed down the road
-        List<BitPoint> directionsResolved = new ArrayList<>();
-        for (BitCollision collision : collisions) {
+         List<BitPoint> directionsResolved = new ArrayList<>();
+        for (BitCollision collision : collisions.values()) {
             SATResolution satRes = SATCollisions.getCollision(resolvedPosition, collision.otherBody.aabb);
             if (satRes != null) {
                 satResolve(resolvedPosition, satRes, body, collision.otherBody);
@@ -103,11 +103,6 @@ public class SATStrategy extends BitResolution {
     private void postResolve(BitWorld world, BitBody body, BitBody otherBody, SATResolution satRes) {
         if (BodyType.KINETIC.equals(otherBody.bodyType)) {
             if (body.parent == null) {
-                // Attach as child if we were resolved by the kinetic object in the direction it is moving
-                if (satRes.result.dot(otherBody.currentAttempt) > 0) {
-                    body.parent = otherBody;
-                    otherBody.children.add(body);
-                }
                 // attach if we were resolved against gravity (aka we are standing on it)
                 if (satRes.axis.dot(world.gravity.x, world.gravity.y) < 0) {
                     body.parent = otherBody;

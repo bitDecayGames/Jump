@@ -3,6 +3,9 @@ package com.bitdecay.jump.collision;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
+
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 
 /**
@@ -17,7 +20,7 @@ public abstract class BitResolution {
 	 * A priority queue that resolves the LARGEST collisions first. Larger
 	 * collisions (by area) are easier to determine accurate resolutions for.
 	 */
-	public PriorityQueue<BitCollision> collisions = new PriorityQueue<BitCollision>();
+	public HashMap<BitBody, BitCollision> collisions = new HashMap<>();
 
 	protected BitRectangle resolvedPosition;
 	protected BitPoint resolution = new BitPoint(0, 0);
