@@ -50,7 +50,7 @@ public class PathedBodyController implements BitBodyController{
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
-                body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed + targetPoint.speed * extraPercent));
+                body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed * (1 + extraPercent)));
             }
         }
     }
