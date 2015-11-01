@@ -57,6 +57,7 @@ public class PathedBodyController implements BitBodyController{
                 targetPoint = null;
             } else {
                 body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed * (1 + extraPercent)));
+                extraPercent = 0;
             }
         }
     }
