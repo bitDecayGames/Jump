@@ -1,6 +1,7 @@
 package com.bitdecay.jump.controller;
 
 import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.PathPoint;
 
@@ -14,6 +15,8 @@ public class PathedBodyController implements BitBodyController{
     public boolean pendulum;
 
     private float pause;
+
+    private float extraPercent;
 
     int index;
     boolean forward;
@@ -37,20 +40,24 @@ public class PathedBodyController implements BitBodyController{
             if (targetPoint == null) {
                 targetPoint = pickNextPathPoint(true);
             }
-            BitPoint difference = targetPoint.destination.minus(body.aabb.xy);
-            float distanceToGo = Math.abs(difference.len());
+            BitPoint distanceToDestination = targetPoint.destination.minus(body.aabb.xy);
+            float distanceToGo = Math.abs(distanceToDestination.len());
             float travelThisFrame = targetPoint.speed * delta;
             if (distanceToGo < travelThisFrame) {
                 // Find how far along the next path we should have moved because of overshooting our current target
-                float remainder = travelThisFrame - distanceToGo;
-                float percent = remainder / travelThisFrame;
-                float normalizedTravel = pickNextPathPoint(false).speed * delta * percent;
-                BitPoint trueMovement = difference.plus(pickNextPathPoint(false).destination.minus(targetPoint.destination).normalize().scale(normalizedTravel));
-                body.velocity.set(trueMovement.scale(1 / delta));
+                float distanceOvershot = travelThisFrame - distanceToGo;
+                extraPercent = distanceOvershot / travelThisFrame;
+                /**
+                 * We set velocity instead of position so the engine can do the actual move. But in doing this
+                 * we have to adjust the velocity based on the delta to make sure we move the right distance
+                 * next update.
+                 */
+                body.velocity.set(distanceToDestination.scale(BitWorld.STEP_PER_SEC));
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
-                body.velocity.set(difference.normalize().scale(targetPoint.speed));
+                body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed * (1 + extraPercent)));
+                extraPercent = 0;
             }
         }
     }
