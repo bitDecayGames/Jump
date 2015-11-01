@@ -15,6 +15,8 @@ public class PathedBodyController implements BitBodyController{
 
     private float pause;
 
+    private float extraPercent;
+
     int index;
     boolean forward;
     PathPoint targetPoint;
@@ -37,20 +39,18 @@ public class PathedBodyController implements BitBodyController{
             if (targetPoint == null) {
                 targetPoint = pickNextPathPoint(true);
             }
-            BitPoint difference = targetPoint.destination.minus(body.aabb.xy);
-            float distanceToGo = Math.abs(difference.len());
+            BitPoint distanceToDestination = targetPoint.destination.minus(body.aabb.xy);
+            float distanceToGo = Math.abs(distanceToDestination.len());
             float travelThisFrame = targetPoint.speed * delta;
             if (distanceToGo < travelThisFrame) {
                 // Find how far along the next path we should have moved because of overshooting our current target
-                float remainder = travelThisFrame - distanceToGo;
-                float percent = remainder / travelThisFrame;
-                float normalizedTravel = pickNextPathPoint(false).speed * delta * percent;
-                BitPoint trueMovement = difference.plus(pickNextPathPoint(false).destination.minus(targetPoint.destination).normalize().scale(normalizedTravel));
-                body.velocity.set(trueMovement.scale(1 / delta));
+                float distanceOvershot = travelThisFrame - distanceToGo;
+                extraPercent = distanceOvershot / travelThisFrame;
+                body.velocity.set(distanceToDestination.scale(1 / delta));
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
-                body.velocity.set(difference.normalize().scale(targetPoint.speed));
+                body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed + targetPoint.speed * extraPercent));
             }
         }
     }
