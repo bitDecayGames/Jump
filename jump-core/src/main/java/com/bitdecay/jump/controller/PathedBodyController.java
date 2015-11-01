@@ -1,6 +1,7 @@
 package com.bitdecay.jump.controller;
 
 import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.PathPoint;
 
@@ -46,7 +47,12 @@ public class PathedBodyController implements BitBodyController{
                 // Find how far along the next path we should have moved because of overshooting our current target
                 float distanceOvershot = travelThisFrame - distanceToGo;
                 extraPercent = distanceOvershot / travelThisFrame;
-                body.velocity.set(distanceToDestination.scale(1 / delta));
+                /**
+                 * We set velocity instead of position so the engine can do the actual move. But in doing this
+                 * we have to adjust the velocity based on the delta to make sure we move the right distance
+                 * next update.
+                 */
+                body.velocity.set(distanceToDestination.scale(BitWorld.STEP_PER_SEC));
                 pause = targetPoint.stayTime;
                 targetPoint = null;
             } else {
