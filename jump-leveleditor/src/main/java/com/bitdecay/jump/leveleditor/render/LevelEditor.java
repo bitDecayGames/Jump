@@ -71,6 +71,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     // a flags to control whether we are moving the world forward or not
     private boolean stepWorld = true;
     private boolean singleStep = false;
+    private long editorUpdates = 0;
 
     private EditorHook hooker;
 
@@ -140,6 +141,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     @Override
     public void render(float delta) {
+        editorUpdates++;
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 //        fpsLogger.log();
@@ -281,6 +283,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
         if (!stepWorld && (Gdx.input.isKeyJustPressed(Keys.PLUS) || Gdx.input.isKeyJustPressed(Keys.EQUALS))) {
             singleStep = true;
+        }
+
+        if (Gdx.input.isKeyPressed(Keys.MINUS)) {
+            stepWorld = false;
+            if (editorUpdates % 4 == 0) {
+                singleStep = true;
+            }
         }
 
         if (Gdx.input.isKeyPressed(Keys.LEFT)) {

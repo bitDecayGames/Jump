@@ -7,6 +7,7 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.builder.TileObject;
+import com.bitdecay.jump.properties.KineticProperties;
 
 /**
  * A Pseudo-Physics simulation world. Will step according to all body's
@@ -42,7 +43,13 @@ public class BitWorld {
 	private Map<BitBody, BitResolution> pendingResolutions;
 	private Map<BitBody, Set<BitBody>> contacts;
 
+	/**
+	 * A READ-ONLY easy-access to gravity. Use setGravity(...) so that other things are properly set
+	 * internally.
+	 */
 	public static BitPoint gravity = new BitPoint(0, 0);
+	private static BitPoint perpendicularGravity = new BitPoint(0, 0);
+
 	public static BitPoint maxSpeed = new BitPoint(2000, 2000);
 
 	private List<BitBody> pendingAdds;
@@ -65,6 +72,9 @@ public class BitWorld {
 	public void setGravity(float x, float y) {
 		this.gravity.x = x;
 		this.gravity.y = y;
+		this.perpendicularGravity.x = -y;
+		this.perpendicularGravity.y = x;
+		perpendicularGravity = perpendicularGravity.normalize();
 	}
 
 	public void addBody(BitBody body) {
@@ -172,7 +182,6 @@ public class BitWorld {
 		 * END COLLISIONS
 		 */
 
-
 		resolveAndApplyPendingResolutions();
 
 		dynamicBodies.parallelStream().forEach(body -> {
@@ -201,7 +210,13 @@ public class BitWorld {
 			 * than the parents to guarantee that it still
 			 * collides if nothing else influences it's motion
 			 */
-			BitPoint influence = body.currentAttempt.shrink(MathUtils.FLOAT_PRECISION);
+			BitPoint influence;
+			if (body.props instanceof KineticProperties && ((KineticProperties)body.props).sticky) {
+				influence = body.currentAttempt.shrink(MathUtils.FLOAT_PRECISION);
+			} else {
+				influence = perpendicularGravity.scale(body.currentAttempt.dot(perpendicularGravity));
+			}
+
 			child.aabb.translate(influence);
 			// the child did attempt to move this additional amount according to our engine
 			child.currentAttempt.add(influence);
