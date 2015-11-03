@@ -5,16 +5,12 @@ public enum OptionsMode {
     MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
     DELETE("Delete", ModeType.MOUSE, 0),
     PROPERTY_INSPECT("Inspect", ModeType.MOUSE, 0),
+    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 0),
 
     CREATE("Create", ModeType.MOUSE, 1),
     ONEWAY("One Way", ModeType.MOUSE, 1),
 
     DROP_OBJECT("Drop Object", ModeType.MOUSE, 2),
-
-    SET_TEST_PLAYER("Set Test Player", ModeType.MOUSE, 3),
-    SAVE_PLAYER("Save Player Props", ModeType.ACTION, 3),
-    LOAD_PLAYER("Load Player Props", ModeType.ACTION, 3),
-    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 3),
 
     BACKGROUND("Set Background", ModeType.MOUSE, 4),
 
