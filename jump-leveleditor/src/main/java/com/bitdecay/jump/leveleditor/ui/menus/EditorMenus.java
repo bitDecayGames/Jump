@@ -46,7 +46,6 @@ public class EditorMenus {
         stage = new Stage();
         topMenus.put(MenuPage.MainMenu, buildMainMenu());
         topMenus.put(MenuPage.CreateMenu, buildCreateMenu());
-        topMenus.put(MenuPage.PlayerMenu, buildPlayerMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
         rightMenus.put(MenuPage.BackgroundMenu, buildBackgroundMenu(hooker.getBackgrounds()));
@@ -71,15 +70,6 @@ public class EditorMenus {
             }
         });
         menu.add(toolsBtn).height(30);
-
-        playerPropsBtn = new TextButton("player properties", skin, "button");
-        playerPropsBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                topMenuTransition(MenuPage.PlayerMenu);
-            }
-        });
-        menu.add(playerPropsBtn).height(30);
 
         for(OptionsMode mode : OptionsMode.values()) {
             if(mode.group == -1) {
@@ -189,37 +179,6 @@ public class EditorMenus {
                 createGroup.setChecked(OptionsMode.SELECT.label);
             }
         });
-        return menu;
-    }
-
-    private Actor buildPlayerMenu() {
-        Table menu = new Table();
-        menu.setWidth(stage.getWidth());
-        menu.align(Align.top);
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == 3) {
-                TextButton button = new TextButton(mode.label, skin, "button");
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                    }
-                });
-                menu.add(button).height(30);
-            }
-        }
-
-        addBackButtonAndFinalizeMenu(menu, new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        topMenuTransition(MenuPage.MainMenu);
-                        rightMenuTransition(null);
-                        levelEditor.setMode(OptionsMode.SELECT);
-                    }
-                });
-
-
         return menu;
     }
 

@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback, PropModUICallback {
+public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
 
     public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
     private EditorMenus menus;
@@ -401,10 +401,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             curLevelBuilder.undo();
         } else if (OptionsMode.REDO.equals(mode)) {
             curLevelBuilder.redo();
-        } else if (OptionsMode.SAVE_PLAYER.equals(mode)) {
-            saveProps();
-        } else if (OptionsMode.LOAD_PLAYER.equals(mode)) {
-            loadProps();
         } else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
             setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder, true));
         } else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
@@ -416,39 +412,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
-    private void saveProps() {
-//        BitBody player = maybeGetPlayer();
-//        if (player != null) {
-//            FileUtils.saveToFile(player);
-//        }
-    }
-
-    private void loadProps() {
-//        BitBody player = maybeGetPlayer();
-//        if (player != null) {
-//            player = FileUtils.loadFileAs(BitBodyProperties.class);
-//        }
-    }
-
     private void setLevelBuilder(Level level) {
         if (level == null) {
             curLevelBuilder.newLevel(16);
         } else {
             curLevelBuilder.setLevel(level);
         }
-    }
-
-    @Override
-    public void propertyChanged(String prop, Object value) {
-        System.out.println(prop + " = " + value);
-//        BitBody player = maybeGetPlayer();
-//        if (player != null) {
-//            try {
-//                player.set(prop, value);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     public void dropObject(Class objectClass) {
