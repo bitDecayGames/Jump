@@ -47,16 +47,26 @@ public class PathedBodyController implements BitBodyController{
                 // Find how far along the next path we should have moved because of overshooting our current target
                 float distanceOvershot = travelThisFrame - distanceToGo;
                 extraPercent = distanceOvershot / travelThisFrame;
-                /**
-                 * We set velocity instead of position so the engine can do the actual move. But in doing this
-                 * we have to adjust the velocity based on the delta to make sure we move the right distance
-                 * next update.
-                 */
-                body.velocity.set(distanceToDestination.scale(BitWorld.STEP_PER_SEC));
-                pause = targetPoint.stayTime;
+                if (targetPoint.stayTime > 0) {
+                    /**
+                     * We set velocity instead of position so the engine can do the actual move. But in doing this
+                     * we have to adjust the velocity based on the delta to make sure we move the right distance
+                     * next update.
+                     */
+                    BitPoint velToReachPoint = distanceToDestination.scale(BitWorld.STEP_PER_SEC);
+                    body.velocity.set(velToReachPoint);
+                    pause = targetPoint.stayTime - delta * extraPercent;
+                } else {
+                    PathPoint nextPoint = pickNextPathPoint(false);
+                    float additionalTravel = nextPoint.speed * delta * extraPercent;
+                    BitPoint trueMovement = distanceToDestination.plus(nextPoint.destination.minus(targetPoint.destination).normalize().scale(additionalTravel));
+                    body.velocity.set(trueMovement.scale(BitWorld.STEP_PER_SEC));
+                }
+
                 targetPoint = null;
             } else {
-                body.velocity.set(distanceToDestination.normalize().scale(targetPoint.speed * (1 + extraPercent)));
+                BitPoint movement = distanceToDestination.normalize().scale(targetPoint.speed);
+                body.velocity.set(movement);
                 extraPercent = 0;
             }
         }

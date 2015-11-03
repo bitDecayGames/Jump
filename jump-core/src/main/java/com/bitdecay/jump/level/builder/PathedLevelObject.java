@@ -5,6 +5,7 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.controller.PathedBodyController;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.PathPoint;
+import com.bitdecay.jump.properties.KineticProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 public class PathedLevelObject extends LevelObject {
 	public List<PathPoint> pathPoints;
 	public boolean pendulum;
+	public boolean sticky;
 
 	public PathedLevelObject() {
 		// Here for Json
@@ -34,6 +36,10 @@ public class PathedLevelObject extends LevelObject {
 		BitBody body = new BitBody();
 		body.aabb = rect.copyOf();
 		body.bodyType = BodyType.KINETIC;
+		KineticProperties kinProps = new KineticProperties();
+		kinProps.sticky = sticky;
+		body.props = kinProps;
+
 
 		List<PathPoint> path = new ArrayList<>();
 		pathPoints.forEach(point -> path.add(new PathPoint(rect.xy.plus(point.destination.x, point.destination.y), point.speed, point.stayTime)));
