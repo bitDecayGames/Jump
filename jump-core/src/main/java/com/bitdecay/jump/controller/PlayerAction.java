@@ -1,4 +1,4 @@
-package com.bitdecay.jump.leveleditor.input;
+package com.bitdecay.jump.controller;
 
 public enum PlayerAction {
     UP,

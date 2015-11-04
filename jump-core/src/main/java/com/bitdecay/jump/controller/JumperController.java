@@ -2,11 +2,14 @@ package com.bitdecay.jump.controller;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.controller.state.MotionState;
 import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.properties.JumperProperties;
 
 public class JumperController extends BasicBodyController {
 	private JumperProperties props;
+
+	private MotionState state;
 
 	// state stuff
 	public boolean requestJump = false;

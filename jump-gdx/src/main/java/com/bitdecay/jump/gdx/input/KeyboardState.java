@@ -1,4 +1,4 @@
-package com.bitdecay.jump.leveleditor.input;
+package com.bitdecay.jump.gdx.input;
 
 import com.badlogic.gdx.InputProcessor;
 

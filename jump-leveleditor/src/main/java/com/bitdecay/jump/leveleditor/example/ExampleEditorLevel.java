@@ -20,8 +20,8 @@ import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.example.game.GameObject;
 import com.bitdecay.jump.leveleditor.example.game.SecretObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
-import com.bitdecay.jump.leveleditor.input.ControlMap;
-import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.gdx.input.GDXControls;
+import com.bitdecay.jump.controller.PlayerInputHandler;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.state.JumperStateWatcher;
 
@@ -53,7 +53,7 @@ public class ExampleEditorLevel implements EditorHook {
 
     @Override
     public void update(float delta) {
-        playerController.update();
+        playerController.update(delta);
         world.step(delta);
     }
 
@@ -148,7 +148,7 @@ public class ExampleEditorLevel implements EditorHook {
             playerController = new PlayerInputHandler();
             playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
             playerBody.stateWatcher = new JumperStateWatcher();
-            playerController.setBody(playerBody, ControlMap.defaultMapping);
+            playerController.setBody(playerBody, GDXControls.defaultMapping);
             world.addBody(playerBody);
         }
     }
