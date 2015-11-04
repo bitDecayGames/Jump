@@ -21,22 +21,6 @@ public class PlayerInputHandler {
     public void update(float delta) {
         if (body != null) {
             state = state.update(delta, body, controls);
-//            // make sure we only send one jump request through per push of the button.
-//            if (controls.isJustPressed(PlayerAction.JUMP)) {
-//                bodyController.startJump();
-//            } else if (!controls.isPressed(PlayerAction.JUMP)) {
-//                bodyController.stopJump();
-//            }
-//            if (controls.isPressed(PlayerAction.LEFT)) {
-//                bodyController.goLeft(true);
-//            } else {
-//                bodyController.goLeft(false);
-//            }
-//            if (controls.isPressed(PlayerAction.RIGHT)) {
-//                bodyController.goRight(true);
-//            } else {
-//                bodyController.goRight(false);
-//            }
         }
     }
 }

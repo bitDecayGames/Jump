@@ -36,7 +36,7 @@ public class GroundedState extends SidewaysState {
                 return new FallingState();
             }
         }
-        if (controls.isPressed(PlayerAction.JUMP)) {
+        if (controls.isJustPressed(PlayerAction.JUMP)) {
             return new JumpingState();
         }
         return this;
