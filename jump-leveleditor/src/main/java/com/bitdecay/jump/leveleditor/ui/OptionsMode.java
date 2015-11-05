@@ -12,7 +12,7 @@ public enum OptionsMode {
 
     DROP_OBJECT("Drop Object", ModeType.MOUSE, 2),
 
-    BACKGROUND("Set Background", ModeType.MOUSE, 4),
+    THEME("Set Theme", ModeType.MOUSE, 4),
 
     SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
     LOAD_LEVEL("Load Level", ModeType.ACTION, -1),

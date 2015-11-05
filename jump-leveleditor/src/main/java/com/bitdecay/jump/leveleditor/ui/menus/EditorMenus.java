@@ -18,7 +18,6 @@ import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class EditorMenus {
         topMenus.put(MenuPage.CreateMenu, buildCreateMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
-        rightMenus.put(MenuPage.BackgroundMenu, buildBackgroundMenu(hooker.getBackgrounds()));
+        rightMenus.put(MenuPage.BackgroundMenu, buildBackgroundMenu(hooker.getThemes()));
         topMenuTransition(MenuPage.MainMenu);
     }
 
