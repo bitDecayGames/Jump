@@ -16,6 +16,6 @@ public interface EditorHook extends LevelBuilderListener {
     void render(OrthographicCamera cam);
     BitWorld getWorld();
     List<EditorIdentifierObject> getTilesets();
-    List<EditorIdentifierObject> getBackgrounds();
+    List<EditorIdentifierObject> getThemes();
     List<RenderableLevelObject> getCustomObjects();
 }

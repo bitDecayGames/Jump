@@ -161,7 +161,7 @@ public class ExampleEditorLevel implements EditorHook {
     }
 
     @Override
-    public List<EditorIdentifierObject> getBackgrounds() {
+    public List<EditorIdentifierObject> getThemes() {
         TextureRegion noneThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/noneThumb.png")));
         TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
         TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
