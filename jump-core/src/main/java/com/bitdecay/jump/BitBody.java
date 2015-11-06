@@ -1,7 +1,7 @@
 package com.bitdecay.jump;
 
 import com.bitdecay.jump.collision.ContactListener;
-import com.bitdecay.jump.controller.BitBodyController;
+import com.bitdecay.jump.control.BitBodyController;
 import com.bitdecay.jump.exception.BitBodySerializeException;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
@@ -13,6 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A basic body in the world. Holds all stateful information as well as a properties
+ * object defining the limits of the state.
+ */
 public class BitBody {
 
     /**

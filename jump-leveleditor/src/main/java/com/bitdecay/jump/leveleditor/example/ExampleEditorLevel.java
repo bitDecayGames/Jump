@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
+import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
@@ -20,8 +21,8 @@ import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.example.game.GameObject;
 import com.bitdecay.jump.leveleditor.example.game.SecretObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
-import com.bitdecay.jump.leveleditor.input.ControlMap;
-import com.bitdecay.jump.leveleditor.input.PlayerInputHandler;
+import com.bitdecay.jump.gdx.input.GDXControls;
+import com.bitdecay.jump.control.PlayerInputController;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.render.JumperRenderStateWatcher;
 
@@ -37,7 +38,6 @@ public class ExampleEditorLevel implements EditorHook {
     TextureRegion[] sampleTiles;
 
     Level currentLevel;
-    PlayerInputHandler playerController = new PlayerInputHandler();
 
     Map<Class, Class> builderMap = new HashMap<>();
 
@@ -53,7 +53,6 @@ public class ExampleEditorLevel implements EditorHook {
 
     @Override
     public void update(float delta) {
-        playerController.update();
         world.step(delta);
     }
 
@@ -141,14 +140,14 @@ public class ExampleEditorLevel implements EditorHook {
         world.resetTimePassed();
 
         if (level.spawn != null) {
-            BitBody playerBody = new BitBody();
+            JumperBody playerBody = new JumperBody();
             playerBody.props = level.spawn.props;
 
             playerBody.bodyType = BodyType.DYNAMIC;
-            playerController = new PlayerInputHandler();
             playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
             playerBody.renderStateWatcher = new JumperRenderStateWatcher();
-            playerController.setBody(playerBody, ControlMap.defaultMapping);
+            playerBody.controller = new PlayerInputController(GDXControls.defaultMapping);
+
             world.addBody(playerBody);
         }
     }

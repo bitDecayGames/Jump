@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.controller.PathedBodyController;
+import com.bitdecay.jump.control.PathedBodyController;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;

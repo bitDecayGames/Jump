@@ -1,4 +1,4 @@
-package com.bitdecay.jump.controller;
+package com.bitdecay.jump.control;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by Monday on 10/8/2015.
  */
-public class PathedBodyController implements BitBodyController{
+public class PathedBodyController implements BitBodyController {
     public List<PathPoint> path;
     public boolean pendulum;
 
