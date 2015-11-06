@@ -9,7 +9,7 @@ import com.bitdecay.jump.geom.BitPoint;
 /**
  * Created by Monday on 11/4/2015.
  */
-public abstract class SidewaysState implements MotionState {
+public abstract class SidewaysState implements JumperControlState {
     protected void handleLeftRight(float delta, BitBody body, ControlMap controls, BitPoint accel, BitPoint decel) {
         boolean requestLeft = controls.isPressed(PlayerAction.LEFT);
         boolean requestRight = controls.isPressed(PlayerAction.RIGHT);

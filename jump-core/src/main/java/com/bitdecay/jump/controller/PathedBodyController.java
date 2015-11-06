@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by Monday on 10/8/2015.
  */
-public class PathedBodyController implements BitBodyController{
+public class PathedBodyController implements BitBodyController {
     public List<PathPoint> path;
     public boolean pendulum;
 
