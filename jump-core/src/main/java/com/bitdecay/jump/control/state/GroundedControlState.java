@@ -1,14 +1,14 @@
-package com.bitdecay.jump.controller.state;
+package com.bitdecay.jump.control.state;
 
 import com.bitdecay.jump.JumperBody;
-import com.bitdecay.jump.controller.ControlMap;
-import com.bitdecay.jump.controller.PlayerAction;
+import com.bitdecay.jump.control.ControlMap;
+import com.bitdecay.jump.control.PlayerAction;
 import com.bitdecay.jump.properties.JumperProperties;
 
 /**
  * Created by Monday on 11/3/2015.
  */
-public class GroundedState extends SidewaysState {
+public class GroundedControlState extends SidewaysControlState {
     public float jumpGracePeriod = 0;
 
     @Override
@@ -19,12 +19,12 @@ public class GroundedState extends SidewaysState {
     }
 
     @Override
-    public JumperControlState update(float delta, JumperBody body, ControlMap controls) {
+    public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
         handleLeftRight(delta, body, controls, body.props.acceleration, body.props.deceleration);
         return checkStateChange(delta, body, controls);
     }
 
-    private JumperControlState checkStateChange(float delta, JumperBody body, ControlMap controls) {
+    private JumperBodyControlState checkStateChange(float delta, JumperBody body, ControlMap controls) {
         JumperProperties props;
         if (body.props instanceof JumperProperties) {
             props = (JumperProperties) body.props;
@@ -34,11 +34,11 @@ public class GroundedState extends SidewaysState {
         if (!body.grounded) {
             jumpGracePeriod += delta;
             if (jumpGracePeriod > props.jumpGraceWindow) {
-                return new FallingState();
+                return new FallingControlState();
             }
         }
         if (controls.isJustPressed(PlayerAction.JUMP)) {
-            return new JumpingState();
+            return new JumpingControlState();
         }
         return this;
     }

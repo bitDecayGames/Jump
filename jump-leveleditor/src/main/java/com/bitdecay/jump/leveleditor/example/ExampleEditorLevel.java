@@ -22,7 +22,7 @@ import com.bitdecay.jump.leveleditor.example.game.GameObject;
 import com.bitdecay.jump.leveleditor.example.game.SecretObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.gdx.input.GDXControls;
-import com.bitdecay.jump.controller.PlayerInputController;
+import com.bitdecay.jump.control.PlayerInputController;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.state.JumperStateWatcher;
 

@@ -1,4 +1,4 @@
-package com.bitdecay.jump.controller;
+package com.bitdecay.jump.control;
 
 /**
  * Created by Monday on 11/3/2015.

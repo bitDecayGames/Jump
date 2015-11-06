@@ -1,8 +1,8 @@
 package com.bitdecay.jump.gdx.input;
 
 import com.badlogic.gdx.Input.Keys;
-import com.bitdecay.jump.controller.ControlMap;
-import com.bitdecay.jump.controller.PlayerAction;
+import com.bitdecay.jump.control.ControlMap;
+import com.bitdecay.jump.control.PlayerAction;
 
 import java.util.HashMap;
 import java.util.Map;

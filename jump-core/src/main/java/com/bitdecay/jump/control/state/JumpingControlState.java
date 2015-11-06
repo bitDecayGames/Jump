@@ -1,16 +1,16 @@
-package com.bitdecay.jump.controller.state;
+package com.bitdecay.jump.control.state;
 
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.controller.ControlMap;
-import com.bitdecay.jump.controller.PlayerAction;
+import com.bitdecay.jump.control.ControlMap;
+import com.bitdecay.jump.control.PlayerAction;
 import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.properties.JumperProperties;
 
 /**
  * Created by Monday on 11/3/2015.
  */
-public class JumpingState extends SidewaysState {
+public class JumpingControlState extends SidewaysControlState {
     /**
      * A simple flag so we can make sure actually leaves the ground on the first update of a jump
      */
@@ -25,7 +25,7 @@ public class JumpingState extends SidewaysState {
     }
 
     @Override
-    public JumperControlState update(float delta, JumperBody body, ControlMap controls) {
+    public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
 
         handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
         JumperProperties props;
@@ -46,10 +46,10 @@ public class JumpingState extends SidewaysState {
                 jumpVariableHeightWindow += delta;
                 return this;
             } else {
-                return new FallingState();
+                return new FallingControlState();
             }
         } else {
-            return new GroundedState();
+            return new GroundedControlState();
         }
     }
 }

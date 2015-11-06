@@ -1,4 +1,4 @@
-package com.bitdecay.jump.controller;
+package com.bitdecay.jump.control;
 
 public enum PlayerAction {
     UP,

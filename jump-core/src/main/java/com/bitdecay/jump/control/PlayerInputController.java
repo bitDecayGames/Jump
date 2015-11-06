@@ -1,13 +1,13 @@
-package com.bitdecay.jump.controller;
+package com.bitdecay.jump.control;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.JumperBody;
-import com.bitdecay.jump.controller.state.GroundedState;
-import com.bitdecay.jump.controller.state.JumperControlState;
+import com.bitdecay.jump.control.state.GroundedControlState;
+import com.bitdecay.jump.control.state.JumperBodyControlState;
 
 public class PlayerInputController implements BitBodyController {
     private ControlMap controls;
-    private JumperControlState state = new GroundedState();
+    private JumperBodyControlState state = new GroundedControlState();
 
     public PlayerInputController(ControlMap controls) {
         this.controls = controls;
@@ -15,7 +15,7 @@ public class PlayerInputController implements BitBodyController {
 
     public void update(float delta, BitBody body) {
         if (body instanceof JumperBody) {
-            JumperControlState newState = state.update(delta, (JumperBody) body, controls);
+            JumperBodyControlState newState = state.update(delta, (JumperBody) body, controls);
             if (newState != state) {
                 newState.stateEntered((JumperBody) body, controls);
             }

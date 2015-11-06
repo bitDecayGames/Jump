@@ -1,14 +1,14 @@
-package com.bitdecay.jump.controller.state;
+package com.bitdecay.jump.control.state;
 
 import com.bitdecay.jump.JumperBody;
-import com.bitdecay.jump.controller.ControlMap;
-import com.bitdecay.jump.controller.PlayerAction;
+import com.bitdecay.jump.control.ControlMap;
+import com.bitdecay.jump.control.PlayerAction;
 import com.bitdecay.jump.properties.JumperProperties;
 
 /**
  * Created by Monday on 11/3/2015.
  */
-public class FallingState extends SidewaysState {
+public class FallingControlState extends SidewaysControlState {
     float preJumpTimer;
     boolean waitingForRelease;
 
@@ -21,7 +21,7 @@ public class FallingState extends SidewaysState {
     }
 
     @Override
-    public JumperControlState update(float delta, JumperBody body, ControlMap controls) {
+    public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
         handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
         if (!controls.isPressed(PlayerAction.JUMP)) {
             waitingForRelease = false;
@@ -29,13 +29,13 @@ public class FallingState extends SidewaysState {
 
         if (body.grounded) {
             if (!waitingForRelease && controls.isPressed(PlayerAction.JUMP) && preJumpTimer <= ((JumperProperties)body.props).jumpGraceWindow) {
-                return new JumpingState();
+                return new JumpingControlState();
             } else {
-                return new GroundedState();
+                return new GroundedControlState();
             }
         } else if (!waitingForRelease && controls.isPressed(PlayerAction.JUMP)) {
             if (body.jumpsRemaining > 0) {
-                return new JumpingState();
+                return new JumpingControlState();
             } else {
                 preJumpTimer += delta;
             }
