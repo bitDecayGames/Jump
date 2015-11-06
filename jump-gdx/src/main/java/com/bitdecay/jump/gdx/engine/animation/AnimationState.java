@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.bitdecay.jump.common.State;
+import com.bitdecay.jump.common.RenderState;
 import com.bitdecay.jump.common.StateListener;
 
 import java.util.HashMap;
@@ -13,14 +13,14 @@ import java.util.Map;
 
 public class AnimationState implements StateListener {
     private static final TextureRegion EMPTY_REGION = new TextureRegion(new Texture(new Pixmap(10, 10, Format.RGBA8888)));
-    private Map<State, Animation> animations = new HashMap<State, Animation>();
-    private State currentState;
+    private Map<RenderState, Animation> animations = new HashMap<RenderState, Animation>();
+    private RenderState currentState;
     private float elapsed;
 
     public AnimationState() {
     }
 
-    public void addState(State state, Animation animation) {
+    public void addState(RenderState state, Animation animation) {
         animations.put(state, animation);
     }
 
@@ -37,7 +37,7 @@ public class AnimationState implements StateListener {
     }
 
     @Override
-    public void stateChanged(State state) {
+    public void stateChanged(RenderState state) {
         if (!animations.containsKey(state)) {
             currentState = null;
         } else if (!state.equals(currentState)) {

@@ -24,7 +24,7 @@ import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.gdx.input.GDXControls;
 import com.bitdecay.jump.control.PlayerInputController;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
-import com.bitdecay.jump.state.JumperStateWatcher;
+import com.bitdecay.jump.render.JumperRenderStateWatcher;
 
 import java.util.*;
 
@@ -145,7 +145,7 @@ public class ExampleEditorLevel implements EditorHook {
 
             playerBody.bodyType = BodyType.DYNAMIC;
             playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
-            playerBody.stateWatcher = new JumperStateWatcher();
+            playerBody.renderStateWatcher = new JumperRenderStateWatcher();
             playerBody.controller = new PlayerInputController(GDXControls.defaultMapping);
 
             world.addBody(playerBody);

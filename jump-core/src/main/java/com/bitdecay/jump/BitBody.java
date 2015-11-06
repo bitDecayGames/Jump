@@ -6,7 +6,7 @@ import com.bitdecay.jump.exception.BitBodySerializeException;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.properties.BitBodyProperties;
-import com.bitdecay.jump.state.BitBodyStateWatcher;
+import com.bitdecay.jump.render.BitBodyStateWatcher;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,10 +58,10 @@ public class BitBody {
 	public BitBodyController controller = null;
 
 	/**
-	 * Optional state manager to automatically handle what state an object is in
+	 * Optional render manager to automatically handle what render an object is in
 	 * relative to the physics world
 	 */
-	public BitBodyStateWatcher stateWatcher = null;
+	public BitBodyStateWatcher renderStateWatcher = null;
 
     /**
      * Tracks the last position the body was. Generally this is the same thing as
