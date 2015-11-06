@@ -90,8 +90,8 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
 
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
         for (BitBody body : bodies) {
-            if (body.stateWatcher != null) {
-                LevelEditor.addStringForRender(body.stateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20));
+            if (body.renderStateWatcher != null) {
+                LevelEditor.addStringForRender(body.renderStateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20));
             }
             if (body.controller != null && body.controller instanceof PathedBodyController) {
                 renderer.setColor(BitColors.KINETIC_PATH);

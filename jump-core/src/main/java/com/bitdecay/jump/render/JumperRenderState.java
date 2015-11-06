@@ -1,10 +1,10 @@
-package com.bitdecay.jump.state;
+package com.bitdecay.jump.render;
 
-import com.bitdecay.jump.common.State;
+import com.bitdecay.jump.common.RenderState;
 import com.fasterxml.jackson.annotation.*;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum JumperState implements State {
+public enum JumperRenderState implements RenderState {
 	RIGHT_STANDING,
 	LEFT_STANDING,
 	RIGHT_RUNNING,
@@ -23,7 +23,7 @@ public enum JumperState implements State {
 	LEFT_PUSHED;
 
 	@JsonCreator
-	public static JumperState forValue(String value) {
+	public static JumperRenderState forValue(String value) {
 		return RIGHT_RUNNING;
 	}
 

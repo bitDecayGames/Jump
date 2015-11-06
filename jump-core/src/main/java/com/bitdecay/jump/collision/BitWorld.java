@@ -185,8 +185,8 @@ public class BitWorld {
 		resolveAndApplyPendingResolutions();
 
 		dynamicBodies.parallelStream().forEach(body -> {
-			if (body.active && body.stateWatcher != null) {
-				body.stateWatcher.update(body);
+			if (body.active && body.renderStateWatcher != null) {
+				body.renderStateWatcher.update(body);
 			}
 		});
 	}
