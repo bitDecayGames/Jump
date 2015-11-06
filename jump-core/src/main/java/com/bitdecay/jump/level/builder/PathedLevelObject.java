@@ -2,11 +2,10 @@ package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.controller.PathedBodyController;
+import com.bitdecay.jump.control.PathedBodyController;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.PathPoint;
 import com.bitdecay.jump.properties.KineticProperties;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;

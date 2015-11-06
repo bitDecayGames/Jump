@@ -3,6 +3,7 @@ package com.bitdecay.jump.properties;
 import com.bitdecay.jump.geom.BitPoint;
 
 /**
+ * Property object defining the configuration of a given body.
  * Created by Monday on 10/25/2015.
  */
 public class BitBodyProperties {
