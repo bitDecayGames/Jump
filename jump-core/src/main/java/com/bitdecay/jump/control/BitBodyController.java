@@ -4,4 +4,5 @@ import com.bitdecay.jump.BitBody;
 
 public interface BitBodyController {
 	void update(float delta, BitBody body);
+	String getStatus();
 }

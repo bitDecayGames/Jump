@@ -98,4 +98,9 @@ public class PathedBodyController implements BitBodyController {
         }
         return path.get(nextIndex);
     }
+
+    @Override
+    public String getStatus() {
+        return "Pathed";
+    }
 }

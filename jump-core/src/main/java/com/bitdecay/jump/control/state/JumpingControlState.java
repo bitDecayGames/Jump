@@ -25,6 +25,11 @@ public class JumpingControlState extends SidewaysControlState {
     }
 
     @Override
+    public void stateExited(JumperBody body, ControlMap controls) {
+        body.jumpsRemaining--;
+    }
+
+    @Override
     public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
 
         handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
@@ -34,6 +39,13 @@ public class JumpingControlState extends SidewaysControlState {
         } else {
             return this;
         }
+
+        if (props.jumpHittingHeadStopsJump){
+            if (BitWorld.gravity.dot(body.lastResolution) > 0) {
+                return new FallingControlState();
+            }
+        }
+
         if (firstUpdate || !body.grounded) {
             firstUpdate = false;
             if (controls.isPressed(PlayerAction.JUMP) && jumpVariableHeightWindow <= props.jumpVariableHeightWindow) {

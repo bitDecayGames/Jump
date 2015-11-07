@@ -17,9 +17,15 @@ public class PlayerInputController implements BitBodyController {
         if (body instanceof JumperBody) {
             JumperBodyControlState newState = state.update(delta, (JumperBody) body, controls);
             if (newState != state) {
+                state.stateExited((JumperBody) body, controls);
                 newState.stateEntered((JumperBody) body, controls);
             }
             state = newState;
         }
+    }
+
+    @Override
+    public String getStatus() {
+        return state.getClass().getSimpleName();
     }
 }
