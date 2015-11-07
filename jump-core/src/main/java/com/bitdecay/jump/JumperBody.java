@@ -1,10 +1,14 @@
 package com.bitdecay.jump;
 
+import com.bitdecay.jump.properties.JumperProperties;
+
 /**
  * A specialized body that holds state information specific to something platformer bodies
  * Created by Monday on 11/5/2015.
  */
 public class JumperBody extends BitBody {
+    public JumperProperties jumperProps;
+
     /**
      *
      */

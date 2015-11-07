@@ -3,7 +3,7 @@ package com.bitdecay.jump.properties;
 /**
  * Created by Monday on 10/25/2015.
  */
-public class JumperProperties extends BitBodyProperties {
+public class JumperProperties {
     /**
      * The number of jumps a body can make before needing to touch the ground again
      */
@@ -51,4 +51,9 @@ public class JumperProperties extends BitBodyProperties {
      * How hard a body jumps off the wall when performing a wall jump
      */
     public int wallJumpLaunchPower;
+
+    /**
+     * The maximum speed at which a a body can slide down a wall
+     */
+    public int wallMaxSlideSpeed;
 }

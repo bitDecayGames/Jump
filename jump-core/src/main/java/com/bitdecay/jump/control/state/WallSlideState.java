@@ -16,14 +16,11 @@ public class WallSlideState implements JumperBodyControlState {
     boolean wallLeft;
     int directionOfWall;
 
-    JumperProperties props;
-
     @Override
     public void stateEntered(JumperBody body, ControlMap controls) {
         wallLeft =  body.lastResolution.x > 0;
         directionOfWall = wallLeft ? -force_into_wall : force_into_wall;
         body.velocity.x = directionOfWall;
-        props = (JumperProperties) body.props;
     }
 
     @Override
@@ -42,8 +39,8 @@ public class WallSlideState implements JumperBodyControlState {
                 return new FallingControlState();
             }
 
-            if (props.wallJumpEnabled && controls.isJustPressed(PlayerAction.JUMP)) {
-                body.velocity.x = props.wallJumpLaunchPower * (wallLeft ? 1 : -1);
+            if (body.jumperProps.wallJumpEnabled && controls.isJustPressed(PlayerAction.JUMP)) {
+                body.velocity.x = body.jumperProps.wallJumpLaunchPower * (wallLeft ? 1 : -1);
                 return new JumpingControlState();
             }
 
@@ -51,6 +48,11 @@ public class WallSlideState implements JumperBodyControlState {
                 return new FallingControlState();
             }
             body.velocity.x = directionOfWall;
+            if (body.jumperProps.wallMaxSlideSpeed == 0) {
+                body.velocity.y = 0;
+            } else if (body.jumperProps.wallMaxSlideSpeed > 0) {
+                body.velocity.y = Math.max(body.velocity.y, -body.jumperProps.wallMaxSlideSpeed);
+            }
             return this;
         }
     }

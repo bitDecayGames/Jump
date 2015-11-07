@@ -32,18 +32,11 @@ public class JumpingControlState extends SidewaysControlState {
     public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
 
         handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
-        JumperProperties props;
-        if (body.props instanceof JumperProperties) {
-            props = (JumperProperties) body.props;
-        } else {
-            return this;
-        }
-
-        if (props.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
+        if (body.jumperProps.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
             return new WallSlideState();
         }
 
-        if (props.jumpHittingHeadStopsJump){
+        if (body.jumperProps.jumpHittingHeadStopsJump){
             if (BitWorld.gravity.dot(body.lastResolution) > 0) {
                 return new FallingControlState();
             }
@@ -51,12 +44,12 @@ public class JumpingControlState extends SidewaysControlState {
 
         if (firstUpdate || !body.grounded) {
             firstUpdate = false;
-            if (controls.isPressed(PlayerAction.JUMP) && jumpVariableHeightWindow <= props.jumpVariableHeightWindow) {
-                if (body.jumpsRemaining == ((JumperProperties) body.props).jumpCount) {
+            if (controls.isPressed(PlayerAction.JUMP) && jumpVariableHeightWindow <= body.jumperProps.jumpVariableHeightWindow) {
+                if (body.jumpsRemaining == body.jumperProps.jumpCount) {
                     // first jump
-                    body.velocity.y = props.jumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, props.jumpStrength) ? -1 : 1);
+                    body.velocity.y = body.jumperProps.jumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpStrength) ? -1 : 1);
                 } else {
-                    body.velocity.y = props.jumpDoubleJumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, props.jumpDoubleJumpStrength) ? -1 : 1);
+                    body.velocity.y = body.jumperProps.jumpDoubleJumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpDoubleJumpStrength) ? -1 : 1);
                 }
                 jumpVariableHeightWindow += delta;
                 return this;

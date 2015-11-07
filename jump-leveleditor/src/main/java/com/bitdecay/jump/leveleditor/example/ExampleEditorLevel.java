@@ -142,6 +142,7 @@ public class ExampleEditorLevel implements EditorHook {
         if (level.spawn != null) {
             JumperBody playerBody = new JumperBody();
             playerBody.props = level.spawn.props;
+            playerBody.jumperProps = level.spawn.jumpProps;
 
             playerBody.bodyType = BodyType.DYNAMIC;
             playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
