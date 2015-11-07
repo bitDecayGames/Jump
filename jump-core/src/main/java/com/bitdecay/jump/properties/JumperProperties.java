@@ -51,4 +51,9 @@ public class JumperProperties {
      * How hard a body jumps off the wall when performing a wall jump
      */
     public int wallJumpLaunchPower;
+
+    /**
+     * The maximum speed at which a a body can slide down a wall
+     */
+    public int wallMaxSlideSpeed;
 }

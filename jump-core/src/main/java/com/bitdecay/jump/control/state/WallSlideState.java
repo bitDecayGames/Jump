@@ -48,6 +48,11 @@ public class WallSlideState implements JumperBodyControlState {
                 return new FallingControlState();
             }
             body.velocity.x = directionOfWall;
+            if (body.jumperProps.wallMaxSlideSpeed == 0) {
+                body.velocity.y = 0;
+            } else if (body.jumperProps.wallMaxSlideSpeed > 0) {
+                body.velocity.y = Math.max(body.velocity.y, -body.jumperProps.wallMaxSlideSpeed);
+            }
             return this;
         }
     }
