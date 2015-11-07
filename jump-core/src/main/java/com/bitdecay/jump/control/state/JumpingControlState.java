@@ -20,7 +20,6 @@ public class JumpingControlState extends SidewaysControlState {
     @Override
     public void stateEntered(JumperBody body, ControlMap controls) {
         body.jumpsPerformed++;
-        System.out.println("Jumping");
         firstUpdate = true;
     }
 
@@ -38,6 +37,10 @@ public class JumpingControlState extends SidewaysControlState {
             props = (JumperProperties) body.props;
         } else {
             return this;
+        }
+
+        if (props.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
+            return new WallSlideState();
         }
 
         if (props.jumpHittingHeadStopsJump){

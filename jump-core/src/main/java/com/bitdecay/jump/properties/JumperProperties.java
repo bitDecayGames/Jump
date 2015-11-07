@@ -36,4 +36,19 @@ public class JumperProperties extends BitBodyProperties {
      * to immediately end.
      */
     public boolean jumpHittingHeadStopsJump = true;
+
+    /**
+     * If true, a body can wall slide when falling past a wall
+     */
+    public boolean wallSlideEnabled;
+
+    /**
+     * If true, a body can wall slide when falling past a wall
+     */
+    public boolean wallJumpEnabled;
+
+    /**
+     * How hard a body jumps off the wall when performing a wall jump
+     */
+    public int wallJumpLaunchPower;
 }

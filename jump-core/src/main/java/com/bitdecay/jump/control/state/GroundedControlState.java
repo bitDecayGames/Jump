@@ -15,7 +15,6 @@ public class GroundedControlState extends SidewaysControlState {
     public void stateEntered(JumperBody body, ControlMap controls) {
         body.jumpsPerformed = 0;
         body.jumpsRemaining = ((JumperProperties)body.props).jumpCount;
-        System.out.println("Grounded");
     }
 
     @Override

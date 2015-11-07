@@ -13,11 +13,13 @@ public class FallingControlState extends SidewaysControlState {
     float preJumpTimer;
     boolean waitingForRelease;
 
+    JumperProperties props;
+
     @Override
     public void stateEntered(JumperBody body, ControlMap controls) {
         waitingForRelease = controls.isPressed(PlayerAction.JUMP);
         preJumpTimer = 0;
-        System.out.println("Falling");
+        props = (JumperProperties) body.props;
     }
 
     @Override
@@ -27,15 +29,15 @@ public class FallingControlState extends SidewaysControlState {
 
     @Override
     public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
-        handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
-
-        if (BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
-            return new WallSlideState();
-        }
-
         if (!controls.isPressed(PlayerAction.JUMP)) {
             waitingForRelease = false;
         }
+
+        if (props.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
+            return new WallSlideState();
+        }
+
+        handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
 
         if (body.grounded) {
             if (!waitingForRelease && controls.isPressed(PlayerAction.JUMP) && preJumpTimer <= ((JumperProperties)body.props).jumpGraceWindow) {
