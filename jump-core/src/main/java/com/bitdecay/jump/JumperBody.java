@@ -14,4 +14,9 @@ public class JumperBody extends BitBody {
      *
      */
     public int jumpsRemaining = 0;
+
+    /**
+     * If true, a body will jump immediately upon becoming grounded
+     */
+    public boolean bunnyHop;
 }

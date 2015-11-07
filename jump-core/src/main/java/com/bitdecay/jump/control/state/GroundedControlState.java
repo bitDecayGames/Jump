@@ -15,7 +15,11 @@ public class GroundedControlState extends SidewaysControlState {
     public void stateEntered(JumperBody body, ControlMap controls) {
         body.jumpsPerformed = 0;
         body.jumpsRemaining = ((JumperProperties)body.props).jumpCount;
-        System.out.println("Grounded");
+    }
+
+    @Override
+    public void stateExited(JumperBody body, ControlMap controls) {
+
     }
 
     @Override
@@ -34,10 +38,12 @@ public class GroundedControlState extends SidewaysControlState {
         if (!body.grounded) {
             jumpGracePeriod += delta;
             if (jumpGracePeriod > props.jumpGraceWindow) {
+                body.jumpsRemaining--;
                 return new FallingControlState();
             }
         }
-        if (controls.isJustPressed(PlayerAction.JUMP)) {
+        if (body.jumpsRemaining > 0 && controls.isJustPressed(PlayerAction.JUMP) || (controls.isPressed(PlayerAction.JUMP) && body.bunnyHop)) {
+            body.bunnyHop = false;
             return new JumpingControlState();
         }
         return this;

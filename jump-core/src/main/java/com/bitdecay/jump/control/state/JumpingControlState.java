@@ -20,8 +20,12 @@ public class JumpingControlState extends SidewaysControlState {
     @Override
     public void stateEntered(JumperBody body, ControlMap controls) {
         body.jumpsPerformed++;
-        System.out.println("Jumping");
         firstUpdate = true;
+    }
+
+    @Override
+    public void stateExited(JumperBody body, ControlMap controls) {
+        body.jumpsRemaining--;
     }
 
     @Override
@@ -34,6 +38,17 @@ public class JumpingControlState extends SidewaysControlState {
         } else {
             return this;
         }
+
+        if (props.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
+            return new WallSlideState();
+        }
+
+        if (props.jumpHittingHeadStopsJump){
+            if (BitWorld.gravity.dot(body.lastResolution) > 0) {
+                return new FallingControlState();
+            }
+        }
+
         if (firstUpdate || !body.grounded) {
             firstUpdate = false;
             if (controls.isPressed(PlayerAction.JUMP) && jumpVariableHeightWindow <= props.jumpVariableHeightWindow) {

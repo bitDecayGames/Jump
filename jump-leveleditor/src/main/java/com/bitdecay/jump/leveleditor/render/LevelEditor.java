@@ -52,7 +52,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private BitPoint jumpSize = new BitPoint(jumpVersionGlyphLayout.width, jumpVersionGlyphLayout.height);
     private BitPoint renderSize = new BitPoint(renderVersionGlyphLayout.width, renderVersionGlyphLayout.height);
 
-    private static Map<String, BitPoint> extraStrings = new HashMap<>();
+    private static Map<BitPoint, String> extraStrings = new HashMap<>();
 
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
@@ -222,9 +222,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void renderStrings() {
-        for (Map.Entry<String, BitPoint> entry : extraStrings.entrySet()) {
-            Vector3 screenCoords = camera.project(new Vector3(entry.getValue().x, entry.getValue().y, 0));
-            font.draw(uiBatch, entry.getKey(), screenCoords.x, screenCoords.y);
+        for (Map.Entry<BitPoint, String> entry : extraStrings.entrySet()) {
+            Vector3 screenCoords = camera.project(new Vector3(entry.getKey().x, entry.getKey().y, 0));
+            font.draw(uiBatch, entry.getValue(), screenCoords.x, screenCoords.y);
         }
         extraStrings.clear();
     }
@@ -245,7 +245,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
      * @param location
      */
     public static void addStringForRender(String text, BitPoint location) {
-        extraStrings.put(text, location);
+        extraStrings.put(location, text);
     }
 
     private void drawGrid() {

@@ -8,5 +8,6 @@ import com.bitdecay.jump.control.ControlMap;
  */
 public interface JumperBodyControlState {
     void stateEntered(JumperBody body, ControlMap controls);
+    void stateExited(JumperBody body, ControlMap controls);
     JumperBodyControlState update(float delta, JumperBody body, ControlMap controls);
 }
