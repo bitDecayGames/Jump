@@ -3,7 +3,7 @@ package com.bitdecay.jump.properties;
 /**
  * Created by Monday on 10/25/2015.
  */
-public class JumperProperties extends BitBodyProperties {
+public class JumperProperties {
     /**
      * The number of jumps a body can make before needing to touch the ground again
      */
