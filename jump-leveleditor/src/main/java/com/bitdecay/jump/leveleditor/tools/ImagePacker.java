@@ -13,7 +13,7 @@ public class ImagePacker {
         settings.filterMin = Texture.TextureFilter.Linear;
         settings.filterMag = Texture.TextureFilter.Linear;
         //
-        TexturePacker.process(settings, "main/ui", "main/skins", "ui");
+        TexturePacker.process(settings, "ui", "skins", "ui");
         System.out.println("Finished packing textures");
     }
 }

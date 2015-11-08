@@ -60,7 +60,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private GlyphLayout unsavedChangeWarningGlyphLayout = new GlyphLayout(font, unsavedChangeWarning);
     private BitPoint unsavedWarningSize = new BitPoint(unsavedChangeWarningGlyphLayout.width, unsavedChangeWarningGlyphLayout.height);
 
-    private static Map<BitPoint, String> extraStrings = new HashMap<>();
+    private static Map<RenderLayer, Map<BitPoint, String>> extraStrings = new HashMap<>();
 
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
@@ -172,8 +172,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         } else {
             hooker.update(0);
         }
-        hooker.render(camera);
-        drawGrid();
+        if (RenderLayer.GAME.enabled) {
+            hooker.render(camera);
+        }
+        if (RenderLayer.LEVEL_GRID.enabled) {
+            drawGrid();
+        }
         worldRenderer.render(hooker.getWorld(), camera);
         debugRender();
         drawOrigin();
@@ -185,8 +189,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.end();
 
         uiBatch.begin();
-        renderStrings();
         renderExtraUIHints();
+        renderStrings();
         renderVersion();
         renderSpecial();
         uiBatch.end();
@@ -228,30 +232,42 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void renderStrings() {
-        for (Map.Entry<BitPoint, String> entry : extraStrings.entrySet()) {
-            Vector3 screenCoords = camera.project(new Vector3(entry.getKey().x, entry.getKey().y, 0));
-            font.draw(uiBatch, entry.getValue(), screenCoords.x, screenCoords.y);
+        for (RenderLayer layer : extraStrings.keySet()) {
+            if (layer.enabled) {
+                for (Map.Entry<BitPoint, String> entry : extraStrings.get(layer).entrySet()) {
+                    Vector3 screenCoords = camera.project(new Vector3(entry.getKey().x, entry.getKey().y, 0));
+                    font.draw(uiBatch, entry.getValue(), screenCoords.x, screenCoords.y);
+                }
+            }
+            extraStrings.get(layer).clear();
         }
-        extraStrings.clear();
     }
 
     private void renderExtraUIHints() {
-        font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 20, 20);
-        font.draw(uiBatch, "Mouse Coordinates: " + getMouseCoords().toString(), 200, 20);
+        if (RenderLayer.UI_STRINGS.enabled) {
+            font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 20, 20);
+            font.draw(uiBatch, "Mouse Coordinates: " + getMouseCoords().toString(), 200, 20);
+        }
     }
 
     private void renderVersion() {
-        font.draw(uiBatch, jumpVersion, Gdx.graphics.getWidth() - jumpSize.x, jumpSize.y);
-        font.draw(uiBatch, renderVersion, Gdx.graphics.getWidth() - renderSize.x, jumpSize.y + renderSize.y);
+        if (RenderLayer.UI_STRINGS.enabled) {
+            font.draw(uiBatch, jumpVersion, Gdx.graphics.getWidth() - jumpSize.x, jumpSize.y);
+            font.draw(uiBatch, renderVersion, Gdx.graphics.getWidth() - renderSize.x, jumpSize.y + renderSize.y);
+        }
     }
 
     /**
      * Queues a string to be rendered next frame
      * @param text
      * @param location
+     * @param type
      */
-    public static void addStringForRender(String text, BitPoint location) {
-        extraStrings.put(location, text);
+    public static void addStringForRender(String text, BitPoint location, RenderLayer type) {
+        if (!extraStrings.containsKey(type)) {
+            extraStrings.put(type, new HashMap<>());
+        }
+        extraStrings.get(type).put(location, text);
     }
 
     private void drawGrid() {

@@ -1,6 +1,5 @@
 package com.bitdecay.jump.leveleditor.render;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.*;
@@ -139,7 +138,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
             if (startPoint != null && speedPoint != null) {
                 shaper.setColor(BitColors.SPEED);
                 shaper.line(startPoint.x, startPoint.y, speedPoint.x, speedPoint.y);
-                LevelEditor.addStringForRender(String.format("%.0f speed", platformSpeed), new BitPoint(speedPoint.x, speedPoint.y + 10));
+                LevelEditor.addStringForRender(String.format("%.0f speed", platformSpeed), new BitPoint(speedPoint.x, speedPoint.y + 10), RenderLayer.MOUSE_TOOLS);
             }
         }
         if (platform == null) {
@@ -151,7 +150,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
             if (startPoint != null && pausePoint != null) {
                 shaper.setColor(BitColors.TIME);
                 shaper.line(startPoint.x, startPoint.y, pausePoint.x, pausePoint.y);
-                LevelEditor.addStringForRender(String.format("%.1f seconds", platformPause), new BitPoint(pausePoint.x, pausePoint.y + 10));
+                LevelEditor.addStringForRender(String.format("%.1f seconds", platformPause), new BitPoint(pausePoint.x, pausePoint.y + 10), RenderLayer.MOUSE_TOOLS);
             }
             shaper.setColor(BitColors.KINETIC_OBJECT);
             shaper.rect(platform.xy.x, platform.xy.y, platform.width, platform.height);

@@ -17,6 +17,14 @@
     "button-white-down": {
       "name": "button_down",
       "color": "white"
+    },
+    "checked": {
+      "name": "checkbox_checked",
+      "color": "white"
+    },
+    "unchecked": {
+      "name": "checkbox_unchecked",
+      "color": "white"
     }
   },
   "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
@@ -52,13 +60,21 @@
       "vScroll": "scrollChannel",
       "vScrollKnob": "scrollKnob"
     }
-  }
+  },
   "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
     "default": {
       "background": "scrollPane",
       "titleFont": "defaultFont",
       "titleFontColor": "white",
       "stageBackground": "scrollPane"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle": {
+    "default": {
+      "checkboxOn": "checked",
+      "checkboxOff": "unchecked",
+      "font": "defaultFont",
+      "fontColor": "white"
     }
   }
 }
