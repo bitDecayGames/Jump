@@ -49,11 +49,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public Texture pauseIcon = new Texture("icons/pause.png");
 
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
-    private String renderVersion = "Render v" + BitWorld.VERSION;
     private GlyphLayout jumpVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
-    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, renderVersion);
     private BitPoint jumpSize = new BitPoint(jumpVersionGlyphLayout.width, jumpVersionGlyphLayout.height);
+
+    private String renderVersion = "Render v" + BitWorld.VERSION;
+    private GlyphLayout renderVersionGlyphLayout = new GlyphLayout(font, renderVersion);
     private BitPoint renderSize = new BitPoint(renderVersionGlyphLayout.width, renderVersionGlyphLayout.height);
+
+    private String unsavedChangeWarning = "* There are unsaved changes *";
+    private GlyphLayout unsavedChangeWarningGlyphLayout = new GlyphLayout(font, unsavedChangeWarning);
+    private BitPoint unsavedWarningSize = new BitPoint(unsavedChangeWarningGlyphLayout.width, unsavedChangeWarningGlyphLayout.height);
 
     private static Map<BitPoint, String> extraStrings = new HashMap<>();
 
@@ -195,6 +200,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             uiBatch.draw(playIcon, 20, 20);
         } else {
             uiBatch.draw(pauseIcon, 20, 20);
+        }
+
+        if (curLevelBuilder.hasChanges()) {
+            font.draw(uiBatch, unsavedChangeWarning, Gdx.graphics.getWidth() - unsavedWarningSize.x - 10 , Gdx.graphics.getHeight() - 10);
         }
     }
 
