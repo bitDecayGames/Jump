@@ -5,11 +5,6 @@ import com.bitdecay.jump.leveleditor.ui.component.ComponentBuilderFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 public class PropModUI extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -40,7 +35,7 @@ public class PropModUI extends JDialog {
 
         try {
             ComponentBuilder builder = ComponentBuilderFactory.getBuilder(ComponentBuilderFactory.GENERIC_BUILDER);
-            for (JComponent component : builder.build(null, thing, callback)) {
+            for (JComponent component : builder.build(null, thing, callback, 0)) {
                 items.add(component);
             }
         } catch (Exception e) {

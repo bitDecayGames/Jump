@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
+import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.level.builder.LevelObject;
@@ -15,6 +16,7 @@ import com.bitdecay.jump.leveleditor.render.LevelEditor;
  */
 // make this object specify a class that it is? does that make any sense?
 public class SecretThing extends RenderableLevelObject {
+    @CantInspect
     private TextureRegion texture;
 
     public SecretThing() {

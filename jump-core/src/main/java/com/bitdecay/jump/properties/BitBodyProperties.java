@@ -1,5 +1,6 @@
 package com.bitdecay.jump.properties;
 
+import com.bitdecay.jump.annotation.ValueRange;
 import com.bitdecay.jump.geom.BitPoint;
 
 /**
@@ -10,22 +11,26 @@ public class BitBodyProperties {
     /**
      * The acceleration of the body while on the ground
      */
-    public BitPoint acceleration = new BitPoint(0, 0);
+    @ValueRange(min = 0, max = 5000)
+    public int acceleration = 0;
 
     /**
      * The Deceleration of the body while in the air
      */
-    public BitPoint airAcceleration = new BitPoint(0, 0);
+    @ValueRange(min = 0, max = 5000)
+    public int airAcceleration = 0;
 
     /**
      * The decelleration of the body on while on the ground
      */
-    public BitPoint deceleration = new BitPoint(0, 0);
+    @ValueRange(min = 0, max = 5000)
+    public int deceleration = 0;
 
     /**
      * The Acceleration of the body while in the air
      */
-    public BitPoint airDeceleration = new BitPoint(0, 0);
+    @ValueRange(min = 0, max = 5000)
+    public int airDeceleration = 0;
 
     /**
      * The max speed of the body
@@ -37,5 +42,6 @@ public class BitBodyProperties {
      */
     public boolean gravitational = true;
 
+    @ValueRange(min = 0, max = 10)
     public float gravityModifier = 1.0f;
 }

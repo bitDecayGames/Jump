@@ -7,5 +7,5 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 public interface ComponentBuilder {
-    List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException;
+    List<JComponent> build(Field field, Object thing, PropModUICallback callback, int depth) throws IllegalArgumentException, IllegalAccessException;
 }
