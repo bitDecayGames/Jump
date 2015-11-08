@@ -87,6 +87,7 @@ public class EditorMenus {
     }
 
     private void buildImageButton(Table menu, OptionsMode mode, ButtonGroup btnGroup) {
+        Table itemTable = new Table();
         TextureRegion testIcon = new TextureRegion(new Texture(Gdx.files.internal(mode.icon)));
         TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(new TextureRegion(testIcon)));
         SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
@@ -105,8 +106,13 @@ public class EditorMenus {
             }
         });
         // If we want to set the size explicitly, do it like this
-        // menu.add(button).width(32).height(32);
-        menu.add(button);
+//         itemTable.add(button).width(32).height(32);
+        itemTable.add(button);
+        itemTable.row();
+        Label label = new Label(mode.label, skin);
+        itemTable.add(label);
+
+        menu.add(itemTable);
     }
 
 

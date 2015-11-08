@@ -3,21 +3,21 @@ package com.bitdecay.jump.leveleditor.ui;
 import com.bitdecay.jump.leveleditor.ui.menus.MenuPage;
 
 public enum OptionsMode {
-    SAVE_LEVEL("Save Level", ModeType.ACTION, null, "icons/save.png"),
-    LOAD_LEVEL("Load Level", ModeType.ACTION, null, "icons/load.png"),
+    SAVE_LEVEL("Save", ModeType.ACTION, null, "icons/save.png"),
+    LOAD_LEVEL("Load", ModeType.ACTION, null, "icons/load.png"),
     UNDO("Undo", ModeType.ACTION, null, "icons/undo.png"),
     REDO("Redo", ModeType.ACTION, null, "icons/redo.png"),
 
     // Modes that are toggle
     SELECT("Select", ModeType.MOUSE, null, "icons/select.png"),
-    MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, null, "icons/movingPlatform.png"),
+    MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, "icons/movingPlatform.png"),
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, "icons/tiles.png"),
     ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, "icons/oneway.png"),
-    THEME("Set Theme", ModeType.MOUSE, MenuPage.ThemeMenu, "icons/theme.png"),
+    THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, "icons/theme.png"),
 
     // Modes that are a one-time action
-    DROP_OBJECT("Drop Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, "icons/object.png"),
-    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, null, "icons/debugSpawn.png"),
+    DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, "icons/object.png"),
+    SET_SPAWN("Spawn Point", ModeType.MOUSE, null, "icons/debugSpawn.png"),
     PROPERTY_INSPECT("Inspect", ModeType.MOUSE, null, "icons/inspect.png"),
     DELETE("Delete", ModeType.MOUSE, null, "icons/delete.png");
 
