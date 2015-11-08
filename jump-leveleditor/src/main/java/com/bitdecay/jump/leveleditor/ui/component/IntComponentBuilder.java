@@ -1,10 +1,10 @@
 package com.bitdecay.jump.leveleditor.ui.component;
 
+import com.bitdecay.jump.annotation.ValueRange;
 import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
+import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +12,14 @@ import java.util.List;
 public class IntComponentBuilder implements ComponentBuilder {
 
     @Override
-    public List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
-        return Arrays.asList(ComponentUtils.buildSlider(field.getInt(thing), 0, 1000, new Callable() {
+    public List<JComponent> build(Field field, Object thing, PropModUICallback callback, int depth) throws IllegalArgumentException, IllegalAccessException {
+        int min = 0;
+        int max = 1000;
+        if (field.isAnnotationPresent(ValueRange.class)) {
+            min = field.getAnnotation(ValueRange.class).min();
+            max = field.getAnnotation(ValueRange.class).max();
+        }
+        return Arrays.asList(ComponentUtils.buildSlider(field.getInt(thing), min, max, new Callable() {
             @Override
             public void call(Object value) {
                 try {

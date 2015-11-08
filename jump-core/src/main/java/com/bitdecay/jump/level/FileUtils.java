@@ -88,7 +88,6 @@ public class FileUtils {
 			e.printStackTrace();
 			return null;
 		}
-		//		return new GsonBuilder().create().fromJson(json, clazz);
 	}
 
 	public static String loadFile() {

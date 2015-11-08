@@ -2,12 +2,13 @@ package com.bitdecay.jump.control;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.JumperBody;
+import com.bitdecay.jump.control.state.FallingControlState;
 import com.bitdecay.jump.control.state.GroundedControlState;
 import com.bitdecay.jump.control.state.JumperBodyControlState;
 
 public class PlayerInputController implements BitBodyController {
     private ControlMap controls;
-    private JumperBodyControlState state = new GroundedControlState();
+    private JumperBodyControlState state = new FallingControlState();
 
     public PlayerInputController(ControlMap controls) {
         this.controls = controls;

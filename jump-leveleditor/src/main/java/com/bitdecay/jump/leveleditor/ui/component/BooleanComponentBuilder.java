@@ -13,7 +13,7 @@ public class BooleanComponentBuilder implements ComponentBuilder {
     private boolean lastState;
 
     @Override
-    public List<JComponent> build(Field field, Object thing, PropModUICallback callback) throws IllegalArgumentException, IllegalAccessException {
+    public List<JComponent> build(Field field, Object thing, PropModUICallback callback, int depth) throws IllegalArgumentException, IllegalAccessException {
         JCheckBox checkBox = new JCheckBox();
         checkBox.setSelected(field.getBoolean(thing));
         lastState = checkBox.isSelected();

@@ -1,10 +1,12 @@
 package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class LevelObject {
+	@CantInspect
 	public BitRectangle rect;
 
 	public LevelObject() {

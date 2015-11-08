@@ -1,6 +1,7 @@
 package com.bitdecay.jump.level.builder;
 
 import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.annotation.CanLoadFromFile;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.properties.BitBodyProperties;
@@ -13,17 +14,19 @@ public class DebugSpawnObject extends LevelObject{
     public static final int INNER_DIAMETER = 4;
     public static final int OUTER_DIAMETER = 8;
 
+    @CanLoadFromFile
     public BitBodyProperties props;
+    @CanLoadFromFile
     public JumperProperties jumpProps;
 
     public DebugSpawnObject(BitPointInt point) {
         super(new BitRectangle(point, point));
 
         props = new BitBodyProperties();
-        props.airAcceleration.set(600, 0);
-        props.airDeceleration.set(300, 0);
-        props.acceleration.set(600, 0);
-        props.deceleration.set(300, 0);
+        props.airAcceleration = 600;
+        props.airDeceleration = 300;
+        props.acceleration = 600;
+        props.deceleration = 300;
 
         jumpProps = new JumperProperties();
         jumpProps.jumpCount = 2;
