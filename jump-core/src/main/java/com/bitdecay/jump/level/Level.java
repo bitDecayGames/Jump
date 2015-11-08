@@ -21,8 +21,7 @@ public class Level {
 
 	@JsonIgnore
 	public DebugSpawnObject debugSpawn;
-
-	public int background;
+	public int theme;
 
 	public Level() {
 		// Here for JSON persistence/parsing
@@ -40,6 +39,6 @@ public class Level {
 		otherObjects = level.otherObjects;
 		gridOffset = level.gridOffset;
 		debugSpawn = level.debugSpawn;
-		background = level.background;
+		theme = level.theme;
 	}
 }

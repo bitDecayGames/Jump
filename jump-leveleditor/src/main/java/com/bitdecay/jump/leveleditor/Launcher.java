@@ -9,6 +9,7 @@ public class Launcher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = 1600;
         config.height = 900;
+        config.title = "Jump";
         new LwjglApplication(new EditorApp(), config);
     }
 }
