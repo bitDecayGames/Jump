@@ -6,7 +6,6 @@ import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.SpawnObject;
 import com.bitdecay.jump.level.builder.TileObject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Level {
 	public int tileSize = 16;
@@ -19,7 +18,7 @@ public class Level {
 	 */
 	public BitPointInt gridOffset;
 	public SpawnObject spawn;
-	public int background;
+	public int theme;
 
 	public Level() {
 		// Here for JSON persistence/parsing
@@ -37,6 +36,6 @@ public class Level {
 		otherObjects = level.otherObjects;
 		gridOffset = level.gridOffset;
 		spawn = level.spawn;
-		background = level.background;
+		theme = level.theme;
 	}
 }

@@ -2,12 +2,13 @@ package com.bitdecay.jump.leveleditor.ui.menus;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -16,6 +17,7 @@ import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
+import com.bitdecay.jump.leveleditor.ui.ModeType;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 
 import java.util.HashMap;
@@ -44,10 +46,9 @@ public class EditorMenus {
         skin = new Skin(Gdx.files.internal("skins/menu-skin.json"), menuAtlas);
         stage = new Stage();
         topMenus.put(MenuPage.MainMenu, buildMainMenu());
-        topMenus.put(MenuPage.CreateMenu, buildCreateMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
-        rightMenus.put(MenuPage.BackgroundMenu, buildBackgroundMenu(hooker.getThemes()));
+        rightMenus.put(MenuPage.ThemeMenu, buildThemeMenu(hooker.getThemes()));
         topMenuTransition(MenuPage.MainMenu);
     }
 
@@ -56,41 +57,27 @@ public class EditorMenus {
         menu.setWidth(stage.getWidth());
         menu.align(Align.top);
 
-        TextButton toolsBtn;
-        TextButton playerPropsBtn;
-        TextButton quitBtn;
+        Table miscActionTable = new Table();
 
-        toolsBtn = new TextButton("tools", skin, "button");
-        toolsBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                topMenuTransition(MenuPage.CreateMenu);
-                levelEditor.setMode(OptionsMode.SELECT);
-            }
-        });
-        menu.add(toolsBtn).height(30);
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == -1) {
-                TextButton button = new TextButton(mode.label, skin, "button");
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                    }
-                });
-                menu.add(button).height(30);
+        for (OptionsMode mode : OptionsMode.values()) {
+            if (mode.type == ModeType.ACTION) {
+                buildImageButton(miscActionTable, mode, null);
             }
         }
+        menu.add(miscActionTable).padRight(40);
 
-        quitBtn = new TextButton("exit", skin, "button");
-        quitBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+        ButtonGroup toolGroup = new ButtonGroup();
+        toolGroup.setUncheckLast(true);
+        toolGroup.setMaxCheckCount(1);
+        toolGroup.setMinCheckCount(1);
+
+        Table toolsTable = new Table();
+        for (OptionsMode mode : OptionsMode.values()) {
+            if (mode.type == ModeType.MOUSE) {
+                buildImageButton(toolsTable, mode, toolGroup);
             }
-        });
-        menu.add(quitBtn).height(30);
+        }
+        menu.add(toolsTable);
 
         menu.align(Align.topLeft);
         menu.setFillParent(true);
@@ -99,87 +86,35 @@ public class EditorMenus {
         return menu;
     }
 
-    public Actor buildCreateMenu() {
-        Table menu = new Table();
-        menu.setWidth(stage.getWidth());
-        menu.align(Align.top);
-
-        ButtonGroup createGroup = new ButtonGroup();
-        createGroup.setUncheckLast(true);
-        createGroup.setMaxCheckCount(1);
-        createGroup.setMinCheckCount(1);
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == 0) {
-                TextButton button = new TextButton(mode.label, skin, "toggle-button");
-                createGroup.add(button);
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                        rightMenuTransition(null);
-                    }
-                });
-                menu.add(button).height(30);
-            }
+    private void buildImageButton(Table menu, OptionsMode mode, ButtonGroup btnGroup) {
+        Table itemTable = new Table();
+        TextureRegion testIcon = new TextureRegion(new Texture(Gdx.files.internal(mode.icon)));
+        TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(new TextureRegion(testIcon)));
+        SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
+        ImageButton button;
+        if (btnGroup != null) {
+            button = new ImageButton(upDrawable, downSprite, downSprite);
+            btnGroup.add(button);
+        } else {
+            button = new ImageButton(upDrawable, downSprite);
         }
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == 1) {
-                TextButton button = new TextButton(mode.label, skin, "toggle-button");
-                createGroup.add(button);
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                        rightMenuTransition(MenuPage.TileMenu);
-                    }
-                });
-                menu.add(button).height(30);
-            }
-        }
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == 2) {
-                TextButton button = new TextButton(mode.label, skin, "toggle-button");
-                createGroup.add(button);
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                        rightMenuTransition(MenuPage.LevelObjectMenu);
-                    }
-                });
-                menu.add(button).height(30);
-            }
-        }
-
-        for(OptionsMode mode : OptionsMode.values()) {
-            if(mode.group == 4) {
-                TextButton button = new TextButton(mode.label, skin, "toggle-button");
-                createGroup.add(button);
-                button.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        levelEditor.setMode(mode);
-                        rightMenuTransition(MenuPage.BackgroundMenu);
-                    }
-                });
-                menu.add(button).height(30);
-            }
-        }
-
-        addBackButtonAndFinalizeMenu(menu, new ClickListener() {
+        button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                topMenuTransition(MenuPage.MainMenu);
-                rightMenuTransition(null);
-                levelEditor.setMode(OptionsMode.SELECT);
-                createGroup.setChecked(OptionsMode.SELECT.label);
+                levelEditor.setMode(mode);
+                rightMenuTransition(mode.menu);
             }
         });
-        return menu;
+        // If we want to set the size explicitly, do it like this
+//         itemTable.add(button).width(32).height(32);
+        itemTable.add(button);
+        itemTable.row();
+        Label label = new Label(mode.label, skin);
+        itemTable.add(label);
+
+        menu.add(itemTable);
     }
+
 
     private Actor buildTilesetMenu(List<EditorIdentifierObject> tilesets) {
         Table parentMenu = new Table();
@@ -221,7 +156,7 @@ public class EditorMenus {
         return parentMenu;
     }
 
-    private Actor buildBackgroundMenu(List<EditorIdentifierObject> backgrounds) {
+    private Actor buildThemeMenu(List<EditorIdentifierObject> themes) {
         Table parentMenu = new Table();
         parentMenu.setVisible(false);
         parentMenu.setFillParent(true);
@@ -236,7 +171,7 @@ public class EditorMenus {
 
         parentMenu.add(scrollPane);
 
-        for (EditorIdentifierObject object : backgrounds) {
+        for (EditorIdentifierObject object : themes) {
             Table itemTable = new Table();
             TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(object.texture));
             SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
@@ -244,7 +179,7 @@ public class EditorMenus {
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    levelEditor.curLevelBuilder.setBackground(object.id);
+                    levelEditor.curLevelBuilder.setTheme(object.id);
                     levelEditor.curLevelBuilder.fireToListeners();
                 }
             });
@@ -306,17 +241,6 @@ public class EditorMenus {
 
         stage.addActor(parentMenu);
         return parentMenu;
-    }
-
-    private void addBackButtonAndFinalizeMenu(Table menu, ClickListener backAction) {
-        TextButton backBtn;
-        backBtn = new TextButton("back", skin, "button");
-        backBtn.addListener(backAction);
-        menu.add(backBtn).height(30);
-        menu.align(Align.topLeft);
-        menu.setFillParent(true);
-        menu.setVisible(false);
-        stage.addActor(menu);
     }
 
     private void topMenuTransition(MenuPage to) {
