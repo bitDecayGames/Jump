@@ -17,6 +17,7 @@ import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
+import com.bitdecay.jump.leveleditor.render.RenderLayer;
 import com.bitdecay.jump.leveleditor.ui.ModeType;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 
@@ -49,7 +50,33 @@ public class EditorMenus {
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
         rightMenus.put(MenuPage.ThemeMenu, buildThemeMenu(hooker.getThemes()));
+        rightMenus.put(MenuPage.RenderMenu, buildRenderMenu());
         topMenuTransition(MenuPage.MainMenu);
+    }
+
+    private Actor buildRenderMenu() {
+        Table menu = new Table();
+        menu.setVisible(false);
+        menu.setFillParent(true);
+        menu.setOrigin(Align.topRight);
+        menu.align(Align.right);
+
+        for (RenderLayer layer : RenderLayer.values()) {
+            if (layer.userEditable) {
+                CheckBox checkBox = new CheckBox(layer.name(), skin);
+                checkBox.setChecked(true);
+                checkBox.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        layer.enabled = checkBox.isChecked();
+                    }
+                });
+                menu.add(checkBox).align(Align.left).padRight(10).padBottom(5);
+                menu.row();
+            }
+        }
+        stage.addActor(menu);
+        return menu;
     }
 
     private Actor buildMainMenu() {

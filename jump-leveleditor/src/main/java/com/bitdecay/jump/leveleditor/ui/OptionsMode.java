@@ -10,6 +10,7 @@ public enum OptionsMode {
     REDO("Redo", ModeType.ACTION, null, "icons/redo.png"),
 
     // Modes that are toggle
+    RENDER("Layers", ModeType.MOUSE, MenuPage.RenderMenu, "icons/render.png"),
     SELECT("Select", ModeType.MOUSE, null, "icons/select.png"),
     MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, "icons/movingPlatform.png"),
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, "icons/tiles.png"),

@@ -30,52 +30,60 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         renderer.setProjectionMatrix(cam.combined);
         renderer.begin(ShapeType.Line);
         renderer.setColor(BitColors.STATIC_OBJECT);
-        BitBody[][] gridObjects = world.getGrid();
-        for (int x = 0; x < gridObjects.length; x++) {
-            BitBody[] column = gridObjects[x];
-            for (int y = 0; y < column.length; y++) {
-                if (column[y] != null) {
-                    BitBody levelObject = column[y];
-                    if (GeomUtils.intersection(view, levelObject.aabb) == null) {
-                        // don't even attempt to draw if not on camera
-                        continue;
-                    }
-                    float leftX = levelObject.aabb.xy.x;
-                    float rightX = levelObject.aabb.xy.x + levelObject.aabb.width;
-                    float bottomY = levelObject.aabb.xy.y;
-                    float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
-                    int nValue = 0;
-                    if (levelObject instanceof TileBody) {
-                        nValue = ((TileBody) levelObject).nValue;
-                    }
-                    if (((TileBody) levelObject).collisionAxis != null) {
-                        // currently we are just assuming it's a one-way platform
-                        renderer.setColor(BitColors.COLLISION);
-                        renderer.line(leftX, topY, rightX, topY);
-                        continue;
-                    } else {
-                        renderer.setColor(BitColors.STATIC_OBJECT);
-                    }
+        if (RenderLayer.TILES.enabled) {
+            BitBody[][] gridObjects = world.getGrid();
+            for (int x = 0; x < gridObjects.length; x++) {
+                BitBody[] column = gridObjects[x];
+                for (int y = 0; y < column.length; y++) {
+                    if (column[y] != null) {
+                        BitBody levelObject = column[y];
+                        if (GeomUtils.intersection(view, levelObject.aabb) == null) {
+                            // don't even attempt to draw if not on camera
+                            continue;
+                        }
+                        float leftX = levelObject.aabb.xy.x;
+                        float rightX = levelObject.aabb.xy.x + levelObject.aabb.width;
+                        float bottomY = levelObject.aabb.xy.y;
+                        float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
+                        int nValue = 0;
+                        if (levelObject instanceof TileBody) {
+                            nValue = ((TileBody) levelObject).nValue;
+                        }
+                        if (((TileBody) levelObject).collisionAxis != null) {
+                            // currently we are just assuming it's a one-way platform
+                            renderer.setColor(BitColors.COLLISION);
+                            renderer.line(leftX, topY, rightX, topY);
+                            continue;
+                        } else {
+                            renderer.setColor(BitColors.STATIC_OBJECT);
+                        }
 
 
-                    if ((nValue & Direction.UP) == 0) {
-                        renderer.line(leftX, topY, rightX, topY);
-                    }
-                    if ((nValue & Direction.DOWN) == 0) {
-                        renderer.line(leftX, bottomY, rightX, bottomY);
-                    }
-                    if ((nValue & Direction.LEFT) == 0) {
-                        renderer.line(leftX, bottomY, leftX, topY);
-                    }
-                    if ((nValue & Direction.RIGHT) == 0) {
-                        renderer.line(rightX, bottomY, rightX, topY);
+                        if ((nValue & Direction.UP) == 0) {
+                            renderer.line(leftX, topY, rightX, topY);
+                        }
+                        if ((nValue & Direction.DOWN) == 0) {
+                            renderer.line(leftX, bottomY, rightX, bottomY);
+                        }
+                        if ((nValue & Direction.LEFT) == 0) {
+                            renderer.line(leftX, bottomY, leftX, topY);
+                        }
+                        if ((nValue & Direction.RIGHT) == 0) {
+                            renderer.line(rightX, bottomY, rightX, topY);
+                        }
                     }
                 }
             }
         }
-        renderBodies(renderer, world.getStaticBodies());
-        renderBodies(renderer, world.getKineticBodies());
-        renderBodies(renderer, world.getDynamicBodies());
+        if (RenderLayer.STATIC_BODIES.enabled) {
+            renderBodies(renderer, world.getStaticBodies());
+        }
+        if (RenderLayer.KINETIC_BODIES.enabled) {
+            renderBodies(renderer, world.getKineticBodies());
+        }
+        if (RenderLayer.DYNAMIC_BODIES.enabled) {
+            renderBodies(renderer, world.getDynamicBodies());
+        }
 
         renderer.setColor(BitColors.COLLISION);
         for (BitRectangle col : world.unresolvedCollisions) {
@@ -91,11 +99,11 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
         for (BitBody body : bodies) {
             if (body.renderStateWatcher != null) {
-                LevelEditor.addStringForRender(body.renderStateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20));
+                LevelEditor.addStringForRender(body.renderStateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20), RenderLayer.STATE_HELPERS);
             }
 
             if (body.controller != null) {
-                LevelEditor.addStringForRender(body.controller.getStatus(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 10));
+                LevelEditor.addStringForRender(body.controller.getStatus(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 10), RenderLayer.STATE_HELPERS);
             }
 
             if (body.controller != null && body.controller instanceof PathedBodyController) {
@@ -148,11 +156,13 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             }
 
             renderer.rect(body.aabb.xy.x, body.aabb.xy.y, body.aabb.width, body.aabb.height);
-            if (body.velocity.x != 0 || body.velocity.y != 0) {
-                float x = body.aabb.xy.x + body.aabb.width / 2;
-                float y = body.aabb.xy.y + body.aabb.height / 2;
-                renderer.setColor(BitColors.SPEED);
-                renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
+            if (RenderLayer.SPEED.enabled) {
+                if (body.velocity.x != 0 || body.velocity.y != 0) {
+                    float x = body.aabb.xy.x + body.aabb.width / 2;
+                    float y = body.aabb.xy.y + body.aabb.height / 2;
+                    renderer.setColor(BitColors.SPEED);
+                    renderer.line(x, y, x + body.velocity.x, y + body.velocity.y);
+                }
             }
         }
     }

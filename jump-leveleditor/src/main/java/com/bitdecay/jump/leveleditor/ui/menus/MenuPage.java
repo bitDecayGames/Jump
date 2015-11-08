@@ -5,9 +5,8 @@ package com.bitdecay.jump.leveleditor.ui.menus;
  */
 public enum MenuPage {
     MainMenu,
-    CreateMenu,
-    PlayerMenu,
     LevelObjectMenu,
     ThemeMenu,
-    TileMenu
+    TileMenu,
+    RenderMenu
 }
