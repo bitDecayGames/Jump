@@ -18,7 +18,7 @@ public enum OptionsMode {
 
     // Modes that are a one-time action
     DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, "icons/object.png"),
-    SET_SPAWN("Spawn Point", ModeType.MOUSE, null, "icons/debugSpawn.png"),
+    SET_SPAWN("Test Spawn", ModeType.MOUSE, null, "icons/debugSpawn.png"),
     PROPERTY_INSPECT("Inspect", ModeType.MOUSE, null, "icons/inspect.png"),
     DELETE("Delete", ModeType.MOUSE, null, "icons/delete.png");
 

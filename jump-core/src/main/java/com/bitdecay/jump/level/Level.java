@@ -4,8 +4,9 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelObject;
-import com.bitdecay.jump.level.builder.SpawnObject;
+import com.bitdecay.jump.level.builder.DebugSpawnObject;
 import com.bitdecay.jump.level.builder.TileObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Level {
 	public int tileSize = 16;
@@ -17,7 +18,9 @@ public class Level {
 	 * objects.
 	 */
 	public BitPointInt gridOffset;
-	public SpawnObject spawn;
+
+	@JsonIgnore
+	public DebugSpawnObject debugSpawn;
 	public int theme;
 
 	public Level() {
@@ -35,7 +38,7 @@ public class Level {
 		gridObjects = level.gridObjects;
 		otherObjects = level.otherObjects;
 		gridOffset = level.gridOffset;
-		spawn = level.spawn;
+		debugSpawn = level.debugSpawn;
 		theme = level.theme;
 	}
 }

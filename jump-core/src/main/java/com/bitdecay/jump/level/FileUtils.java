@@ -64,8 +64,6 @@ public class FileUtils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else {
-			System.out.println("Got something else back...");
 		}
 		return null;
 	}

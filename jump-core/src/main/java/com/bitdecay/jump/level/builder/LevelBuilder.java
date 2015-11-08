@@ -33,7 +33,7 @@ public class LevelBuilder {
 	public int tileSize;
 	public TileObject[][] grid;
 	public BitPointInt gridOffset;
-	public SpawnObject spawn;
+	public DebugSpawnObject debugSpawn;
 
 	public int theme;
 
@@ -64,7 +64,7 @@ public class LevelBuilder {
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
-		spawn = level.spawn;
+		debugSpawn = level.debugSpawn;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
 		}
@@ -320,10 +320,10 @@ public class LevelBuilder {
 				}
 			}
 		}
-		if (spawn != null) {
+		if (debugSpawn != null) {
 			// This is gross. I don't like.
-			if (spawn.rect.xy.minus(startPoint).len() < SpawnObject.OUTER_DIAMETER) {
-				selection.add(spawn);
+			if (debugSpawn.rect.xy.minus(startPoint).len() < DebugSpawnObject.OUTER_DIAMETER) {
+				selection.add(debugSpawn);
 			}
 		}
 	}
@@ -367,7 +367,7 @@ public class LevelBuilder {
 		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.gridObjects = optimizedGrid;
 		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
-		optimizedLevel.spawn = spawn;
+		optimizedLevel.debugSpawn = debugSpawn;
 		optimizedLevel.theme = theme;
 
 		return optimizedLevel;
@@ -412,8 +412,8 @@ public class LevelBuilder {
 		listeners.remove(levelListener);
 	}
 
-	public void setSpawn(BitPointInt point) {
-		spawn = new SpawnObject(point);
+	public void setDebugSpawn(BitPointInt point) {
+		debugSpawn = new DebugSpawnObject(point);
 		fireToListeners();
 	}
 
