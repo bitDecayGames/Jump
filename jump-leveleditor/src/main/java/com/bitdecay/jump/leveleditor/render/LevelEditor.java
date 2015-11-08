@@ -8,6 +8,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -44,6 +45,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private static final int CAM_SPEED = 5;
 
     public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
+
+    public Texture playIcon = new Texture("icons/play.png");
+    public Texture pauseIcon = new Texture("icons/pause.png");
 
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
     private String renderVersion = "Render v" + BitWorld.VERSION;
@@ -180,25 +184,19 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         renderStrings();
         renderExtraUIHints();
         renderVersion();
+        renderSpecial();
         uiBatch.end();
 
-        renderSpecial();
 
         menus.updateAndDraw();
     }
 
     private void renderSpecial() {
-        shaper.setProjectionMatrix(uiBatch.getProjectionMatrix());
-        shaper.setColor(BitColors.MISC);
         if (stepWorld) {
-            shaper.begin(ShapeType.Line);
-            shaper.polygon(new float[]{20, 20, 70, 45, 20, 70, 20, 20});
+            uiBatch.draw(playIcon, 20, 20);
         } else {
-            shaper.begin(ShapeType.Filled);
-            shaper.rect(20, 20, 20, 50);
-            shaper.rect(50, 20, 20, 50);
+            uiBatch.draw(pauseIcon, 20, 20);
         }
-        shaper.end();
     }
 
     private void debugRender() {
@@ -230,8 +228,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void renderExtraUIHints() {
-        font.draw(uiBatch, getMouseCoords().toString(), 20, 20);
-        font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 100, 20);
+        font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 20, 20);
+        font.draw(uiBatch, "Mouse Coordinates: " + getMouseCoords().toString(), 200, 20);
     }
 
     private void renderVersion() {
@@ -418,6 +416,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 setLevelBuilder(loadLevel);
                 setCamToOrigin();
             }
+        } else if (OptionsMode.REFRESH.equals(mode)) {
+            curLevelBuilder.fireToListeners();
         } else {
             mouseMode = noOpMouseMode;
         }

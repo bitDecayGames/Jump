@@ -5,6 +5,7 @@ import com.bitdecay.jump.leveleditor.ui.menus.MenuPage;
 public enum OptionsMode {
     SAVE_LEVEL("Save", ModeType.ACTION, null, "icons/save.png"),
     LOAD_LEVEL("Load", ModeType.ACTION, null, "icons/load.png"),
+    REFRESH("Refresh", ModeType.ACTION, null, "icons/refresh.png"),
     UNDO("Undo", ModeType.ACTION, null, "icons/undo.png"),
     REDO("Redo", ModeType.ACTION, null, "icons/redo.png"),
 
