@@ -1,31 +1,37 @@
 package com.bitdecay.jump.leveleditor.ui;
 
+import com.bitdecay.jump.leveleditor.ui.menus.MenuPage;
+
 public enum OptionsMode {
-    SELECT("Select", ModeType.MOUSE, 0),
-    MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, 0),
-    DELETE("Delete", ModeType.MOUSE, 0),
-    PROPERTY_INSPECT("Inspect", ModeType.MOUSE, 0),
-    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, 0),
+    SAVE_LEVEL("Save Level", ModeType.ACTION, null, "icons/save.png"),
+    LOAD_LEVEL("Load Level", ModeType.ACTION, null, "icons/load.png"),
+    UNDO("Undo", ModeType.ACTION, null, "icons/undo.png"),
+    REDO("Redo", ModeType.ACTION, null, "icons/redo.png"),
 
-    CREATE("Create", ModeType.MOUSE, 1),
-    ONEWAY("One Way", ModeType.MOUSE, 1),
+    // Modes that are toggle
+    SELECT("Select", ModeType.MOUSE, null, "icons/select.png"),
+    MOVING_PLATFORM("Moving Platform", ModeType.MOUSE, null, "icons/movingPlatform.png"),
+    CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, "icons/tiles.png"),
+    ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, "icons/oneway.png"),
+    THEME("Set Theme", ModeType.MOUSE, MenuPage.ThemeMenu, "icons/theme.png"),
 
-    DROP_OBJECT("Drop Object", ModeType.MOUSE, 2),
+    // Modes that are a one-time action
+    DROP_OBJECT("Drop Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, "icons/object.png"),
+    SET_SPAWN("Set Spawn Point", ModeType.MOUSE, null, "icons/debugSpawn.png"),
+    PROPERTY_INSPECT("Inspect", ModeType.MOUSE, null, "icons/inspect.png"),
+    DELETE("Delete", ModeType.MOUSE, null, "icons/delete.png");
 
-    THEME("Set Theme", ModeType.MOUSE, 4),
 
-    SAVE_LEVEL("Save Level", ModeType.ACTION, -1),
-    LOAD_LEVEL("Load Level", ModeType.ACTION, -1),
-    UNDO("Undo", ModeType.ACTION, -1),
-    REDO("Redo", ModeType.ACTION, -1);
 
     public final String label;
     public final ModeType type;
-    public final int group;
+    public final String icon;
+    public final MenuPage menu;
 
-    OptionsMode(String label, ModeType type, int group) {
+    OptionsMode(String label, ModeType type, MenuPage menu, String icon) {
         this.label = label;
         this.type = type;
-        this.group = group;
+        this.menu = menu;
+        this.icon = icon;
     }
 }

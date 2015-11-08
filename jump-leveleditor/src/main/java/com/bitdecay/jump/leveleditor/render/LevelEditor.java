@@ -65,6 +65,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private Map<OptionsMode, MouseMode> mouseModes;
     private MouseMode mouseMode;
+    private final NoOpMouseMode noOpMouseMode = new NoOpMouseMode();
 
     private Map<Integer, JDialog> uiKeys;
 
@@ -99,7 +100,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         setCamToOrigin();
 
         worldRenderer = new LibGDXWorldRenderer();
-
 
         mouseModes = new HashMap<>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
@@ -418,6 +418,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 setLevelBuilder(loadLevel);
                 setCamToOrigin();
             }
+        } else {
+            mouseMode = noOpMouseMode;
         }
     }
 

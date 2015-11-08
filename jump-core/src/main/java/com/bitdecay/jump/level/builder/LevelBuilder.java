@@ -35,7 +35,7 @@ public class LevelBuilder {
 	public BitPointInt gridOffset;
 	public SpawnObject spawn;
 
-	public int background;
+	public int theme;
 
 	public List<LevelBuilderListener> listeners;
 
@@ -368,7 +368,7 @@ public class LevelBuilder {
 		optimizedLevel.gridObjects = optimizedGrid;
 		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
 		optimizedLevel.spawn = spawn;
-		optimizedLevel.background = background;
+		optimizedLevel.theme = theme;
 
 		return optimizedLevel;
 	}
@@ -417,8 +417,8 @@ public class LevelBuilder {
 		fireToListeners();
 	}
 
-	public void setBackground(int id) {
-		this.background = id;
+	public void setTheme(int id) {
+		this.theme = id;
 	}
 
 	public boolean hasChanges() {

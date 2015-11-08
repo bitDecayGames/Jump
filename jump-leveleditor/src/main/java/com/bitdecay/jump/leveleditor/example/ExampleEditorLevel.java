@@ -70,13 +70,13 @@ public class ExampleEditorLevel implements EditorHook {
 
     private void drawBackground(final OrthographicCamera cam) {
         // Crappy example background rendering
-        if (currentLevel.background == -1) {
+        if (currentLevel.theme == -1) {
             return;
         }
         TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
         TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
         Vector3 zero = cam.unproject(new Vector3(0, Gdx.graphics.getHeight(), 0));
-        TextureRegion background = currentLevel.background == 0 ? dirtThumb : iceThumb;
+        TextureRegion background = currentLevel.theme == 0 ? dirtThumb : iceThumb;
         batch.setColor(Color.DARK_GRAY);
         batch.draw(background, zero.x, zero.y, cam.viewportWidth * cam.zoom, cam.viewportHeight * cam.zoom);
         batch.setColor(Color.WHITE);
@@ -165,7 +165,7 @@ public class ExampleEditorLevel implements EditorHook {
         TextureRegion noneThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/noneThumb.png")));
         TextureRegion dirtThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/dirtThumb.png")));
         TextureRegion iceThumb = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/iceThumb.png")));
-        return Arrays.asList(new EditorIdentifierObject(-1, "None", noneThumb), new EditorIdentifierObject(0, "Surface Background", dirtThumb), new EditorIdentifierObject(1, "Cavern Background", iceThumb));
+        return Arrays.asList(new EditorIdentifierObject(-1, "None", noneThumb), new EditorIdentifierObject(0, "Surface", dirtThumb), new EditorIdentifierObject(1, "Cavern", iceThumb));
     }
 
     @Override
