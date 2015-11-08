@@ -29,7 +29,6 @@ import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
-import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 
 import javax.swing.*;
