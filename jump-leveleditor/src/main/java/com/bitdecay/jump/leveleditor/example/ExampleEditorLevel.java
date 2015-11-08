@@ -139,13 +139,13 @@ public class ExampleEditorLevel implements EditorHook {
         world.setObjects(buildBodies(level.otherObjects));
         world.resetTimePassed();
 
-        if (level.spawn != null) {
+        if (level.debugSpawn != null) {
             JumperBody playerBody = new JumperBody();
-            playerBody.props = level.spawn.props;
-            playerBody.jumperProps = level.spawn.jumpProps;
+            playerBody.props = level.debugSpawn.props;
+            playerBody.jumperProps = level.debugSpawn.jumpProps;
 
             playerBody.bodyType = BodyType.DYNAMIC;
-            playerBody.aabb = new BitRectangle(level.spawn.rect.xy.x,level.spawn.rect.xy.y,16,32);
+            playerBody.aabb = new BitRectangle(level.debugSpawn.rect.xy.x,level.debugSpawn.rect.xy.y,16,32);
             playerBody.renderStateWatcher = new JumperRenderStateWatcher();
             playerBody.controller = new PlayerInputController(GDXControls.defaultMapping);
 

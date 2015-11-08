@@ -22,13 +22,12 @@ import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.LevelUtilities;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.builder.LevelObject;
-import com.bitdecay.jump.level.builder.SpawnObject;
+import com.bitdecay.jump.level.builder.DebugSpawnObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
-import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
 
 import javax.swing.*;
@@ -207,11 +206,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         for (LevelObject obj : curLevelBuilder.selection) {
             shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
         }
-        if (curLevelBuilder.spawn != null) {
+        if (curLevelBuilder.debugSpawn != null) {
             shaper.setColor(BitColors.SPAWN_OUTER);
-            shaper.circle(curLevelBuilder.spawn.rect.xy.x, curLevelBuilder.spawn.rect.xy.y, SpawnObject.OUTER_DIAMETER);
+            shaper.circle(curLevelBuilder.debugSpawn.rect.xy.x, curLevelBuilder.debugSpawn.rect.xy.y, DebugSpawnObject.OUTER_DIAMETER);
             shaper.setColor(BitColors.SPAWN);
-            shaper.circle(curLevelBuilder.spawn.rect.xy.x, curLevelBuilder.spawn.rect.xy.y, SpawnObject.INNER_DIAMETER);
+            shaper.circle(curLevelBuilder.debugSpawn.rect.xy.x, curLevelBuilder.debugSpawn.rect.xy.y, DebugSpawnObject.INNER_DIAMETER);
         }
         shaper.setColor(BitColors.GRID_SIZE);
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
