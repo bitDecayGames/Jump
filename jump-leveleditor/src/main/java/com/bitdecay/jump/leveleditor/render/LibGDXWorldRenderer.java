@@ -111,6 +111,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                 PathPoint lastPoint = null;
                 PathedBodyController controller = (PathedBodyController) body.controller;
                 if (controller.path.size() > 1) {
+                    int nodeIndex = 1;
                     for (PathPoint pathNode : controller.path) {
                         if (lastPoint == null) {
                             lastPoint = pathNode;
@@ -126,6 +127,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                             renderer.circle(pathNode.destination.x + body.aabb.width/2, pathNode.destination.y + body.aabb.height/2, 4);
                             lastPoint = pathNode;
                         }
+                        LevelEditor.addStringForRender(Integer.toString(nodeIndex++), pathNode.destination.plus(body.aabb.width / 2, body.aabb.height / 2), RenderLayer.KINETIC_BODIES);
                     }
                     if (!controller.pendulum) {
                         renderer.line(lastPoint.destination.x + body.aabb.width/2, lastPoint.destination.y + body.aabb.height/2, controller.path.get(0).destination.x + body.aabb.width/2, controller.path.get(0).destination.y + body.aabb.height/2);

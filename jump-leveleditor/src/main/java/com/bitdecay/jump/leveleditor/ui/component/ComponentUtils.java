@@ -17,14 +17,18 @@ public class ComponentUtils {
     public static JComponent buildSlider(int initial, int min, int max, Callable callable) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        JSlider slider = new JSlider(min, max, 0);
+        JSlider slider = new JSlider(min, max, min);
         JTextField textField = new JTextField(4);
         textField.setText(Integer.toString(initial));
         textField.setMaximumSize(new Dimension(50, 30));
 
-        slider.setMajorTickSpacing((max - min) / 8);
-        slider.setMinorTickSpacing((max-min) / 16);
-        slider.setValue(initial);
+        slider.setMajorTickSpacing((max - min) / 5);
+        slider.setMinorTickSpacing((max-min) / 10);
+        if (initial < min) {
+            slider.setValue(min);
+        } else if (initial > max) {
+            slider.setValue(max);
+        }
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {

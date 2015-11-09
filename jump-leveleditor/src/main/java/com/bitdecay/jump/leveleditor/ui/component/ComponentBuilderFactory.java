@@ -14,6 +14,8 @@ public class ComponentBuilderFactory {
     public static final String FLOAT = "float";
     public static final String BOOLEAN = "boolean";
 
+    public static final String LIST = "list";
+
     private static Map<String, ComponentBuilder> components;
 
     static {
@@ -24,9 +26,13 @@ public class ComponentBuilderFactory {
         components.put(INT, new IntComponentBuilder());
         components.put(FLOAT, new FloatComponentBuilder());
         components.put(BOOLEAN, new BooleanComponentBuilder());
+        components.put(LIST, new ListComponentBuilder());
     }
 
     public static ComponentBuilder getBuilder(String name) {
+        if (name.toLowerCase().contains(LIST)) {
+            name = LIST;
+        }
         ComponentBuilder builder = components.get(name);
         if (builder == null) {
             return components.get(GENERIC_BUILDER);

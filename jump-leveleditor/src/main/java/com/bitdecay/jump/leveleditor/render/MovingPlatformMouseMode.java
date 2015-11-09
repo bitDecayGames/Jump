@@ -21,7 +21,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
     private float platformPause;
 
     private BitPointInt speedPoint;
-    private float platformSpeed = 32;
+    private int platformSpeed = 32;
 
     private BitRectangle platform;
     private List<PathPoint> pathPoints;

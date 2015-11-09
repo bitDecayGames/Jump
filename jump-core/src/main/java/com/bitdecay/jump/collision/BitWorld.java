@@ -305,13 +305,12 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					if (otherBody.bodyType == BodyType.KINETIC) {
+					if (body.props.collides && otherBody.props.collides) {
 						// kinetic platforms currently also flag contacts with dynamic bodies
 						checkForNewCollision(body, otherBody);
 					}
 
 					checkContact(body, otherBody);
-
 				}
 			}
 		}
@@ -396,6 +395,9 @@ public class BitWorld {
 	 * @param against
 	 */
 	private void checkForNewCollision(BitBody body, BitBody against) {
+		if (!body.props.collides) {
+			return;
+		}
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
 		if (insec != null) {
 			if (!pendingResolutions.containsKey(body)) {
