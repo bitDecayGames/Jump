@@ -20,6 +20,12 @@ import java.util.Set;
 public class BitBody {
 
     /**
+     * A generic object we can attach to a body. Useful for accessing game objects
+     * during collisions.
+     */
+    public Object userObject;
+
+    /**
      * Basic properties defining the configurable behavior of this body
      */
     public BitBodyProperties props = new BitBodyProperties();
@@ -117,6 +123,14 @@ public class BitBody {
         } catch (IllegalAccessException iae){
             throw new BitBodySerializeException("The property: " + prop + " is not marked as public", iae);
         }
+    }
+
+    public void addContactListener(ContactListener listener) {
+        contactListeners.add(listener);
+    }
+
+    public void removeContactListener(ContactListener listener) {
+        contactListeners.remove(listener);
     }
 
     public List<ContactListener> getContactListeners() {

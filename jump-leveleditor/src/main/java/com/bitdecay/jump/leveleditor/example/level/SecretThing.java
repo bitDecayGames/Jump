@@ -27,6 +27,7 @@ public class SecretThing extends RenderableLevelObject {
     @Override
     public BitBody buildBody() {
         BitBody body = new BitBody();
+        body.props.collides = false;
         body.bodyType = BodyType.STATIC;
         body.aabb = new BitRectangle(rect);
         return body;

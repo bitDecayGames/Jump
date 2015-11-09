@@ -11,6 +11,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
@@ -148,6 +149,27 @@ public class ExampleEditorLevel implements EditorHook {
             playerBody.aabb = new BitRectangle(level.debugSpawn.rect.xy.x,level.debugSpawn.rect.xy.y,16,32);
             playerBody.renderStateWatcher = new JumperRenderStateWatcher();
             playerBody.controller = new PlayerInputController(GDXControls.defaultMapping);
+
+            playerBody.addContactListener(new ContactListener() {
+                @Override
+                public void contactStarted(BitBody other) {
+                    if (other.userObject instanceof SecretObject) {
+                        playerBody.props.gravityModifier = -1;
+                    }
+                }
+
+                @Override
+                public void contactEnded(BitBody other) {
+                    if (other.userObject instanceof SecretObject) {
+                        playerBody.props.gravityModifier = 1;
+                    }
+                }
+
+                @Override
+                public void crushed() {
+
+                }
+            });
 
             world.addBody(playerBody);
         }
