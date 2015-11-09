@@ -8,6 +8,9 @@ import com.bitdecay.jump.geom.BitPoint;
  * Created by Monday on 10/25/2015.
  */
 public class BitBodyProperties {
+
+    public boolean collides = true;
+
     /**
      * The acceleration of the body while on the ground
      */

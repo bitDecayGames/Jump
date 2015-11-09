@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathedLevelObject extends LevelObject {
-	public List<PathPoint> pathPoints;
-	public boolean pendulum;
 	public boolean sticky;
+	public boolean pendulum;
+	public List<PathPoint> pathPoints;
 
 	public PathedLevelObject() {
 		// Here for Json
