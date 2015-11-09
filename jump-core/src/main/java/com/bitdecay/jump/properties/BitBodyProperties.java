@@ -36,9 +36,9 @@ public class BitBodyProperties {
     public int airDeceleration = 0;
 
     /**
-     * The max speed of the body
+     * The max 'running' speed of the body
      */
-    public BitPoint maxSpeed = new BitPoint(300, 0);
+    public int maxVoluntarySpeed = 300;
 
     /**
      * A flag for whether or not gravity should affect this body
