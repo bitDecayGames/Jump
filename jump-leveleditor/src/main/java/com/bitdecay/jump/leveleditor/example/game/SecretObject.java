@@ -18,6 +18,7 @@ public class SecretObject extends GameObject {
     @Override
     public BitBody build(LevelObject template) {
         body = template.buildBody();
+        body.userObject = this;
         this.texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
         return body;
     }
