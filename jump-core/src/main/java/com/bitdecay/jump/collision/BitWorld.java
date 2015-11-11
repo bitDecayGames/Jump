@@ -104,6 +104,9 @@ public class BitWorld {
 		if (delta <= 0) {
 			nonStep();
 			return false;
+		} else if (delta > 1) {
+			// if we lose focus or something, never calculate more than 1 second worth of simulation
+			delta = 1;
 		}
 
 		boolean stepped = false;
