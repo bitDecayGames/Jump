@@ -11,6 +11,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.collision.ContactAdapter;
 import com.bitdecay.jump.collision.ContactListener;
 import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
@@ -152,7 +153,7 @@ public class ExampleEditorLevel implements EditorHook {
             playerBody.renderStateWatcher = new JumperRenderStateWatcher();
             playerBody.controller = new PlayerInputController(GDXControls.defaultMapping);
 
-            playerBody.addContactListener(new ContactListener() {
+            playerBody.addContactListener(new ContactAdapter() {
                 @Override
                 public void contactStarted(BitBody other) {
                     if (other.userObject instanceof SecretObject) {
@@ -165,11 +166,6 @@ public class ExampleEditorLevel implements EditorHook {
                     if (other.userObject instanceof SecretObject) {
                         playerBody.props.gravityModifier = 1;
                     }
-                }
-
-                @Override
-                public void crushed() {
-
                 }
             });
 

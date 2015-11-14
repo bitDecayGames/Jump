@@ -3,7 +3,7 @@ package com.bitdecay.jump.leveleditor.example.game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.collision.ContactListener;
+import com.bitdecay.jump.collision.ContactAdapter;
 import com.bitdecay.jump.level.builder.LevelObject;
 
 /**
@@ -16,7 +16,7 @@ public class ShellObject extends GameObject {
     public BitBody build(LevelObject template) {
         BitBody body = template.buildBody();
         body.controller = controller;
-        body.addContactListener(new ContactListener() {
+        body.addContactListener(new ContactAdapter() {
             @Override
             public void contactStarted(BitBody other) {
                 if (BodyType.DYNAMIC.equals(other.bodyType)) {
@@ -26,16 +26,6 @@ public class ShellObject extends GameObject {
                         controller.left = other.aabb.center().x >= body.aabb.center().x;
                     }
                 }
-            }
-
-            @Override
-            public void contactEnded(BitBody other) {
-
-            }
-
-            @Override
-            public void crushed() {
-
             }
         });
         return body;

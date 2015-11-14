@@ -177,7 +177,7 @@ public class BitWorld {
 		dynamicBodies.stream().forEach(body -> {
 			if (body.active) {
 				buildLevelCollisions(body);
-				expireContact(body);
+				updateExistingContact(body);
 				findNewContact(body);
 			}
 		});
@@ -275,7 +275,7 @@ public class BitWorld {
 		pendingResolutions.clear();
 	}
 
-	private void expireContact(BitBody body) {
+	private void updateExistingContact(BitBody body) {
 		Iterator<BitBody> iterator = contacts.get(body).iterator();
 		BitBody otherBody = null;
 		while(iterator.hasNext()) {
@@ -288,6 +288,12 @@ public class BitWorld {
 				}
 				for (ContactListener listener : otherBody.getContactListeners()) {
 					listener.contactEnded(body);
+				}
+			} else {
+				// each side will hit this loop, so we only need to tell the
+				// current body
+				for (ContactListener listener : body.getContactListeners()) {
+					listener.contact(otherBody);
 				}
 			}
 		}
