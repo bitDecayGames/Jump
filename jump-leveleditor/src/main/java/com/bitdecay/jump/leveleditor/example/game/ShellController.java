@@ -7,7 +7,7 @@ import com.bitdecay.jump.control.BitBodyController;
  * Created by Monday on 11/12/2015.
  */
 public class ShellController implements BitBodyController {
-    boolean moving = true;
+    boolean moving = false;
     boolean left = false;
 
     int speed;
@@ -33,11 +33,13 @@ public class ShellController implements BitBodyController {
                     body.velocity.x = speed;
                 }
             }
+        } else {
+            body.velocity.x = 0;
         }
     }
 
     @Override
     public String getStatus() {
-        return "Shell";
+        return moving ? "Moving" : "Stopped";
     }
 }

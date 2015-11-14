@@ -177,7 +177,7 @@ public class BitWorld {
 		dynamicBodies.stream().forEach(body -> {
 			if (body.active) {
 				buildLevelCollisions(body);
-				expireContact(body);
+				updateExistingContact(body);
 				findNewContact(body);
 			}
 		});
@@ -275,18 +275,25 @@ public class BitWorld {
 		pendingResolutions.clear();
 	}
 
-	private void expireContact(BitBody body) {
+	private void updateExistingContact(BitBody body) {
 		Iterator<BitBody> iterator = contacts.get(body).iterator();
 		BitBody otherBody = null;
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
 			if (GeomUtils.intersection(body.aabb, otherBody.aabb) == null) {
 				iterator.remove();
+				contacts.get(otherBody).remove(body);
 				for (ContactListener listener : body.getContactListeners()) {
 					listener.contactEnded(otherBody);
 				}
 				for (ContactListener listener : otherBody.getContactListeners()) {
 					listener.contactEnded(body);
+				}
+			} else {
+				// each side will hit this loop, so we only need to tell the
+				// current body
+				for (ContactListener listener : body.getContactListeners()) {
+					listener.contact(otherBody);
 				}
 			}
 		}
@@ -308,12 +315,14 @@ public class BitWorld {
 					continue;
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
-					if (body.props.collides && otherBody.props.collides) {
-						// kinetic platforms currently also flag contacts with dynamic bodies
-						checkForNewCollision(body, otherBody);
-					}
+					if (otherBody != body) {
+						if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(otherBody.bodyType.DYNAMIC)) {
+							// kinetic platforms currently also flag contacts with dynamic bodies
+							checkForNewCollision(body, otherBody);
+						}
 
-					checkContact(body, otherBody);
+						checkContact(body, otherBody);
+					}
 				}
 			}
 		}
@@ -324,6 +333,7 @@ public class BitWorld {
 		if (intersection != null) {
 			if (!contacts.get(body).contains(otherBody)) {
 				contacts.get(body).add(otherBody);
+				contacts.get(otherBody).add(body);
 				for (ContactListener listener : body.getContactListeners()) {
 					listener.contactStarted(otherBody);
 				}
@@ -398,7 +408,7 @@ public class BitWorld {
 	 * @param against
 	 */
 	private void checkForNewCollision(BitBody body, BitBody against) {
-		if (!body.props.collides) {
+		if (!body.props.collides || !against.props.collides) {
 			return;
 		}
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
