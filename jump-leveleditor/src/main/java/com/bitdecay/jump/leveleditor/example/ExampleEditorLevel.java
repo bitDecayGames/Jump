@@ -21,9 +21,11 @@ import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.example.game.GameObject;
 import com.bitdecay.jump.leveleditor.example.game.SecretObject;
+import com.bitdecay.jump.leveleditor.example.game.ShellObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.gdx.input.GDXControls;
 import com.bitdecay.jump.control.PlayerInputController;
+import com.bitdecay.jump.leveleditor.example.level.ShellLevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.render.JumperRenderStateWatcher;
 
@@ -193,10 +195,10 @@ public class ExampleEditorLevel implements EditorHook {
     @Override
     public List<RenderableLevelObject> getCustomObjects() {
         builderMap.put(SecretThing.class, SecretObject.class);
+        builderMap.put(ShellLevelObject.class, ShellObject.class);
         List<RenderableLevelObject> exampleItems = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            exampleItems.add(new SecretThing());
-        }
+        exampleItems.add(new SecretThing());
+        exampleItems.add(new ShellLevelObject());
         return exampleItems;
     }
 }
