@@ -33,6 +33,8 @@ public class ShellController implements BitBodyController {
                     body.velocity.x = speed;
                 }
             }
+        } else {
+            body.velocity.x = 0;
         }
     }
 
