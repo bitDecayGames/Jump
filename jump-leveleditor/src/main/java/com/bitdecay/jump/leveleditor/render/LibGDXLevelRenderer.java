@@ -1,27 +1,21 @@
 package com.bitdecay.jump.leveleditor.render;
 
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.control.PathedBodyController;
+import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.geom.PathPoint;
-import com.bitdecay.jump.level.Direction;
-import com.bitdecay.jump.level.Level;
-import com.bitdecay.jump.level.TileBody;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
-import java.util.List;
-
 public class LibGDXLevelRenderer {
+    private SpriteBatch batch;
     private ShapeRenderer renderer;
 
     public LibGDXLevelRenderer() {
+        batch = new SpriteBatch();
         renderer = new ShapeRenderer();
     }
 
@@ -31,10 +25,17 @@ public class LibGDXLevelRenderer {
         renderer.setProjectionMatrix(cam.combined);
         renderer.begin(ShapeType.Line);
         renderer.setColor(BitColors.INACTIVE_OBJECT);
+        batch.setProjectionMatrix(cam.combined);
+        batch.begin();
+        batch.setColor(1, 1, 1, .3f);
         builder.otherObjects.forEach(object -> {
+            if (object instanceof RenderableLevelObject) {
+                batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
+            }
             renderer.rect(object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
-            LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL);
+            LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL_OBJECTS);
         });
+        batch.end();
         renderer.end();
     }
 }

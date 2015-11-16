@@ -14,7 +14,7 @@ public enum RenderLayer {
     SPEED(true),
     STATE_HELPERS(true),
     GRID(true),
-    LEVEL(true);
+    LEVEL_OBJECTS(true);
 
     public boolean userEditable;
     public boolean enabled = true;

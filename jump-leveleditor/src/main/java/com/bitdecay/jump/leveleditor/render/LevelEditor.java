@@ -180,7 +180,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (RenderLayer.GRID.enabled) {
             drawGrid();
         }
-        if (RenderLayer.LEVEL.enabled) {
+        if (RenderLayer.LEVEL_OBJECTS.enabled) {
             levelRenderer.render(curLevelBuilder, camera);
         }
         worldRenderer.render(hooker.getWorld(), camera);
