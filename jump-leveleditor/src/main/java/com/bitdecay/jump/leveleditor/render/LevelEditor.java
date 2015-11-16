@@ -69,6 +69,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private OrthographicCamera camera;
     private LibGDXWorldRenderer worldRenderer;
+    private LibGDXLevelRenderer levelRenderer;
     private ShapeRenderer shaper;
 
     private Map<OptionsMode, MouseMode> mouseModes;
@@ -108,6 +109,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         setCamToOrigin();
 
         worldRenderer = new LibGDXWorldRenderer();
+        levelRenderer = new LibGDXLevelRenderer();
 
         mouseModes = new HashMap<>();
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
@@ -175,8 +177,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (RenderLayer.GAME.enabled) {
             hooker.render(camera);
         }
-        if (RenderLayer.LEVEL_GRID.enabled) {
+        if (RenderLayer.GRID.enabled) {
             drawGrid();
+        }
+        if (RenderLayer.LEVEL.enabled) {
+            levelRenderer.render(curLevelBuilder, camera);
         }
         worldRenderer.render(hooker.getWorld(), camera);
         debugRender();

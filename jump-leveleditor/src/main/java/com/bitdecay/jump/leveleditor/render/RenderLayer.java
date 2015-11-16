@@ -13,7 +13,8 @@ public enum RenderLayer {
     TILES(true),
     SPEED(true),
     STATE_HELPERS(true),
-    LEVEL_GRID(true);
+    GRID(true),
+    LEVEL(true);
 
     public boolean userEditable;
     public boolean enabled = true;
