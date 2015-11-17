@@ -14,8 +14,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.collision.BitWorld;
-import com.bitdecay.jump.collision.SATCollisions;
-import com.bitdecay.jump.collision.SATResolution;
+import com.bitdecay.jump.collision.SATUtilities;
+import com.bitdecay.jump.collision.SATCollision;
 import com.bitdecay.jump.geom.*;
 
 public class CollisionEditor extends InputAdapter implements Screen {
@@ -122,12 +122,12 @@ public class CollisionEditor extends InputAdapter implements Screen {
         spriteBatch.setColor(1, 1, 1, .3f);
         spriteBatch.end();
 
-        SATResolution reso = SATCollisions.getCollision(r1, t1);
+        SATCollision reso = SATUtilities.getCollision(r1, t1);
         if (reso != null) {
             resolve(reso);
         }
 
-        reso = SATCollisions.getCollision(r1, t2);
+        reso = SATUtilities.getCollision(r1, t2);
         if (reso != null) {
             resolve(reso);
             shaper.begin(ShapeType.Line);
@@ -145,29 +145,29 @@ public class CollisionEditor extends InputAdapter implements Screen {
         shaper.end();
     }
 
-    private void resolve(SATResolution reso) {
-        System.out.println("reso: " + reso);
-
-        if (reso.axis.x != 0 && reso.axis.y > 0) {
-            // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
-            double atan = Math.atan(reso.axis.y / reso.axis.x);
-            System.out.println("atan: " + atan);
-            if (atan > 0) {
-                double angleToUpright;
-                angleToUpright = Math.PI / 2 - atan;
-                System.out.println("Ang to Up: " + angleToUpright);
-                double straightUp = reso.distance / Math.cos(angleToUpright);
-                r1.xy.add(0, (float) straightUp);
-            } else {
-                double angleToUpright;
-                angleToUpright = -(Math.PI / 2) - atan;
-                System.out.println("Ang to Up: " + angleToUpright);
-                double straightUp = reso.distance / Math.cos(angleToUpright);
-                r1.xy.add(0, (float) straightUp);
-            }
-        } else {
-            r1.xy.add(reso.axis.x * reso.distance, reso.axis.y * reso.distance);
-        }
+    private void resolve(SATCollision reso) {
+//        System.out.println("reso: " + reso);
+//
+//        if (reso.axis.x != 0 && reso.axis.y > 0) {
+//            // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
+//            double atan = Math.atan(reso.axis.y / reso.axis.x);
+//            System.out.println("atan: " + atan);
+//            if (atan > 0) {
+//                double angleToUpright;
+//                angleToUpright = Math.PI / 2 - atan;
+//                System.out.println("Ang to Up: " + angleToUpright);
+//                double straightUp = reso.distance / Math.cos(angleToUpright);
+//                r1.xy.add(0, (float) straightUp);
+//            } else {
+//                double angleToUpright;
+//                angleToUpright = -(Math.PI / 2) - atan;
+//                System.out.println("Ang to Up: " + angleToUpright);
+//                double straightUp = reso.distance / Math.cos(angleToUpright);
+//                r1.xy.add(0, (float) straightUp);
+//            }
+//        } else {
+//            r1.xy.add(reso.axis.x * reso.distance, reso.axis.y * reso.distance);
+//        }
     }
 
     private void drawGrid() {

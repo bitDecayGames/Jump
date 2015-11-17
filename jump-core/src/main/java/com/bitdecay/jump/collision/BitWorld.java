@@ -40,7 +40,7 @@ public class BitWorld {
 	 * A map of x to y to an occupying body.
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
-	private Map<BitBody, BitResolution> pendingResolutions;
+	private Map<BitBody, SATStrategy> pendingResolutions;
 	private Map<BitBody, Set<BitBody>> contacts;
 
 	/**
@@ -266,7 +266,7 @@ public class BitWorld {
 	private void resolveAndApplyPendingResolutions() {
 		dynamicBodies.forEach(body -> {
 			if (pendingResolutions.containsKey(body)) {
-				pendingResolutions.get(body).resolve(this);
+				pendingResolutions.get(body).satisfy(this);
 				applyResolution(body, pendingResolutions.get(body));
 			} else {
 				body.lastResolution.set(0,0);
@@ -316,7 +316,7 @@ public class BitWorld {
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
 					if (otherBody != body) {
-						if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(otherBody.bodyType.DYNAMIC)) {
+						if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(otherBody.bodyType)) {
 							// kinetic platforms currently also flag contacts with dynamic bodies
 							checkForNewCollision(body, otherBody);
 						}
@@ -387,7 +387,7 @@ public class BitWorld {
 		}
 	}
 
-	private void applyResolution(BitBody body, BitResolution resolution) {
+	private void applyResolution(BitBody body, SATStrategy resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			body.aabb.translate(resolution.resolution);
 			BitPoint velocityAdjustment = resolution.resolution.times(BitWorld.STEP_PER_SEC);
@@ -401,7 +401,7 @@ public class BitWorld {
 
 	/**
 	 * A simple method that sees if there is a mid-scope collision and adds it to the
-	 * {@link BitResolution} as something that might need to be handled at
+	 * {@link SATStrategy} as something that might need to be handled at
 	 * the time of resolution.
 	 *
 	 * @param body will always be a dynamic body with current code
@@ -412,17 +412,19 @@ public class BitWorld {
 			return;
 		}
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
-		if (insec != null) {
+		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
+		if (collision1 != null) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
-			BitResolution resolution = pendingResolutions.get(body);
+			SATStrategy resolution = pendingResolutions.get(body);
 			for (BitCollision collision : resolution.collisions) {
 				if (collision.otherBody == against) {
 					return;
 				}
 			}
-			resolution.collisions.add(new BitCollision(insec, against));
+//			resolution.collisions.add(new BitCollision(insec, against));
+			resolution.collisions.put(against, new SATStrategy(body));
 		}
 	}
 

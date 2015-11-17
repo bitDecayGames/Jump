@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Created by Monday on 9/4/2015.
  */
-public class SATCollisions {
+public class SATUtilities {
 
     /**
      * Builds a resolution to move p1 out of p2 if necessary
@@ -16,7 +16,7 @@ public class SATCollisions {
      * @param p2 the shape to resolve against
      * @return the resolution strategy, or null if the shapes do not intersect
      */
-    public static SATResolution getCollision(Projectable p1, Projectable p2) {
+    public static SATCollision getCollision(Projectable p1, Projectable p2) {
         BitPoint[] points1 = p1.getProjectionPoints();
         BitPoint[] points2 = p2.getProjectionPoints();
 
@@ -25,7 +25,7 @@ public class SATCollisions {
         buildAxes(points1, perpendicularAxes);
         buildAxes(points2, perpendicularAxes);
 
-        SATResolution res = null;
+        SATCollision res = null;
         for (BitPoint axis : perpendicularAxes) {
             BitPoint line1 = project(axis, points1);
             BitPoint line2 = project(axis, points2);
@@ -33,20 +33,12 @@ public class SATCollisions {
             if (overlap != null) {
                 if (res == null) {
                     // only instantiate the resolution if we need to.
-                    res = new SATResolution();
+                    res = new SATCollision();
                 }
-                res.addAxis(axis, overlap);
+                res.addCandidate(new Manifold(axis, overlap));
             } else {
                 // if any axis has no overlap, then the shapes do not intersect
                 return null;
-            }
-        }
-        if (res != null) {
-            // normalize our data so the resolution is always a positive vector
-            if (res.distance < 0) {
-                res.distance *= -1;
-                res.axis.x *= -1;
-                res.axis.y *= -1;
             }
         }
         return res;

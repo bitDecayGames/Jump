@@ -13,12 +13,10 @@ public class BitCollision implements Comparable<BitCollision> {
 
 	public BitRectangle collisionZone;
 	public BitBody otherBody;
-	private float collisionArea;
 
 	public BitCollision(BitRectangle zone, BitBody other) {
 		collisionZone = zone;
 		this.otherBody = other;
-		collisionArea = collisionZone.height * collisionZone.width;
 	}
 
 	@Override
@@ -30,7 +28,8 @@ public class BitCollision implements Comparable<BitCollision> {
 		} else if (otherCollisionWithKinetic && !thisCollisionWithKinetic) {
 			return 1;
 		} else {
-			return -1 * Float.compare(collisionArea, o.collisionArea);
+//			return -1 * Float.compare(collisionArea, o.collisionArea);
+			return 0;
 		}
 	}
 }
