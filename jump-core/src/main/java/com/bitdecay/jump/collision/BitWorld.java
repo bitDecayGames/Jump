@@ -280,7 +280,7 @@ public class BitWorld {
 		BitBody otherBody = null;
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
-			if (GeomUtils.intersection(body.aabb, otherBody.aabb) == null) {
+			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
 				iterator.remove();
 				contacts.get(otherBody).remove(body);
 				for (ContactListener listener : body.getContactListeners()) {
@@ -329,8 +329,7 @@ public class BitWorld {
 	}
 
 	private void checkContact(BitBody body, BitBody otherBody) {
-		BitRectangle intersection = GeomUtils.intersection(body.aabb, otherBody.aabb);
-		if (intersection != null) {
+		if (SATUtilities.getCollision(body.aabb, otherBody.aabb) != null) {
 			if (!contacts.get(body).contains(otherBody)) {
 				contacts.get(body).add(otherBody);
 				contacts.get(otherBody).add(body);
@@ -411,20 +410,18 @@ public class BitWorld {
 		if (!body.props.collides || !against.props.collides) {
 			return;
 		}
-		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
-//		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
-		if (insec != null) {
+		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
+		if (collision1 != null) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
 			SATStrategy resolution = pendingResolutions.get(body);
 			for (BitCollision collision : resolution.collisions) {
-				if (collision.otherBody == against) {
+				if (collision.against == against) {
 					return;
 				}
 			}
-			resolution.collisions.add(new BitCollision(insec, against));
-//			resolution.collisions.put(against, new SATStrategy(body));
+			resolution.collisions.add(new BitCollision(body, against, collision1));
 		}
 	}
 

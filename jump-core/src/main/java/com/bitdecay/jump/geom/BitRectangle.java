@@ -47,6 +47,10 @@ public class BitRectangle implements Projectable {
 		return height;
 	}
 
+	public float area() {
+		return width * height;
+	}
+
 	public void translate(BitPoint point) {
 		translate(point.x, point.y);
 	}

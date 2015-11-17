@@ -24,6 +24,14 @@ public class SATCollision {
         manifoldCandidates.add(manifold);
     }
 
+    public float manifoldTotal() {
+        float total = 0;
+        for (Manifold manifold : manifoldCandidates) {
+            total += manifold.distance;
+        }
+        return total;
+    }
+
     /**
      * This method finds what axis should be used for resolution. This method takes into account the relative
      * speeds of the objects being resolved. A resolution will only be applied to an object that is AGAINST
@@ -36,13 +44,13 @@ public class SATCollision {
      *
      *  @param body the body being resolved
      * @param otherBody the other body that participated in the collision
-     * @param resolvedPosition the current partially built resolution
+     * @param cumulativeResolution the current partially built resolved position
      */
-    public Manifold solve(BitBody body, BitBody otherBody, BitRectangle resolvedPosition) {
+    public Manifold solve(BitBody body, BitBody otherBody, BitPoint cumulativeResolution) {
         manifoldCandidates.sort((o1, o2) -> Float.compare(Math.abs(o1.distance), Math.abs(o2.distance)));
         // this line is just taking where the body tried to move and the partially resolved position into account to
         // figure out the relative momentum.
-        BitPoint relativeMovement = body.currentAttempt.plus(resolvedPosition.xy.minus(body.aabb.xy)).minus(otherBody.currentAttempt);
+        BitPoint relativeMovement = body.currentAttempt.plus(cumulativeResolution).minus(otherBody.currentAttempt);
         float dotProd;
         for (Manifold manifold : manifoldCandidates) {
             dotProd = relativeMovement.dot(manifold.axis);
@@ -52,7 +60,7 @@ public class SATCollision {
                         continue;
                     }
                     // confirm that body came from past this thing
-                    float resolutionPosition = resolvedPosition.xy.plus(manifold.axis.times(manifold.distance)).dot(manifold.axis);
+                    float resolutionPosition = body.aabb.xy.plus(cumulativeResolution).plus(manifold.result).dot(manifold.axis);
                     float lastPosition = body.lastPosition.dot(manifold.axis);
 
                     if (MathUtils.opposing(resolutionPosition, lastPosition)) {

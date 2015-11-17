@@ -2,7 +2,6 @@ package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.*;
 import com.bitdecay.jump.geom.BitPoint;
-import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.MathUtils;
 
@@ -17,13 +16,13 @@ public class SATStrategy {
 
     public PriorityQueue<BitCollision> collisions = new PriorityQueue<>();
 
-    protected BitRectangle resolvedPosition;
+    protected BitPoint cumulativeResolution;
     protected BitPoint resolution = new BitPoint(0, 0);
     protected BitBody body;
 
     public SATStrategy(BitBody body) {
         this.body = body;
-        resolvedPosition = new BitRectangle(body.aabb);
+        cumulativeResolution = new BitPoint();
     }
 
     /**
@@ -35,47 +34,41 @@ public class SATStrategy {
         // TODO: This method can probably made more efficient if needed down the road
         List<BitPoint> directionsResolved = new ArrayList<>();
         for (BitCollision collision : collisions) {
-            SATCollision satRes = SATUtilities.getCollision(resolvedPosition, collision.otherBody.aabb);
-            if (satRes != null) {
-                Manifold manifold = getSolution(resolvedPosition, satRes, body, collision.otherBody);
-                if (manifold.axis.equals(GeomUtils.ZERO_AXIS)) {
-                    continue;
-                }
-                resolvedPosition.xy.add(manifold.axis.x * manifold.distance, manifold.axis.y * manifold.distance);
-                BitPoint resAxis = manifold.result.normalize();
-                for (BitPoint otherAxis : directionsResolved) {
-                    // this will only check exact opposites, may need to change if we move away from rectangle tiles
-                    if (resAxis.scale(-1).equals(otherAxis)) {
-                        // reset any pending resolutions.
-                        // don't bother moving a dead body
-                        // short circuit the resolution
-                        // and return
-                        resolvedPosition.set(body.aabb);
-                        body.active = false;
-                        body.velocity.set(0, 0);
-                        body.getContactListeners().forEach(listener -> listener.crushed());
-                        return;
-                    }
-                }
-                directionsResolved.add(resAxis);
-                postResolve(world, body, collision.otherBody, manifold);
+            Manifold manifold = getSolution(cumulativeResolution, collision);
+            if (manifold.axis.equals(GeomUtils.ZERO_AXIS)) {
+                continue;
             }
+            cumulativeResolution.add(manifold.result);
+            BitPoint resAxis = manifold.result.normalize();
+            for (BitPoint otherAxis : directionsResolved) {
+                // this will only check exact opposites, may need to change if we move away from rectangle tiles
+                if (resAxis.scale(-1).equals(otherAxis)) {
+                    // reset any pending resolutions.
+                    // don't bother moving a dead body
+                    // short circuit the resolution
+                    // and return
+                    cumulativeResolution.set(body.aabb.xy);
+                    body.active = false;
+                    body.velocity.set(0, 0);
+                    body.getContactListeners().forEach(listener -> listener.crushed());
+                    return;
+                }
+            }
+            directionsResolved.add(resAxis);
+            postResolve(world, body, collision.against, manifold);
         }
         // set final resolution values
-        resolution.x = resolvedPosition.xy.x - body.aabb.xy.x;
-        resolution.y = resolvedPosition.xy.y - body.aabb.xy.y;
+        resolution.set(cumulativeResolution);
     }
 
     /**
      * Adjusts the resolved position based on both the outcome of computing the resolution axis AND
      * player properties such as the max angle they can walk up.
-     * @param resolvedPosition partially built resolved position
-     * @param satCollision the collision to take into consideration
-     * @param body the body being resolved
-     * @param otherBody the body they collided against
+     * @param cumulativeResolution partially built resolved position
+     * @param collisionBundle the collision to take into consideration
      */
-    private Manifold getSolution(BitRectangle resolvedPosition, SATCollision satCollision, BitBody body, BitBody otherBody) {
-        Manifold candidate = satCollision.solve(body, otherBody, resolvedPosition);
+    private Manifold getSolution(BitPoint cumulativeResolution, BitCollision collisionBundle) {
+        Manifold candidate = collisionBundle.manifoldData.solve(body, collisionBundle.against, cumulativeResolution);
         if (candidate.axis.x != 0 && candidate.axis.y > 0) {
             // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
             // atan is our angle of resolution
@@ -87,12 +80,12 @@ public class SATStrategy {
                     double angleToUpright;
                     angleToUpright = MathUtils.PI_OVER_TWO - atan;
                     double straightUp = candidate.distance / Math.cos(angleToUpright);
-                    resolvedPosition.xy.add(0, (float) straightUp);
+                    cumulativeResolution.add(0, (float) straightUp);
                 } else {
                     double angleToUpright;
                     angleToUpright = -MathUtils.PI_OVER_TWO - atan;
                     double straightUp = candidate.distance / Math.cos(angleToUpright);
-                    resolvedPosition.xy.add(0, (float) straightUp);
+                    cumulativeResolution.add(0, (float) straightUp);
                 }
                 return candidate;
             } else {
