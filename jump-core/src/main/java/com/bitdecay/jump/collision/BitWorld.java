@@ -412,7 +412,7 @@ public class BitWorld {
 			return;
 		}
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
-		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
+//		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
 		if (collision1 != null) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
@@ -423,8 +423,8 @@ public class BitWorld {
 					return;
 				}
 			}
-//			resolution.collisions.add(new BitCollision(insec, against));
-			resolution.collisions.put(against, new SATStrategy(body));
+			resolution.collisions.add(new BitCollision(insec, against));
+//			resolution.collisions.put(against, new SATStrategy(body));
 		}
 	}
 
