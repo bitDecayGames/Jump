@@ -413,7 +413,7 @@ public class BitWorld {
 		}
 		BitRectangle insec = GeomUtils.intersection(body.aabb, against.aabb);
 //		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
-		if (collision1 != null) {
+		if (insec != null) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
