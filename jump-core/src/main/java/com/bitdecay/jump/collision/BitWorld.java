@@ -458,7 +458,8 @@ public class BitWorld {
 			return;
 		} else if (body.resolutionLocked) {
 			return;
-		} else {
+		} else if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(against.bodyType)) {
+			// all we have to do is take out the xor if and dynamic bodies will collide. There are still bugs, however
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
