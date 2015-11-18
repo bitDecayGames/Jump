@@ -277,7 +277,7 @@ public class BitWorld {
 
 	private void updateExistingContact(BitBody body) {
 		Iterator<BitBody> iterator = contacts.get(body).iterator();
-		BitBody otherBody = null;
+		BitBody otherBody;
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
 			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
@@ -410,8 +410,8 @@ public class BitWorld {
 		if (!body.props.collides || !against.props.collides) {
 			return;
 		}
-		SATCollision collision1 = SATUtilities.getCollision(body.aabb, against.aabb);
-		if (collision1 != null) {
+		SATCollision narrowScopeOverlap = SATUtilities.getCollision(body.aabb, against.aabb);
+		if (narrowScopeOverlap != null) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
@@ -421,7 +421,7 @@ public class BitWorld {
 					return;
 				}
 			}
-			resolution.collisions.add(new BitCollision(body, against, collision1));
+			resolution.collisions.add(new BitCollision(body, against));
 		}
 	}
 

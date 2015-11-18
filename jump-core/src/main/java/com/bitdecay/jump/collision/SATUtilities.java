@@ -38,7 +38,7 @@ public class SATUtilities {
                 res.addCandidate(new Manifold(axis, overlap));
             } else {
                 // if any axis has no overlap, then the shapes do not intersect
-                return null;
+                return new SATCollision();
             }
         }
         return res;

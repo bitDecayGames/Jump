@@ -2,6 +2,7 @@ package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.*;
 import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.MathUtils;
 
@@ -68,7 +69,10 @@ public class SATStrategy {
      * @param collisionBundle the collision to take into consideration
      */
     private Manifold getSolution(BitPoint cumulativeResolution, BitCollision collisionBundle) {
-        Manifold candidate = collisionBundle.manifoldData.solve(body, collisionBundle.against, cumulativeResolution);
+        BitRectangle effectiveSpace = new BitRectangle(collisionBundle.body.aabb);
+        effectiveSpace.xy.add(cumulativeResolution);
+        SATCollision collision = SATUtilities.getCollision(effectiveSpace, collisionBundle.against.aabb);
+        Manifold candidate = collision.solve(body, collisionBundle.against, cumulativeResolution);
         if (candidate.axis.x != 0 && candidate.axis.y > 0) {
             // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
             // atan is our angle of resolution
