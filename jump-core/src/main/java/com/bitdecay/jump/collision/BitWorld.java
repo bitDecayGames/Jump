@@ -381,16 +381,14 @@ public class BitWorld {
 	}
 
 	/**
-	 * A simple method that sees if there is a mid-scope collision and adds it to the
-	 * {@link SATStrategy} as something that might need to be handled at
-	 * the time of resolution.
+	 * A simple method that sees if there is a mid-scope overlap and
+	 * possibly adds new collisions or contacts if needed.
 	 *
-	 * @param body will always be a dynamic body with current code
+	 * @param body
 	 * @param against
 	 */
 	private void checkForNewEvent(BitBody body, BitBody against) {
-		SATCollision middleScopeOverlap = SATUtilities.getCollision(body.aabb, against.aabb);
-		if (middleScopeOverlap != null) {
+		if (SATUtilities.getCollision(body.aabb, against.aabb) != null) {
 			maybeFlagNewContact(body, against);
 			maybeCollide(body, against);
 		}
