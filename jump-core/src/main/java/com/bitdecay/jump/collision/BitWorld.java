@@ -178,7 +178,7 @@ public class BitWorld {
 			if (body.active) {
 				buildLevelCollisions(body);
 				updateExistingContact(body);
-				findNewContact(body);
+				findNewInteractions(body);
 			}
 		});
 		/**
@@ -269,7 +269,7 @@ public class BitWorld {
 				pendingResolutions.get(body).satisfy(this);
 				applyResolution(body, pendingResolutions.get(body));
 			} else {
-				body.lastResolution.set(0,0);
+				body.lastResolution.set(0, 0);
 			}
 		});
 		pendingResolutions.clear();
@@ -281,6 +281,8 @@ public class BitWorld {
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
 			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
+				// one side will hit this first, and since we are here we might as well
+				// just clean up both sides
 				iterator.remove();
 				contacts.get(otherBody).remove(body);
 				for (ContactListener listener : body.getContactListeners()) {
@@ -299,7 +301,7 @@ public class BitWorld {
 		}
 	}
 
-	private void findNewContact(BitBody body) {
+	private void findNewInteractions(BitBody body) {
 		// We need to update each body against the level grid so we only collide things worth colliding
 		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
@@ -316,28 +318,8 @@ public class BitWorld {
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
 					if (otherBody != body) {
-						if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(otherBody.bodyType)) {
-							// kinetic platforms currently also flag contacts with dynamic bodies
-							checkForNewCollision(body, otherBody);
-						}
-
-						checkContact(body, otherBody);
+						checkForNewEvent(body, otherBody);
 					}
-				}
-			}
-		}
-	}
-
-	private void checkContact(BitBody body, BitBody otherBody) {
-		if (SATUtilities.getCollision(body.aabb, otherBody.aabb) != null) {
-			if (!contacts.get(body).contains(otherBody)) {
-				contacts.get(body).add(otherBody);
-				contacts.get(otherBody).add(body);
-				for (ContactListener listener : body.getContactListeners()) {
-					listener.contactStarted(otherBody);
-				}
-				for (ContactListener listener : otherBody.getContactListeners()) {
-					listener.contactStarted(body);
 				}
 			}
 		}
@@ -357,7 +339,7 @@ public class BitWorld {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
-					checkForNewCollision(body, checkObj);
+					checkForNewEvent(body, checkObj);
 				}
 			}
 		}
@@ -406,12 +388,31 @@ public class BitWorld {
 	 * @param body will always be a dynamic body with current code
 	 * @param against
 	 */
-	private void checkForNewCollision(BitBody body, BitBody against) {
+	private void checkForNewEvent(BitBody body, BitBody against) {
+		SATCollision middleScopeOverlap = SATUtilities.getCollision(body.aabb, against.aabb);
+		if (middleScopeOverlap != null) {
+			maybeFlagNewContact(body, against);
+			maybeCollide(body, against);
+		}
+	}
+
+	private void maybeFlagNewContact(BitBody body, BitBody against) {
+		if (!contacts.get(body).contains(against)) {
+			contacts.get(body).add(against);
+			contacts.get(against).add(body);
+			for (ContactListener listener : body.getContactListeners()) {
+				listener.contactStarted(against);
+			}
+			for (ContactListener listener : against.getContactListeners()) {
+				listener.contactStarted(body);
+			}
+		}
+	}
+
+	private void maybeCollide(BitBody body, BitBody against) {
 		if (!body.props.collides || !against.props.collides) {
 			return;
-		}
-		SATCollision narrowScopeOverlap = SATUtilities.getCollision(body.aabb, against.aabb);
-		if (narrowScopeOverlap != null) {
+		} else if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(against.bodyType)) {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
@@ -460,12 +461,23 @@ public class BitWorld {
 	}
 
 	private void parseGrid(TileObject[][] grid) {
+		clearOutCurrentGrid();
 		gridObjects = new BitBody[grid.length][grid[0].length];
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				if (grid[x][y] != null) {
-					gridObjects[x][y] = grid[x][y].buildBody();
+					BitBody tileBody = grid[x][y].buildBody();
+					gridObjects[x][y] = tileBody;
+					contacts.put(tileBody, new HashSet<>());
 				}
+			}
+		}
+	}
+
+	private void clearOutCurrentGrid() {
+		for (int x = 0; x < gridObjects.length; x++) {
+			for (int y = 0; y < gridObjects[0].length; y++) {
+				contacts.remove(gridObjects[x][y]);
 			}
 		}
 	}
@@ -476,10 +488,6 @@ public class BitWorld {
 
 	public int getTileSize() {
 		return tileSize;
-	}
-
-	public BitPointInt getBodyOffset() {
-		return gridOffset;
 	}
 
 	public void setObjects(Collection<BitBody> otherObjects) {
