@@ -41,6 +41,8 @@ public class BitWorld {
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
 	private Map<BitBody, SATStrategy> pendingResolutions;
+	private SATStrategyComparator strategyComparator = new SATStrategyComparator();
+
 	private Map<BitBody, Set<BitBody>> contacts;
 
 	/**
@@ -171,21 +173,30 @@ public class BitWorld {
 		 * END OF MOVING EVERYTHING
 		 */
 
-		/**
-		 * BUILD COLLISIONS
-		 */
-		dynamicBodies.stream().forEach(body -> {
-			if (body.active) {
-				buildLevelCollisions(body);
-				updateExistingContact(body);
-				findNewInteractions(body);
+		int remainingIterations = 10;
+		boolean continueCollisions = true;
+		while (continueCollisions) {
+			if (remainingIterations-- <= 0) {
+				break;
 			}
-		});
-		/**
-		 * END COLLISIONS
-		 */
 
-		resolveAndApplyPendingResolutions();
+			/**
+			 * BUILD COLLISIONS
+			 */
+			dynamicBodies.stream().forEach(body -> {
+				if (body.active) {
+					buildLevelCollisions(body);
+					updateExistingContact(body);
+					findNewInteractions(body);
+				}
+			});
+			/**
+			 * END COLLISIONS
+			 */
+
+			continueCollisions = pendingResolutions.size() > 0;
+			resolveAndApplyPendingResolutions();
+		}
 
 		dynamicBodies.parallelStream().forEach(body -> {
 			if (body.active && body.renderStateWatcher != null) {
@@ -239,6 +250,9 @@ public class BitWorld {
 		body.grounded = false;
 		// all dynamicBodies assumed to be independent unless a lineage collision happens this step.
 		body.parents.clear();
+
+		body.resolutionLocked = false;
+		body.lastResolution.set(0, 0);
 	}
 
 	private void doAddRemoves() {
@@ -264,13 +278,11 @@ public class BitWorld {
 	}
 
 	private void resolveAndApplyPendingResolutions() {
-		dynamicBodies.forEach(body -> {
-			if (pendingResolutions.containsKey(body)) {
-				pendingResolutions.get(body).satisfy(this);
-				applyResolution(body, pendingResolutions.get(body));
-			} else {
-				body.lastResolution.set(0, 0);
-			}
+		ArrayList<SATStrategy> list = new ArrayList<>(pendingResolutions.values());
+		Collections.sort(list, strategyComparator);
+		list.forEach(pending -> {
+			pending.satisfy(this);
+			applyResolution(pending);
 		});
 		pendingResolutions.clear();
 	}
@@ -368,16 +380,17 @@ public class BitWorld {
 		}
 	}
 
-	private void applyResolution(BitBody body, SATStrategy resolution) {
+	private void applyResolution(SATStrategy resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
-			body.aabb.translate(resolution.resolution);
+			resolution.body.aabb.translate(resolution.resolution);
 			BitPoint velocityAdjustment = resolution.resolution.times(BitWorld.STEP_PER_SEC);
-			body.velocity.add(velocityAdjustment);
+			resolution.body.velocity.add(velocityAdjustment);
 			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
-				body.grounded = true;
+				resolution.body.grounded = true;
 			}
 		}
-		body.lastResolution = resolution.resolution;
+		resolution.body.lastResolution.add(resolution.resolution);
+		resolution.body.resolutionLocked = resolution.lockingResolution;
 	}
 
 	/**
@@ -410,7 +423,9 @@ public class BitWorld {
 	private void maybeCollide(BitBody body, BitBody against) {
 		if (!body.props.collides || !against.props.collides) {
 			return;
-		} else if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(against.bodyType)) {
+		} else if (body.resolutionLocked) {
+			return;
+		} else {
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}

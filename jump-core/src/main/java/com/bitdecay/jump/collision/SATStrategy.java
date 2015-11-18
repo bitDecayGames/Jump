@@ -21,6 +21,11 @@ public class SATStrategy {
     protected BitPoint resolution = new BitPoint(0, 0);
     protected BitBody body;
 
+    /**
+     * If set to true, {@link BitBody#resolutionLocked} should be flagged as true after this resolution
+     */
+    public boolean lockingResolution;
+
     public SATStrategy(BitBody body) {
         this.body = body;
         cumulativeResolution = new BitPoint();
@@ -39,11 +44,16 @@ public class SATStrategy {
             if (manifold.axis.equals(GeomUtils.ZERO_AXIS)) {
                 continue;
             }
+            if (BodyType.STATIC.equals(collision.against.bodyType) ||
+                    BodyType.KINETIC.equals(collision.against.bodyType) ||
+                    collision.against.resolutionLocked) {
+                this.lockingResolution = true;
+            }
             cumulativeResolution.add(manifold.result);
             BitPoint resAxis = manifold.result.normalize();
             for (BitPoint otherAxis : directionsResolved) {
                 // this will only check exact opposites, may need to change if we move away from rectangle tiles
-                if (resAxis.scale(-1).equals(otherAxis)) {
+                if (collision.body.props.crushable && resAxis.scale(-1).equals(otherAxis)) {
                     // reset any pending resolutions.
                     // don't bother moving a dead body
                     // short circuit the resolution
@@ -72,31 +82,35 @@ public class SATStrategy {
         BitRectangle effectiveSpace = new BitRectangle(collisionBundle.body.aabb);
         effectiveSpace.xy.add(cumulativeResolution);
         SATCollision collision = SATUtilities.getCollision(effectiveSpace, collisionBundle.against.aabb);
-        Manifold candidate = collision.solve(body, collisionBundle.against, cumulativeResolution);
-        if (candidate.axis.x != 0 && candidate.axis.y > 0) {
-            // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
-            // atan is our angle of resolution
-            double atan = Math.atan(candidate.axis.y / candidate.axis.x);
+        if (collision != null) {
+            Manifold candidate = collision.solve(body, collisionBundle.against, cumulativeResolution);
+            if (candidate.axis.x != 0 && candidate.axis.y > 0) {
+                // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
+                // atan is our angle of resolution
+                double atan = Math.atan(candidate.axis.y / candidate.axis.x);
 
-            if (Math.abs(atan - MathUtils.PI_OVER_TWO) <= Math.toRadians(30)) {
-                // currently we impose a hard limit of 30 degree angle 'walkability'
-                if (atan > 0) {
-                    double angleToUpright;
-                    angleToUpright = MathUtils.PI_OVER_TWO - atan;
-                    double straightUp = candidate.distance / Math.cos(angleToUpright);
-                    cumulativeResolution.add(0, (float) straightUp);
+                if (Math.abs(atan - MathUtils.PI_OVER_TWO) <= Math.toRadians(30)) {
+                    // currently we impose a hard limit of 30 degree angle 'walkability'
+                    if (atan > 0) {
+                        double angleToUpright;
+                        angleToUpright = MathUtils.PI_OVER_TWO - atan;
+                        double straightUp = candidate.distance / Math.cos(angleToUpright);
+                        cumulativeResolution.add(0, (float) straightUp);
+                    } else {
+                        double angleToUpright;
+                        angleToUpright = -MathUtils.PI_OVER_TWO - atan;
+                        double straightUp = candidate.distance / Math.cos(angleToUpright);
+                        cumulativeResolution.add(0, (float) straightUp);
+                    }
+                    return candidate;
                 } else {
-                    double angleToUpright;
-                    angleToUpright = -MathUtils.PI_OVER_TWO - atan;
-                    double straightUp = candidate.distance / Math.cos(angleToUpright);
-                    cumulativeResolution.add(0, (float) straightUp);
+                    // TODO: we need to actually resolve the player horizontally, showing the angle is too steep.
                 }
-                return candidate;
-            } else {
-                // TODO: we need to actually resolve the player horizontally, showing the angle is too steep.
             }
+            return candidate;
+        } else {
+            return GeomUtils.ZERO_MANIFOLD;
         }
-        return candidate;
     }
 
     /**
