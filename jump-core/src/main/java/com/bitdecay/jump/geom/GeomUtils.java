@@ -1,5 +1,7 @@
 package com.bitdecay.jump.geom;
 
+import com.bitdecay.jump.collision.Manifold;
+
 import java.util.*;
 
 public class GeomUtils {
@@ -10,6 +12,8 @@ public class GeomUtils {
 	public static final BitPoint NEG_Y_AXIS = new BitPoint(0, -1);
 
 	public static final BitPoint ZERO_AXIS = new BitPoint(0, 0);
+
+	public static final Manifold ZERO_MANIFOLD = new Manifold(ZERO_AXIS, 0);
 
 	public static BitRectangle makeRect(BitPointInt start, BitPointInt end) {
 		return new BitRectangle(start.x, start.y, end.x - start.x, end.y - start.y);

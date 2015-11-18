@@ -138,7 +138,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
             if (startPoint != null && speedPoint != null) {
                 shaper.setColor(BitColors.SPEED);
                 shaper.line(startPoint.x, startPoint.y, speedPoint.x, speedPoint.y);
-                LevelEditor.addStringForRender(String.format("%.0f speed", platformSpeed), new BitPoint(speedPoint.x, speedPoint.y + 10), RenderLayer.MOUSE_TOOLS);
+                LevelEditor.addStringForRender(String.format("%d speed", platformSpeed), new BitPoint(speedPoint.x, speedPoint.y + 10), RenderLayer.MOUSE_TOOLS);
             }
         }
         if (platform == null) {

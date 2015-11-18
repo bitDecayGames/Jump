@@ -32,10 +32,6 @@ public class JumpingControlState extends SidewaysControlState {
     public JumperBodyControlState update(float delta, JumperBody body, ControlMap controls) {
 
         handleLeftRight(delta, body, controls, body.props.airAcceleration, body.props.airDeceleration);
-        if (body.jumperProps.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
-            return new WallSlideState();
-        }
-
         if (body.jumperProps.jumpHittingHeadStopsJump){
             if (BitWorld.gravity.dot(body.lastResolution) > 0) {
                 return new FallingControlState();
@@ -57,6 +53,9 @@ public class JumpingControlState extends SidewaysControlState {
                 return new FallingControlState();
             }
         } else {
+            if (body.jumperProps.wallSlideEnabled && BitWorld.gravity.dot(body.currentAttempt) > 0 && body.lastResolution.x != 0) {
+                return new WallSlideState();
+            }
             return new GroundedControlState();
         }
     }

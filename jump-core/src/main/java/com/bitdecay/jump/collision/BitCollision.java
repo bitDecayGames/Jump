@@ -3,6 +3,7 @@ package com.bitdecay.jump.collision;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.GeomUtils;
 
 /**
  * Collision data object. Handles priority vs other collisions. Larger
@@ -11,26 +12,16 @@ import com.bitdecay.jump.geom.BitRectangle;
  */
 public class BitCollision implements Comparable<BitCollision> {
 
-	public BitRectangle collisionZone;
-	public BitBody otherBody;
-	private float collisionArea;
+	public BitBody body;
+	public BitBody against;
 
-	public BitCollision(BitRectangle zone, BitBody other) {
-		collisionZone = zone;
-		this.otherBody = other;
-		collisionArea = collisionZone.height * collisionZone.width;
+	public BitCollision(BitBody body, BitBody against) {
+		this.body = body;
+		this.against = against;
 	}
 
 	@Override
 	public int compareTo(BitCollision o) {
-		boolean thisCollisionWithKinetic = BodyType.KINETIC.equals(otherBody.bodyType);
-		boolean otherCollisionWithKinetic = BodyType.KINETIC.equals(o.otherBody.bodyType);
-		if (thisCollisionWithKinetic && !otherCollisionWithKinetic) {
-			return -1;
-		} else if (otherCollisionWithKinetic && !thisCollisionWithKinetic) {
-			return 1;
-		} else {
-			return -1 * Float.compare(collisionArea, o.collisionArea);
-		}
+		return Integer.compare(against.bodyType.order, o.against.bodyType.order);
 	}
 }
