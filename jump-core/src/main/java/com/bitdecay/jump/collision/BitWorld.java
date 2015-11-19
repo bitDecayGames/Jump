@@ -41,7 +41,11 @@ public class BitWorld {
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
 	private Map<BitBody, SATStrategy> pendingResolutions;
-	private Map<BitBody, Set<BitBody>> contacts;
+	private SATStrategyComparator strategyComparator = new SATStrategyComparator();
+
+	private Map<BitBody, Set<BitBody>> newContacts;
+	private Map<BitBody, Set<BitBody>> ongoingContacts;
+	private Map<BitBody, Set<BitBody>> endedContacts;
 
 	/**
 	 * A READ-ONLY easy-access to gravity. Use setGravity(...) so that other things are properly set
@@ -62,7 +66,9 @@ public class BitWorld {
 		pendingRemoves = new ArrayList<>();
 		occupiedSpaces = new HashMap<>();
 		pendingResolutions = new HashMap<>();
-		contacts = new HashMap<>();
+		newContacts = new HashMap<>();
+		ongoingContacts = new HashMap<>();
+		endedContacts = new HashMap<>();
 	}
 
 	public BitPoint getGravity() {
@@ -171,26 +177,38 @@ public class BitWorld {
 		 * END OF MOVING EVERYTHING
 		 */
 
-		/**
-		 * BUILD COLLISIONS
-		 */
-		dynamicBodies.stream().forEach(body -> {
-			if (body.active) {
-				buildLevelCollisions(body);
-				updateExistingContact(body);
-				findNewInteractions(body);
+		int remainingIterations = 10;
+		boolean continueCollisions = true;
+		while (continueCollisions) {
+			if (remainingIterations-- <= 0) {
+				break;
 			}
-		});
-		/**
-		 * END COLLISIONS
-		 */
 
-		resolveAndApplyPendingResolutions();
+			/**
+			 * BUILD COLLISIONS
+			 */
+			dynamicBodies.stream().forEach(body -> {
+				if (body.active) {
+					buildLevelCollisions(body);
+					updateExistingContact(body);
+					findNewInteractions(body);
+				}
+			});
+			/**
+			 * END COLLISIONS
+			 */
+
+			continueCollisions = pendingResolutions.size() > 0;
+			resolveAndApplyPendingResolutions();
+		}
 
 		dynamicBodies.parallelStream().forEach(body -> {
 			if (body.active && body.renderStateWatcher != null) {
 				body.renderStateWatcher.update(body);
 			}
+			fireExpiredContacts(body);
+			fireContinuedContacts(body);
+			fireNewContacts(body);
 		});
 	}
 
@@ -239,13 +257,18 @@ public class BitWorld {
 		body.grounded = false;
 		// all dynamicBodies assumed to be independent unless a lineage collision happens this step.
 		body.parents.clear();
+
+		body.resolutionLocked = false;
+		body.lastResolution.set(0, 0);
 	}
 
 	private void doAddRemoves() {
 		dynamicBodies.removeAll(pendingRemoves);
 		kineticBodies.removeAll(pendingRemoves);
 		staticBodies.removeAll(pendingRemoves);
-		pendingRemoves.stream().forEach(body -> contacts.remove(body));
+		pendingRemoves.stream().forEach(body -> {
+			removeFromContacts(body);
+		});
 		pendingRemoves.clear();
 
 		for (BitBody body : pendingAdds) {
@@ -258,48 +281,21 @@ public class BitWorld {
 			if (BodyType.STATIC == body.bodyType) {
 				staticBodies.add(body);
 			}
-			contacts.put(body, new HashSet<>());
+			addToContacts(body);
 		}
 		pendingAdds.clear();
 	}
 
 	private void resolveAndApplyPendingResolutions() {
-		dynamicBodies.forEach(body -> {
-			if (pendingResolutions.containsKey(body)) {
-				pendingResolutions.get(body).satisfy(this);
-				applyResolution(body, pendingResolutions.get(body));
-			} else {
-				body.lastResolution.set(0, 0);
-			}
+		ArrayList<SATStrategy> list = new ArrayList<>(pendingResolutions.values());
+		Collections.sort(list, strategyComparator);
+		list.forEach(pending -> {
+			pending.satisfy(this);
+			applyResolution(pending);
 		});
 		pendingResolutions.clear();
 	}
 
-	private void updateExistingContact(BitBody body) {
-		Iterator<BitBody> iterator = contacts.get(body).iterator();
-		BitBody otherBody;
-		while(iterator.hasNext()) {
-			otherBody = iterator.next();
-			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
-				// one side will hit this first, and since we are here we might as well
-				// just clean up both sides
-				iterator.remove();
-				contacts.get(otherBody).remove(body);
-				for (ContactListener listener : body.getContactListeners()) {
-					listener.contactEnded(otherBody);
-				}
-				for (ContactListener listener : otherBody.getContactListeners()) {
-					listener.contactEnded(body);
-				}
-			} else {
-				// each side will hit this loop, so we only need to tell the
-				// current body
-				for (ContactListener listener : body.getContactListeners()) {
-					listener.contact(otherBody);
-				}
-			}
-		}
-	}
 
 	private void findNewInteractions(BitBody body) {
 		// We need to update each body against the level grid so we only collide things worth colliding
@@ -318,9 +314,60 @@ public class BitWorld {
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
 					if (otherBody != body) {
-						checkForNewEvent(body, otherBody);
+						checkForNewEvent(body, otherBody, true);
 					}
 				}
+			}
+		}
+	}
+
+	private void addToContacts(BitBody body) {
+		newContacts.put(body, new HashSet<>());
+		ongoingContacts.put(body, new HashSet<>());
+		endedContacts.put(body, new HashSet<>());
+	}
+
+	private void removeFromContacts(BitBody body) {
+		newContacts.remove(body);
+		ongoingContacts.remove(body);
+		endedContacts.remove(body);
+	}
+
+	private void fireNewContacts(BitBody body) {
+		for (ContactListener listener : body.getContactListeners()) {
+			for (BitBody other : newContacts.get(body)) {
+				listener.contactStarted(other);
+			}
+		}
+		ongoingContacts.get(body).addAll(newContacts.get(body));
+		newContacts.get(body).clear();
+	}
+
+	private void fireExpiredContacts(BitBody body) {
+		for (ContactListener listener : body.getContactListeners()) {
+			for (BitBody other : endedContacts.get(body)) {
+				listener.contactEnded(other);
+			}
+		}
+		endedContacts.get(body).clear();
+	}
+
+	private void fireContinuedContacts(BitBody body) {
+		for (ContactListener listener : body.getContactListeners()) {
+			for (BitBody other : ongoingContacts.get(body)) {
+				listener.contact(other);
+			}
+		}
+	}
+
+	private void updateExistingContact(BitBody body) {
+		Iterator<BitBody> iterator = ongoingContacts.get(body).iterator();
+		BitBody otherBody;
+		while(iterator.hasNext()) {
+			otherBody = iterator.next();
+			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
+				iterator.remove();
+				endedContacts.get(body).add(otherBody);
 			}
 		}
 	}
@@ -339,7 +386,7 @@ public class BitWorld {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
-					checkForNewEvent(body, checkObj);
+					checkForNewEvent(body, checkObj, false);
 				}
 			}
 		}
@@ -368,16 +415,17 @@ public class BitWorld {
 		}
 	}
 
-	private void applyResolution(BitBody body, SATStrategy resolution) {
+	private void applyResolution(SATStrategy resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
-			body.aabb.translate(resolution.resolution);
+			resolution.body.aabb.translate(resolution.resolution);
 			BitPoint velocityAdjustment = resolution.resolution.times(BitWorld.STEP_PER_SEC);
-			body.velocity.add(velocityAdjustment);
+			resolution.body.velocity.add(velocityAdjustment);
 			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
-				body.grounded = true;
+				resolution.body.grounded = true;
 			}
 		}
-		body.lastResolution = resolution.resolution;
+		resolution.body.lastResolution.add(resolution.resolution);
+		resolution.body.resolutionLocked = resolution.lockingResolution;
 	}
 
 	/**
@@ -387,30 +435,31 @@ public class BitWorld {
 	 * @param body
 	 * @param against
 	 */
-	private void checkForNewEvent(BitBody body, BitBody against) {
+	private void checkForNewEvent(BitBody body, BitBody against, boolean doContacts) {
 		if (SATUtilities.getCollision(body.aabb, against.aabb) != null) {
-			maybeFlagNewContact(body, against);
+			if (doContacts) {
+				maybeFlagNewContact(body, against);
+			}
 			maybeCollide(body, against);
 		}
 	}
 
 	private void maybeFlagNewContact(BitBody body, BitBody against) {
-		if (!contacts.get(body).contains(against)) {
-			contacts.get(body).add(against);
-			contacts.get(against).add(body);
-			for (ContactListener listener : body.getContactListeners()) {
-				listener.contactStarted(against);
+		if (!ongoingContacts.get(body).contains(against)) {
+			if (!newContacts.containsKey(body)) {
+				newContacts.put(body, new HashSet<>());
 			}
-			for (ContactListener listener : against.getContactListeners()) {
-				listener.contactStarted(body);
-			}
+			newContacts.get(body).add(against);
 		}
 	}
 
 	private void maybeCollide(BitBody body, BitBody against) {
 		if (!body.props.collides || !against.props.collides) {
 			return;
+		} else if (body.resolutionLocked) {
+			return;
 		} else if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(against.bodyType)) {
+			// all we have to do is take out the xor if and dynamic bodies will collide. There are still bugs, however
 			if (!pendingResolutions.containsKey(body)) {
 				pendingResolutions.put(body, new SATStrategy(body));
 			}
@@ -466,7 +515,7 @@ public class BitWorld {
 				if (grid[x][y] != null) {
 					BitBody tileBody = grid[x][y].buildBody();
 					gridObjects[x][y] = tileBody;
-					contacts.put(tileBody, new HashSet<>());
+					addToContacts(tileBody);
 				}
 			}
 		}
@@ -475,7 +524,7 @@ public class BitWorld {
 	private void clearOutCurrentGrid() {
 		for (int x = 0; x < gridObjects.length; x++) {
 			for (int y = 0; y < gridObjects[0].length; y++) {
-				contacts.remove(gridObjects[x][y]);
+				removeFromContacts(gridObjects[x][y]);
 			}
 		}
 	}
