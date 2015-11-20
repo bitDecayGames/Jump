@@ -15,7 +15,7 @@ import java.util.PriorityQueue;
  */
 public class SATStrategy {
 
-    public PriorityQueue<BitCollision> collisions = new PriorityQueue<>();
+    public PriorityQueue<BitCollision> potentialCollisions = new PriorityQueue<>();
 
     protected BitPoint cumulativeResolution;
     protected BitPoint resolution = new BitPoint(0, 0);
@@ -32,16 +32,26 @@ public class SATStrategy {
     }
 
     /**
-     * Determines appropriate resolution for the body based on the collisions found. This method will
+     * Determines appropriate resolution for the body based on the potential collisions found. This method will
      * deactivate the body if opposing collisions are found.
      * @param world
      */
-    public void satisfy(BitWorld world) {
+    public boolean satisfy(BitWorld world) {
         // TODO: This method can probably made more efficient if needed down the road
         List<BitPoint> directionsResolved = new ArrayList<>();
-        for (BitCollision collision : collisions) {
+        for (BitCollision collision : potentialCollisions) {
             Manifold manifold = getSolution(cumulativeResolution, collision);
             if (manifold.axis.equals(GeomUtils.ZERO_AXIS)) {
+                continue;
+            } else {
+                collision.contactOccurred = true;
+            }
+
+            if (body.resolutionLocked || (!body.props.collides || !collision.against.props.collides)) {
+                continue;
+            }
+            if (BodyType.DYNAMIC.equals(body.bodyType) && BodyType.DYNAMIC.equals(collision.against.bodyType)) {
+                // currently not supporting dynamic vs dynamic collision resolution
                 continue;
             }
             if (BodyType.STATIC.equals(collision.against.bodyType) ||
@@ -62,7 +72,7 @@ public class SATStrategy {
                     body.active = false;
                     body.velocity.set(0, 0);
                     body.getContactListeners().forEach(listener -> listener.crushed());
-                    return;
+                    return false;
                 }
             }
             directionsResolved.add(resAxis);
@@ -70,6 +80,7 @@ public class SATStrategy {
         }
         // set final resolution values
         resolution.set(cumulativeResolution);
+        return cumulativeResolution.x != 0 || cumulativeResolution.y != 0;
     }
 
     /**

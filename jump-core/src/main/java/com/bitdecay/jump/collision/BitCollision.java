@@ -14,6 +14,7 @@ public class BitCollision implements Comparable<BitCollision> {
 
 	public BitBody body;
 	public BitBody against;
+	public boolean contactOccurred;
 
 	public BitCollision(BitBody body, BitBody against) {
 		this.body = body;

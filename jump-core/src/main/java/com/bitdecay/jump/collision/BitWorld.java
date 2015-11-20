@@ -6,6 +6,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
+import com.bitdecay.jump.level.TileBody;
 import com.bitdecay.jump.level.builder.TileObject;
 import com.bitdecay.jump.properties.KineticProperties;
 
@@ -40,7 +41,7 @@ public class BitWorld {
 	 * A map of x to y to an occupying body.
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
-	private Map<BitBody, SATStrategy> pendingResolutions;
+	private Map<BitBody, SATStrategy> potentialResolutions;
 	private SATStrategyComparator strategyComparator = new SATStrategyComparator();
 
 	private Map<BitBody, Set<BitBody>> newContacts;
@@ -65,7 +66,7 @@ public class BitWorld {
 		pendingAdds = new ArrayList<>();
 		pendingRemoves = new ArrayList<>();
 		occupiedSpaces = new HashMap<>();
-		pendingResolutions = new HashMap<>();
+		potentialResolutions = new HashMap<>();
 		newContacts = new HashMap<>();
 		ongoingContacts = new HashMap<>();
 		endedContacts = new HashMap<>();
@@ -198,8 +199,7 @@ public class BitWorld {
 			 * END COLLISIONS
 			 */
 
-			continueCollisions = pendingResolutions.size() > 0;
-			resolveAndApplyPendingResolutions();
+			continueCollisions = resolveAndApplyPotentialResolutions();
 		}
 
 		dynamicBodies.parallelStream().forEach(body -> {
@@ -286,14 +286,21 @@ public class BitWorld {
 		pendingAdds.clear();
 	}
 
-	private void resolveAndApplyPendingResolutions() {
-		ArrayList<SATStrategy> list = new ArrayList<>(pendingResolutions.values());
+	private boolean resolveAndApplyPotentialResolutions() {
+		boolean somethingWasResolved = false;
+		ArrayList<SATStrategy> list = new ArrayList<>(potentialResolutions.values());
 		Collections.sort(list, strategyComparator);
-		list.forEach(pending -> {
-			pending.satisfy(this);
+		for (SATStrategy pending : list) {
+			somethingWasResolved |= pending.satisfy(this);
+			pending.potentialCollisions.forEach(bitCollision -> {
+				if (bitCollision.contactOccurred) {
+					maybeFlagNewContact(bitCollision.body, bitCollision.against);
+				}
+			});
 			applyResolution(pending);
-		});
-		pendingResolutions.clear();
+		}
+		potentialResolutions.clear();
+		return somethingWasResolved;
 	}
 
 
@@ -314,7 +321,7 @@ public class BitWorld {
 				}
 				for (BitBody otherBody : occupiedSpaces.get(x).get(y)) {
 					if (otherBody != body) {
-						checkForNewEvent(body, otherBody, true);
+						maybeAddToPotentialCollisions(body, otherBody);
 					}
 				}
 			}
@@ -386,7 +393,7 @@ public class BitWorld {
 				// ensure valid cell
 				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
 					BitBody checkObj = gridObjects[x][y];
-					checkForNewEvent(body, checkObj, false);
+					maybeAddToPotentialCollisions(body, checkObj);
 				}
 			}
 		}
@@ -428,23 +435,10 @@ public class BitWorld {
 		resolution.body.resolutionLocked = resolution.lockingResolution;
 	}
 
-	/**
-	 * A simple method that sees if there is a mid-scope overlap and
-	 * possibly adds new collisions or contacts if needed.
-	 *
-	 * @param body
-	 * @param against
-	 */
-	private void checkForNewEvent(BitBody body, BitBody against, boolean doContacts) {
-		if (SATUtilities.getCollision(body.aabb, against.aabb) != null) {
-			if (doContacts) {
-				maybeFlagNewContact(body, against);
-			}
-			maybeCollide(body, against);
-		}
-	}
-
 	private void maybeFlagNewContact(BitBody body, BitBody against) {
+		if (against instanceof TileBody) {
+			return;
+		}
 		if (!ongoingContacts.get(body).contains(against)) {
 			if (!newContacts.containsKey(body)) {
 				newContacts.put(body, new HashSet<>());
@@ -453,23 +447,19 @@ public class BitWorld {
 		}
 	}
 
-	private void maybeCollide(BitBody body, BitBody against) {
-		if (!body.props.collides || !against.props.collides) {
-			return;
-		} else if (body.resolutionLocked) {
-			return;
-		} else if (BodyType.DYNAMIC.equals(body.bodyType) ^ BodyType.DYNAMIC.equals(against.bodyType)) {
+	private void maybeAddToPotentialCollisions(BitBody body, BitBody against) {
+		if (BodyType.DYNAMIC.equals(body.bodyType) || BodyType.DYNAMIC.equals(against.bodyType)) {
 			// all we have to do is take out the xor if and dynamic bodies will collide. There are still bugs, however
-			if (!pendingResolutions.containsKey(body)) {
-				pendingResolutions.put(body, new SATStrategy(body));
+			if (!potentialResolutions.containsKey(body)) {
+				potentialResolutions.put(body, new SATStrategy(body));
 			}
-			SATStrategy resolution = pendingResolutions.get(body);
-			for (BitCollision collision : resolution.collisions) {
+			SATStrategy resolution = potentialResolutions.get(body);
+			for (BitCollision collision : resolution.potentialCollisions) {
 				if (collision.against == against) {
 					return;
 				}
 			}
-			resolution.collisions.add(new BitCollision(body, against));
+			resolution.potentialCollisions.add(new BitCollision(body, against));
 		}
 	}
 
