@@ -118,7 +118,7 @@ public class ExampleEditorLevel implements EditorHook {
                 if (builderMap.containsKey(levelObject.getClass())) {
                     GameObject newObject;
                     newObject = (GameObject) builderMap.get(levelObject.getClass()).newInstance();
-                    bodies.add(newObject.build(levelObject));
+                    bodies.addAll(newObject.build(levelObject));
                     gameObjects.add(newObject);
                 } else {
                     bodies.add(levelObject.buildBody());
