@@ -5,6 +5,7 @@ import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ public abstract class LevelObject {
 	public final String uuid = UUID.randomUUID().toString();
 
 	@CantInspect
-	public List<String> objectsTriggeredByThis;
+	public List<String> objectsTriggeredByThis = new ArrayList<>();
 
 	public LevelObject() {
 		// Here for JSON

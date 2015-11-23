@@ -28,7 +28,7 @@ public class LevelBuilder {
 	 * This collection is used to track all other objects such as power-ups and
 	 * moving platforms
 	 */
-	public List<LevelObject> otherObjects;
+	public HashMap<String, LevelObject> otherObjects;
 
 	public int tileSize;
 	public TileObject[][] grid;
@@ -49,7 +49,7 @@ public class LevelBuilder {
 		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
-		otherObjects = new ArrayList<>();
+		otherObjects = new HashMap<String, LevelObject>();
 		actions = new LinkedList<>();
 		lastAction = -1;
 	}
@@ -63,7 +63,12 @@ public class LevelBuilder {
 		grid = level.gridObjects;
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
-		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
+		otherObjects = new HashMap<>();
+		if (level.otherObjects != null) {
+			for (LevelObject object : level.otherObjects) {
+				otherObjects.put(object.uuid, object);
+			}
+		}
 		debugSpawn = level.debugSpawn;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
@@ -104,6 +109,11 @@ public class LevelBuilder {
 	}
 
 	public void addTrigger(LevelObject triggerer, LevelObject triggeree) {
+		pushAction(new TriggerAction(triggerer, triggeree, true));
+	}
+
+	public void removeTrigger(LevelObject triggerer, LevelObject triggeree) {
+		pushAction(new TriggerAction(triggerer, triggeree, false));
 	}
 
 	public void undo() {
@@ -156,7 +166,7 @@ public class LevelBuilder {
 				grid[gridX][gridY] = (TileObject)obj;
 				updateNeighbors(gridX, gridY);
 			} else {
-				otherObjects.add(obj);
+				otherObjects.put(obj.uuid, obj);
 			}
 		}
 		fireToListeners();
@@ -165,7 +175,7 @@ public class LevelBuilder {
 
 	void removeObjects(Set<LevelObject> objects) {
 		// clean up out of other newObjects
-		otherObjects.removeAll(objects);
+		objects.forEach(object -> otherObjects.remove(object.uuid));
 		// clean out our grid
 		int gridX;
 		int gridY;
@@ -293,7 +303,7 @@ public class LevelBuilder {
 				}
 			}
 		}
-		otherObjects.forEach(object -> {
+		otherObjects.values().forEach(object -> {
 			if (selectionArea.contains(object.rect)) {
 				selection.add(object);
 			}
@@ -304,7 +314,7 @@ public class LevelBuilder {
 		if (!add) {
 			selection.clear();
 		}
-		otherObjects.forEach(object -> {
+		otherObjects.values().forEach(object -> {
 			if (object.rect.contains(startPoint)) {
 				selection.add(object);
 				return;
@@ -365,7 +375,7 @@ public class LevelBuilder {
 
 		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.gridObjects = optimizedGrid;
-		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
+		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
 		optimizedLevel.debugSpawn = debugSpawn;
 		optimizedLevel.theme = theme;
 

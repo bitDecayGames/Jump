@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
@@ -24,14 +25,22 @@ public class LibGDXLevelRenderer {
         view.translate(-view.width / 2, -view.height / 2);
         renderer.setProjectionMatrix(cam.combined);
         renderer.begin(ShapeType.Line);
-        renderer.setColor(BitColors.INACTIVE_OBJECT);
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         batch.setColor(1, 1, 1, .3f);
-        builder.otherObjects.forEach(object -> {
+        builder.otherObjects.values().forEach(object -> {
             if (object instanceof RenderableLevelObject) {
                 batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
             }
+            if (RenderLayer.TRIGGERS.enabled) {
+                renderer.setColor(BitColors.SELECTABLE);
+                LevelObject other;
+                for (String uuid : object.objectsTriggeredByThis) {
+                    other = builder.otherObjects.get(uuid);
+                    renderer.line(object.rect.center().x, object.rect.center().y, other.rect.center().x, other.rect.center().y);
+                }
+            }
+            renderer.setColor(BitColors.INACTIVE_OBJECT);
             renderer.rect(object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
             LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL_OBJECTS);
         });
