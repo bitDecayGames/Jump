@@ -5,12 +5,15 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.ContactAdapter;
 import com.bitdecay.jump.level.builder.LevelObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Monday on 11/22/2015.
  */
 public class GravityField extends GameObject {
     @Override
-    public BitBody build(LevelObject template) {
+    public List<BitBody> build(LevelObject template) {
         BitBody body = template.buildBody();
         body.addContactListener(new ContactAdapter() {
             @Override
@@ -23,7 +26,7 @@ public class GravityField extends GameObject {
                 other.props.gravityModifier = 1;
             }
         });
-        return body;
+        return Arrays.asList(body);
     }
 
     @Override
