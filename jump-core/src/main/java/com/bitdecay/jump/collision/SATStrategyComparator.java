@@ -11,10 +11,10 @@ public class SATStrategyComparator implements java.util.Comparator {
         int firstWeight = 0;
         int secondWeight = 0;
 
-        for (BitCollision col : first.collisions) {
+        for (BitCollision col : first.potentialCollisions) {
             firstWeight += col.against.bodyType.order;
         }
-        for (BitCollision col : second.collisions) {
+        for (BitCollision col : second.potentialCollisions) {
             secondWeight += col.against.bodyType.order;
         }
         return -1 * Integer.compare(firstWeight, secondWeight);
