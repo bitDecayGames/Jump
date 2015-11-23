@@ -12,6 +12,7 @@ public enum RenderLayer {
     STATIC_BODIES(true),
     TILES(true),
     SPEED(true),
+    TRIGGERS(true),
     STATE_HELPERS(true),
     GRID(true),
     LEVEL_OBJECTS(true);

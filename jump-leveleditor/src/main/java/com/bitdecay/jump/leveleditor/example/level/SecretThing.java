@@ -8,7 +8,6 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 
 /**

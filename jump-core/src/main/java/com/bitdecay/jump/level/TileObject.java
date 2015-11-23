@@ -1,11 +1,10 @@
-package com.bitdecay.jump.level.builder;
+package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.TileBody;
 
 public class TileObject extends LevelObject {
 	@CantInspect

@@ -80,7 +80,7 @@ public class LevelBuilder {
 		}
 		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, pendulum);
 
-		BuilderAction createKineticAction = new BuilderAction(Arrays.asList(kObj), Collections.emptyList());
+		BuilderAction createKineticAction = new AddRemoveAction(Arrays.asList(kObj), Collections.emptyList());
 		pushAction(createKineticAction);
 	}
 
@@ -89,33 +89,34 @@ public class LevelBuilder {
 		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
 				newObjects.add(new TileObject(rect, oneway, material)));
 		if (newObjects.size() > 0) {
-			BuilderAction createLevelObjectAction = new BuilderAction(newObjects, Collections.emptyList());
+			BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());
 			pushAction(createLevelObjectAction);
 		}
 	}
 
 	public void createObject(LevelObject object) {
 		try {
-			BuilderAction createObjectAction = new BuilderAction(Arrays.asList(object), Collections.emptyList());
+			BuilderAction createObjectAction = new AddRemoveAction(Arrays.asList(object), Collections.emptyList());
 			pushAction(createObjectAction);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	public void addTrigger(LevelObject triggerer, LevelObject triggeree) {
+	}
+
 	public void undo() {
 		BuilderAction undoAction = popAction();
 		if (undoAction != null) {
-			removeObjects(undoAction.newObjects);
-			undoAction.newObjects.addAll(addObjects(undoAction.removeObjects));
+			undoAction.undo(this);
 		}
 	}
 
 	public void redo() {
 		if (lastAction < actions.size()-1) {
 			BuilderAction redoAction = actions.get(lastAction+1);
-			redoAction.removeObjects.addAll(addObjects(redoAction.newObjects));
-			removeObjects(redoAction.removeObjects);
+			redoAction.perform(this);
 			lastAction++;
 		}
 	}
@@ -140,7 +141,7 @@ public class LevelBuilder {
 		}
 	}
 
-	private Set<LevelObject> addObjects(Set<LevelObject> objects) {
+	Set<LevelObject> addObjects(Set<LevelObject> objects) {
 		Set<LevelObject> removedObjects = new HashSet<>();
 		int gridX;
 		int gridY;
@@ -162,7 +163,7 @@ public class LevelBuilder {
 		return removedObjects;
 	}
 
-	private void removeObjects(Set<LevelObject> objects) {
+	void removeObjects(Set<LevelObject> objects) {
 		// clean up out of other newObjects
 		otherObjects.removeAll(objects);
 		// clean out our grid
@@ -274,7 +275,7 @@ public class LevelBuilder {
 
 	public void deleteSelected() {
 		if (selection.size() > 0) {
-			BuilderAction deleteAction = new BuilderAction(Collections.emptyList(), selection);
+			BuilderAction deleteAction = new AddRemoveAction(Collections.emptyList(), selection);
 			pushAction(deleteAction);
 			selection.clear();
 		}

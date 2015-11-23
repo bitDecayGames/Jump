@@ -7,7 +7,7 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.TileBody;
-import com.bitdecay.jump.level.builder.TileObject;
+import com.bitdecay.jump.level.TileObject;
 import com.bitdecay.jump.properties.KineticProperties;
 
 /**

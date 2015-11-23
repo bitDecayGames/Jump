@@ -2,7 +2,7 @@ package com.bitdecay.jump.leveleditor.example.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.LevelObject;
 
 import java.util.List;
 

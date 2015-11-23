@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 
 import java.util.Arrays;
