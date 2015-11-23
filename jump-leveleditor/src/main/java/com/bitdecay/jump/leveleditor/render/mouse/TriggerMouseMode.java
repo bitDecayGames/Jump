@@ -21,7 +21,7 @@ public class TriggerMouseMode extends BaseMouseMode {
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         if (MouseButton.LEFT.equals(button)) {
-            builder.selectObject(point, false);
+            builder.selectObject(point, false, false);
             if (builder.selection.size() > 0) {
                 if (triggerer == null) {
                     triggerer = builder.selection.get(0);

@@ -310,28 +310,34 @@ public class LevelBuilder {
 		});
 	}
 
-	public void selectObject(BitPointInt startPoint, boolean add) {
+	public void selectObject(BitPointInt point, boolean add) {
+		selectObject(point, add, true);
+	}
+
+	public void selectObject(BitPointInt point, boolean add, boolean includeGridObjects) {
 		if (!add) {
 			selection.clear();
 		}
 		otherObjects.values().forEach(object -> {
-			if (object.rect.contains(startPoint)) {
+			if (object.rect.contains(point)) {
 				selection.add(object);
 				return;
 			}
 		});
-		for (int x = 0; x < grid.length; x++) {
-			for (int y = 0; y < grid[0].length; y++) {
-				LevelObject object = grid[x][y];
-				if (object != null && object.rect.contains(startPoint)) {
-					selection.add(object);
-					return;
+		if (includeGridObjects) {
+			for (int x = 0; x < grid.length; x++) {
+				for (int y = 0; y < grid[0].length; y++) {
+					LevelObject object = grid[x][y];
+					if (object != null && object.rect.contains(point)) {
+						selection.add(object);
+						return;
+					}
 				}
 			}
 		}
 		if (debugSpawn != null) {
 			// This is gross. I don't like.
-			if (debugSpawn.rect.xy.minus(startPoint).len() < DebugSpawnObject.OUTER_DIAMETER) {
+			if (debugSpawn.rect.xy.minus(point).len() < DebugSpawnObject.OUTER_DIAMETER) {
 				selection.add(debugSpawn);
 			}
 		}
