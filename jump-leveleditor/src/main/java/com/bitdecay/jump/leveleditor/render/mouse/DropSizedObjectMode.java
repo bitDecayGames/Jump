@@ -4,22 +4,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
-import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 /**
  * Created by Monday on 10/19/2015.
  */
-public class DropObjectMode extends BaseMouseMode{
+public class DropSizedObjectMode extends BaseMouseMode{
     private Class objectClass;
     private RenderableLevelObject reference;
 
     private LevelEditor editor;
 
-    public DropObjectMode(LevelBuilder builder, LevelEditor editor) {
+    public DropSizedObjectMode(LevelBuilder builder, LevelEditor editor) {
         super(builder);
         this.editor = editor;
     }
@@ -35,22 +35,27 @@ public class DropObjectMode extends BaseMouseMode{
 
     @Override
     public void mouseMoved(BitPointInt point) {
-        super.mouseMoved(point);
-        currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+        startPoint = GeomUtils.snap(point, builder.tileSize);
     }
 
     @Override
     public void mouseDragged(BitPointInt point) {
-        super.mouseDragged(point);
-        currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+        endPoint = GeomUtils.snap(point, builder.tileSize);
+    }
+
+    @Override
+    public void mouseDown(BitPointInt point, MouseButton button) {
+        startPoint = GeomUtils.snap(point, builder.tileSize);
     }
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         if (reference != null) {
-            reference.rect.xy.set(currentLocation.x, currentLocation.y);
+            reference.rect = new BitRectangle(startPoint, GeomUtils.snap(point, builder.tileSize));
             builder.createObject(reference);
             reference = null;
+            startPoint = null;
+            endPoint = null;
         }
     }
 
@@ -61,10 +66,15 @@ public class DropObjectMode extends BaseMouseMode{
             shaper.setColor(BitColors.GAME_OBJECT);
             shaper.rect(currentLocation.x, currentLocation.y, reference.rect.width, reference.rect.height);
         }
+
+        if (startPoint != null && endPoint != null) {
+            shaper.setColor(BitColors.NEW);
+            shaper.rect(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+        }
     }
 
     @Override
     public String getToolTip() {
-        return "Drop Custom Object";
+        return "Drop Custom Sized Object";
     }
 }

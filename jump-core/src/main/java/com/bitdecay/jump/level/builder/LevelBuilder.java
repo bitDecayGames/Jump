@@ -94,11 +94,9 @@ public class LevelBuilder {
 		}
 	}
 
-	public void createObject(Class<? extends LevelObject> object, BitPointInt place) {
+	public void createObject(LevelObject object) {
 		try {
-			LevelObject newObject = object.newInstance();
-			newObject.rect.xy.set(place.x, place.y);
-			BuilderAction createObjectAction = new BuilderAction(Arrays.asList(newObject), Collections.emptyList());
+			BuilderAction createObjectAction = new BuilderAction(Arrays.asList(object), Collections.emptyList());
 			pushAction(createObjectAction);
 		} catch (Exception e) {
 			e.printStackTrace();
