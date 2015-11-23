@@ -341,9 +341,15 @@ public class BitWorld {
 	}
 
 	private void fireNewContacts(BitBody body) {
-		for (ContactListener listener : body.getContactListeners()) {
-			for (BitBody other : newContacts.get(body)) {
+		for (BitBody other : newContacts.get(body)) {
+			for (ContactListener listener : body.getContactListeners()) {
 				listener.contactStarted(other);
+			}
+			if (!BodyType.DYNAMIC.equals(other.bodyType)) {
+				// Since contacts are only reported from a dynamic perspective
+				for (ContactListener listener : other.getContactListeners()) {
+					listener.contactStarted(body);
+				}
 			}
 		}
 		ongoingContacts.get(body).addAll(newContacts.get(body));
@@ -351,18 +357,28 @@ public class BitWorld {
 	}
 
 	private void fireExpiredContacts(BitBody body) {
-		for (ContactListener listener : body.getContactListeners()) {
-			for (BitBody other : endedContacts.get(body)) {
+		for (BitBody other : endedContacts.get(body)) {
+			for (ContactListener listener : body.getContactListeners()) {
 				listener.contactEnded(other);
+			}
+			if (!BodyType.DYNAMIC.equals(other.bodyType)) {
+				for (ContactListener listener : other.getContactListeners()) {
+					listener.contactEnded(body);
+				}
 			}
 		}
 		endedContacts.get(body).clear();
 	}
 
 	private void fireContinuedContacts(BitBody body) {
-		for (ContactListener listener : body.getContactListeners()) {
-			for (BitBody other : ongoingContacts.get(body)) {
+		for (BitBody other : ongoingContacts.get(body)) {
+			for (ContactListener listener : body.getContactListeners()) {
 				listener.contact(other);
+			}
+			if (!BodyType.DYNAMIC.equals(other.bodyType)) {
+				for (ContactListener listener : other.getContactListeners()) {
+					listener.contact(body);
+				}
 			}
 		}
 	}

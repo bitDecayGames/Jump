@@ -100,7 +100,7 @@ public class EditorMenus {
 
         Table toolsTable = new Table();
         for (OptionsMode mode : OptionsMode.values()) {
-            if (mode.type == ModeType.MOUSE) {
+            if (mode.type == ModeType.MOUSE && mode.icon != null) {
                 buildImageButton(toolsTable, mode, toolGroup);
             }
         }

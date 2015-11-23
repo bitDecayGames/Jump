@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
@@ -24,6 +25,7 @@ import com.bitdecay.jump.level.LevelUtilities;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.level.builder.DebugSpawnObject;
+import com.bitdecay.jump.level.builder.UserSizedLevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -119,6 +121,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
+        mouseModes.put(OptionsMode.DROP_SIZABLE_OBJECT, new DropSizedObjectMode(curLevelBuilder, this));
         mouseModes.put(OptionsMode.PROPERTY_INSPECT, new PropertyInspectMode(curLevelBuilder, this));
 
         mouseMode = mouseModes.get(OptionsMode.SELECT);
@@ -460,9 +463,14 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
-    public void dropObject(Class objectClass) {
-        ((DropObjectMode)mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
-        setMode(OptionsMode.DROP_OBJECT);
+    public void dropObject(Class<? extends RenderableLevelObject> objectClass) {
+        if (UserSizedLevelObject.class.isAssignableFrom(objectClass)) {
+            ((DropSizedObjectMode)mouseModes.get(OptionsMode.DROP_SIZABLE_OBJECT)).setObject(objectClass);
+            setMode(OptionsMode.DROP_SIZABLE_OBJECT);
+        } else {
+            ((DropObjectMode) mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
+            setMode(OptionsMode.DROP_OBJECT);
+        }
     }
 
     public void setMaterial(int tileset) {
