@@ -6,6 +6,9 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.collision.ContactAdapter;
 import com.bitdecay.jump.level.builder.LevelObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Monday on 11/12/2015.
  */
@@ -13,7 +16,7 @@ public class ShellObject extends GameObject {
     ShellController controller = new ShellController(250);
 
     @Override
-    public BitBody build(LevelObject template) {
+    public List<BitBody> build(LevelObject template) {
         BitBody body = template.buildBody();
         body.controller = controller;
         body.addContactListener(new ContactAdapter() {
@@ -28,7 +31,7 @@ public class ShellObject extends GameObject {
                 }
             }
         });
-        return body;
+        return Arrays.asList(body);
     }
 
     @Override

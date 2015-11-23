@@ -8,6 +8,9 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Monday on 10/20/2015.
  */
@@ -16,11 +19,11 @@ public class SecretObject extends GameObject {
     private TextureRegion texture;
 
     @Override
-    public BitBody build(LevelObject template) {
+    public List<BitBody> build(LevelObject template) {
         body = template.buildBody();
         body.userObject = this;
         this.texture = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/question.png")));
-        return body;
+        return Arrays.asList(body);
     }
 
     @Override
