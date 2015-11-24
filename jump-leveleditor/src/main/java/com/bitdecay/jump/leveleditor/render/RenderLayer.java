@@ -12,10 +12,10 @@ public enum RenderLayer {
     STATIC_BODIES(true),
     TILES(true),
     SPEED(true),
-    TRIGGERS(true),
     STATE_HELPERS(true),
     GRID(true),
-    LEVEL_OBJECTS(true);
+    LEVEL_OBJECTS(true),
+    TRIGGERS(true);
 
     public boolean userEditable;
     public boolean enabled = true;
