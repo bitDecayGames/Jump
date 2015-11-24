@@ -1,4 +1,4 @@
-package com.bitdecay.jump.level.builder;
+package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;

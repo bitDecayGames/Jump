@@ -1,4 +1,4 @@
-package com.bitdecay.jump.level.builder;
+package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.annotation.CanLoadFromFile;
@@ -10,7 +10,7 @@ import com.bitdecay.jump.properties.JumperProperties;
 /**
  * Created by Monday on 10/25/2015.
  */
-public class DebugSpawnObject extends LevelObject{
+public class DebugSpawnObject extends LevelObject {
     public static final int INNER_DIAMETER = 4;
     public static final int OUTER_DIAMETER = 8;
 

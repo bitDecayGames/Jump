@@ -87,4 +87,65 @@ public class GeomUtils {
 			return new BitRectangle(x1, y1, x2 - x1, y2 - y1);
 		}
 	}
+
+	public static List<BitPoint> rotatePoints(List<BitPoint> points, float angle) {
+		float minX = Float.POSITIVE_INFINITY;
+		float maxX = Float.NEGATIVE_INFINITY;
+		float minY = Float.POSITIVE_INFINITY;
+		float maxY = Float.NEGATIVE_INFINITY;
+		for (BitPoint point : points) {
+			minX = Math.min(point.x, minX);
+			maxX = Math.max(point.x, maxX);
+			minY = Math.min(point.y, minY);
+			maxY = Math.max(point.y, maxY);
+		}
+		List<BitPoint> newPoints = new ArrayList<>();
+		for (BitPoint point : points) {
+			newPoints.add(rotatePoint(new BitPoint(point), angle, GeomUtils.ZERO_AXIS));
+		}
+		return newPoints;
+	}
+
+
+	private static BitPoint rotatePoint(BitPoint p, float angle, BitPoint around)
+	{
+		double s = Math.sin(angle);
+		double c = Math.cos(angle);
+
+		// translate point back to origin:
+		p.x -= around.x;
+		p.y -= around.y;
+
+		// rotate point
+		double xnew = p.x * c - p.y * s;
+		double ynew = p.x * s + p.y * c;
+
+		// translate point back:
+		p.x = (float) (xnew + around.x);
+		p.y = (float) (ynew + around.y);
+		return p;
+	}
+
+	public static float[] pointsToFloats(List<BitPoint> points) {
+		float[] floats  = new float[points.size() * 2];
+		for (int i = 0; i < points.size(); i++) {
+			floats[i*2] = points.get(i).x;
+			floats[i*2+1] = points.get(i).y;
+		}
+		return floats;
+	}
+
+	public static List<BitPoint> translatePoints(List<BitPoint> bitPoints, BitPoint translation) {
+		bitPoints.forEach(point -> {
+			point.x += translation.x;
+			point.y += translation.y;
+		});
+		return bitPoints;
+	}
+
+	public static float angle(BitPoint p1, BitPoint p2) {
+		double xDiff = p2.x - p1.x;
+		double yDiff = p2.y - p1.y;
+		return (float) Math.atan2(yDiff, xDiff);
+	}
 }

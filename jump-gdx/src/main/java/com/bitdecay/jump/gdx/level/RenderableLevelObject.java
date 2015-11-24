@@ -1,7 +1,7 @@
 package com.bitdecay.jump.gdx.level;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.LevelObject;
 
 /**
  * Created by Monday on 10/20/2015.

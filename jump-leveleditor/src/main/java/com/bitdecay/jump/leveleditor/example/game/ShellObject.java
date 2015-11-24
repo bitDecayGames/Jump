@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.collision.ContactAdapter;
-import com.bitdecay.jump.level.builder.LevelObject;
+import com.bitdecay.jump.level.LevelObject;
 
 import java.util.Arrays;
 import java.util.List;

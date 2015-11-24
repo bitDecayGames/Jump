@@ -3,9 +3,6 @@ package com.bitdecay.jump.level;
 import java.util.*;
 
 import com.bitdecay.jump.geom.BitPointInt;
-import com.bitdecay.jump.level.builder.LevelObject;
-import com.bitdecay.jump.level.builder.DebugSpawnObject;
-import com.bitdecay.jump.level.builder.TileObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Level {

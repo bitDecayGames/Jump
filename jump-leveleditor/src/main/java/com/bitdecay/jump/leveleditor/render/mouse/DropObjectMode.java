@@ -6,7 +6,6 @@ import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
-import com.bitdecay.jump.level.builder.LevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 

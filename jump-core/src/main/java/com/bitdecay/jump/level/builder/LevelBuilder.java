@@ -28,7 +28,7 @@ public class LevelBuilder {
 	 * This collection is used to track all other objects such as power-ups and
 	 * moving platforms
 	 */
-	public List<LevelObject> otherObjects;
+	public HashMap<String, LevelObject> otherObjects;
 
 	public int tileSize;
 	public TileObject[][] grid;
@@ -49,7 +49,7 @@ public class LevelBuilder {
 		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
-		otherObjects = new ArrayList<>();
+		otherObjects = new HashMap<String, LevelObject>();
 		actions = new LinkedList<>();
 		lastAction = -1;
 	}
@@ -63,7 +63,12 @@ public class LevelBuilder {
 		grid = level.gridObjects;
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
-		otherObjects = level.otherObjects != null ? level.otherObjects : new ArrayList<>();
+		otherObjects = new HashMap<>();
+		if (level.otherObjects != null) {
+			for (LevelObject object : level.otherObjects) {
+				otherObjects.put(object.uuid, object);
+			}
+		}
 		debugSpawn = level.debugSpawn;
 		for (LevelBuilderListener levelListener : listeners) {
 			levelListener.levelChanged(level);
@@ -80,7 +85,7 @@ public class LevelBuilder {
 		}
 		PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, pendulum);
 
-		BuilderAction createKineticAction = new BuilderAction(Arrays.asList(kObj), Collections.emptyList());
+		BuilderAction createKineticAction = new AddRemoveAction(Arrays.asList(kObj), Collections.emptyList());
 		pushAction(createKineticAction);
 	}
 
@@ -89,33 +94,39 @@ public class LevelBuilder {
 		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
 				newObjects.add(new TileObject(rect, oneway, material)));
 		if (newObjects.size() > 0) {
-			BuilderAction createLevelObjectAction = new BuilderAction(newObjects, Collections.emptyList());
+			BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());
 			pushAction(createLevelObjectAction);
 		}
 	}
 
 	public void createObject(LevelObject object) {
 		try {
-			BuilderAction createObjectAction = new BuilderAction(Arrays.asList(object), Collections.emptyList());
+			BuilderAction createObjectAction = new AddRemoveAction(Arrays.asList(object), Collections.emptyList());
 			pushAction(createObjectAction);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	public void addTrigger(LevelObject triggerer, LevelObject triggeree) {
+		pushAction(new TriggerAction(triggerer, triggeree, true));
+	}
+
+	public void removeTrigger(LevelObject triggerer, LevelObject triggeree) {
+		pushAction(new TriggerAction(triggerer, triggeree, false));
+	}
+
 	public void undo() {
 		BuilderAction undoAction = popAction();
 		if (undoAction != null) {
-			removeObjects(undoAction.newObjects);
-			undoAction.newObjects.addAll(addObjects(undoAction.removeObjects));
+			undoAction.undo(this);
 		}
 	}
 
 	public void redo() {
 		if (lastAction < actions.size()-1) {
 			BuilderAction redoAction = actions.get(lastAction+1);
-			redoAction.removeObjects.addAll(addObjects(redoAction.newObjects));
-			removeObjects(redoAction.removeObjects);
+			redoAction.perform(this);
 			lastAction++;
 		}
 	}
@@ -140,7 +151,7 @@ public class LevelBuilder {
 		}
 	}
 
-	private Set<LevelObject> addObjects(Set<LevelObject> objects) {
+	Set<LevelObject> addObjects(Set<LevelObject> objects) {
 		Set<LevelObject> removedObjects = new HashSet<>();
 		int gridX;
 		int gridY;
@@ -155,16 +166,16 @@ public class LevelBuilder {
 				grid[gridX][gridY] = (TileObject)obj;
 				updateNeighbors(gridX, gridY);
 			} else {
-				otherObjects.add(obj);
+				otherObjects.put(obj.uuid, obj);
 			}
 		}
 		fireToListeners();
 		return removedObjects;
 	}
 
-	private void removeObjects(Set<LevelObject> objects) {
+	void removeObjects(Set<LevelObject> objects) {
 		// clean up out of other newObjects
-		otherObjects.removeAll(objects);
+		objects.forEach(object -> otherObjects.remove(object.uuid));
 		// clean out our grid
 		int gridX;
 		int gridY;
@@ -274,7 +285,7 @@ public class LevelBuilder {
 
 	public void deleteSelected() {
 		if (selection.size() > 0) {
-			BuilderAction deleteAction = new BuilderAction(Collections.emptyList(), selection);
+			BuilderAction deleteAction = new AddRemoveAction(Collections.emptyList(), selection);
 			pushAction(deleteAction);
 			selection.clear();
 		}
@@ -292,35 +303,41 @@ public class LevelBuilder {
 				}
 			}
 		}
-		otherObjects.forEach(object -> {
+		otherObjects.values().forEach(object -> {
 			if (selectionArea.contains(object.rect)) {
 				selection.add(object);
 			}
 		});
 	}
 
-	public void selectObject(BitPointInt startPoint, boolean add) {
+	public void selectObject(BitPointInt point, boolean add) {
+		selectObject(point, add, true);
+	}
+
+	public void selectObject(BitPointInt point, boolean add, boolean includeGridObjects) {
 		if (!add) {
 			selection.clear();
 		}
-		otherObjects.forEach(object -> {
-			if (object.rect.contains(startPoint)) {
+		otherObjects.values().forEach(object -> {
+			if (object.rect.contains(point)) {
 				selection.add(object);
 				return;
 			}
 		});
-		for (int x = 0; x < grid.length; x++) {
-			for (int y = 0; y < grid[0].length; y++) {
-				LevelObject object = grid[x][y];
-				if (object != null && object.rect.contains(startPoint)) {
-					selection.add(object);
-					return;
+		if (includeGridObjects) {
+			for (int x = 0; x < grid.length; x++) {
+				for (int y = 0; y < grid[0].length; y++) {
+					LevelObject object = grid[x][y];
+					if (object != null && object.rect.contains(point)) {
+						selection.add(object);
+						return;
+					}
 				}
 			}
 		}
 		if (debugSpawn != null) {
 			// This is gross. I don't like.
-			if (debugSpawn.rect.xy.minus(startPoint).len() < DebugSpawnObject.OUTER_DIAMETER) {
+			if (debugSpawn.rect.xy.minus(point).len() < DebugSpawnObject.OUTER_DIAMETER) {
 				selection.add(debugSpawn);
 			}
 		}
@@ -364,7 +381,7 @@ public class LevelBuilder {
 
 		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.gridObjects = optimizedGrid;
-		optimizedLevel.otherObjects = new ArrayList<>(otherObjects);
+		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
 		optimizedLevel.debugSpawn = debugSpawn;
 		optimizedLevel.theme = theme;
 
