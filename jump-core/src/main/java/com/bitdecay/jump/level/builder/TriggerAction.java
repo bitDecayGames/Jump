@@ -1,37 +1,25 @@
 package com.bitdecay.jump.level.builder;
 
-import com.bitdecay.jump.level.LevelObject;
+import com.bitdecay.jump.level.TriggerObject;
 
 /**
  * Created by Monday on 11/22/2015.
  */
 public class TriggerAction implements BuilderAction {
 
-    private LevelObject triggerer;
-    private LevelObject triggeree;
-    private boolean create;
+    private TriggerObject trigger;
 
-    public TriggerAction(LevelObject triggerer, LevelObject triggeree, boolean create) {
-        this.triggerer = triggerer;
-        this.triggeree = triggeree;
-        this.create = create;
+    public TriggerAction(TriggerObject trigger) {
+        this.trigger = trigger;
     }
 
     @Override
     public void perform(LevelBuilder builder) {
-        if (create) {
-            triggerer.objectsTriggeredByThis.add(triggeree.uuid);
-        } else {
-            triggerer.objectsTriggeredByThis.remove(triggeree.uuid);
-        }
+        builder.triggers.put(trigger.uuid, trigger);
     }
 
     @Override
     public void undo(LevelBuilder builder) {
-        if (create) {
-            triggerer.objectsTriggeredByThis.remove(triggeree.uuid);
-        } else {
-            triggerer.objectsTriggeredByThis.add(triggeree.uuid);
-        }
+        builder.triggers.remove(trigger.uuid);
     }
 }

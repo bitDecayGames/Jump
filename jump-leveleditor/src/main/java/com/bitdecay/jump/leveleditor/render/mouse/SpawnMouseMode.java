@@ -3,6 +3,7 @@ package com.bitdecay.jump.leveleditor.render.mouse;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.level.DebugSpawnObject;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
@@ -14,7 +15,7 @@ public class SpawnMouseMode extends BaseMouseMode {
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
-         builder.setDebugSpawn(point);
+         builder.setDebugSpawn(new DebugSpawnObject(point));
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,22 +38,22 @@ public class LibGDXLevelRenderer {
             if (object instanceof RenderableLevelObject) {
                 batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
             }
-            if (RenderLayer.TRIGGERS.enabled) {
-                renderer.setColor(BitColors.SELECTABLE);
-                LevelObject other;
-                for (String uuid : object.objectsTriggeredByThis) {
-                    other = builder.otherObjects.get(uuid);
-
-                    BitPoint middleOfLine = new BitPoint((object.rect.center().x + other.rect.center().x)/2,(object.rect.center().y + other.rect.center().y)/2);
-                    float angle = GeomUtils.angle(object.rect.center(), other.rect.center());
-                    renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
-                    renderer.line(object.rect.center().x, object.rect.center().y, other.rect.center().x, other.rect.center().y);
-                }
-            }
             renderer.setColor(BitColors.INACTIVE_OBJECT);
             renderer.rect(object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
             LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL_OBJECTS);
         });
+        if (RenderLayer.TRIGGERS.enabled) {
+            builder.triggers.values().forEach(trigger -> {
+                renderer.setColor(BitColors.SELECTABLE);
+                LevelObject actor = builder.otherObjects.get(trigger.triggerer.uuid);
+                LevelObject victim = builder.otherObjects.get(trigger.triggeree.uuid);
+
+                BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
+                float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());
+                renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
+                renderer.line(actor.rect.center().x, actor.rect.center().y, victim.rect.center().x, victim.rect.center().y);
+            });
+        }
         batch.end();
         renderer.end();
     }

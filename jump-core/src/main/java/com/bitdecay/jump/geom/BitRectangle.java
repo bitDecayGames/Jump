@@ -33,6 +33,10 @@ public class BitRectangle implements Projectable {
 		this(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 	}
 
+	public BitRectangle(BitPoint startPoint, BitPoint endPoint) {
+		this(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+	}
+
 	public void set(BitRectangle other) {
 		this.xy.set(other.xy);
 		this.width = other.width;
@@ -64,7 +68,11 @@ public class BitRectangle implements Projectable {
 		return contains(point.x, point.y);
 	}
 
-	public boolean contains(int x, int y) {
+	public boolean contains(BitPoint point) {
+		return contains(point.x, point.y);
+	}
+
+	public boolean contains(float x, float y) {
 		return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
 	}
 
