@@ -24,7 +24,11 @@ public class ShellObject extends GameObject {
             public void contactStarted(BitBody other) {
                 if (BodyType.DYNAMIC.equals(other.bodyType)) {
                     if (other.aabb.xy.y > body.aabb.xy.y + body.aabb.height/2) {
-                        other.velocity.y = 200;
+                        if (other.velocity.y > 0) {
+                            other.velocity.y += 200;
+                        } else {
+                            other.velocity.y = 200;
+                        }
                         controller.moving = !controller.moving;
                         controller.left = other.aabb.center().x >= body.aabb.center().x;
                     }

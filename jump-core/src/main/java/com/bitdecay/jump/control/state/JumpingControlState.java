@@ -43,9 +43,15 @@ public class JumpingControlState extends SidewaysControlState {
             if (controls.isPressed(PlayerAction.JUMP) && jumpVariableHeightWindow <= body.jumperProps.jumpVariableHeightWindow) {
                 if (body.jumpsRemaining == body.jumperProps.jumpCount) {
                     // first jump
-                    body.velocity.y = body.jumperProps.jumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpStrength) ? -1 : 1);
+                    int desiredJumpSpeed = body.jumperProps.jumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpStrength) ? -1 : 1);
+                    if (body.velocity.y <= desiredJumpSpeed) {
+                        body.velocity.y = desiredJumpSpeed;
+                    }
                 } else {
-                    body.velocity.y = body.jumperProps.jumpDoubleJumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpDoubleJumpStrength) ? -1 : 1);
+                    int desiredJumpSpeed = body.jumperProps.jumpDoubleJumpStrength * (MathUtils.sameSign(BitWorld.gravity.y, body.jumperProps.jumpDoubleJumpStrength) ? -1 : 1);
+                    if (body.velocity.y <= desiredJumpSpeed) {
+                        body.velocity.y = desiredJumpSpeed;
+                    }
                 }
                 jumpVariableHeightWindow += delta;
                 return this;
