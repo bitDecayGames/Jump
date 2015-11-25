@@ -16,16 +16,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.bitdecay.jump.collision.BitWorld;
+import com.bitdecay.jump.gdx.level.BetterLevelObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.Level;
-import com.bitdecay.jump.level.LevelUtilities;
+import com.bitdecay.jump.level.*;
 import com.bitdecay.jump.level.builder.LevelBuilder;
-import com.bitdecay.jump.level.LevelObject;
-import com.bitdecay.jump.level.DebugSpawnObject;
-import com.bitdecay.jump.level.UserSizedLevelObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -224,7 +221,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         shaper.begin(ShapeType.Line);
         shaper.setColor(BitColors.SELECTION);
         for (LevelObject obj : curLevelBuilder.selection) {
-            shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+            if (obj instanceof TriggerObject) {
+                shaper.circle(obj.rect.center().x, obj.rect.center().y, 10);
+            } else if (obj instanceof DebugSpawnObject) {
+                shaper.circle(obj.rect.xy.x, obj.rect.xy.y, DebugSpawnObject.OUTER_DIAMETER + DebugSpawnObject.INNER_DIAMETER);
+            } else {
+                shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
+            }
         }
         if (curLevelBuilder.debugSpawn != null) {
             shaper.setColor(BitColors.SPAWN_OUTER);

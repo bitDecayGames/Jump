@@ -23,12 +23,12 @@ public class AddRemoveAction implements BuilderAction {
     @Override
     public void perform(LevelBuilder builder) {
         removeObjects.addAll(builder.addObjects(newObjects));
-        builder.removeObjects(removeObjects);
+        newObjects.addAll(builder.removeObjects(removeObjects));
     }
 
     @Override
     public void undo(LevelBuilder builder) {
-        builder.removeObjects(newObjects);
+        removeObjects.addAll(builder.removeObjects(newObjects));
         newObjects.addAll(builder.addObjects(removeObjects));
     }
 }

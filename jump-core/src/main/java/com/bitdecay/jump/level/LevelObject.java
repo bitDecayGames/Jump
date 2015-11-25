@@ -2,6 +2,7 @@ package com.bitdecay.jump.level;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.annotation.CantInspect;
+import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,9 +17,6 @@ public abstract class LevelObject {
 	@CantInspect
 	public final String uuid = UUID.randomUUID().toString();
 
-	@CantInspect
-	public List<String> objectsTriggeredByThis = new ArrayList<>();
-
 	public LevelObject() {
 		// Here for JSON
 	}
@@ -31,4 +29,12 @@ public abstract class LevelObject {
 	public abstract BitBody buildBody();
 
 	public abstract String name();
+
+	public boolean selects(BitPointInt point) {
+		return rect.contains(point);
+	}
+
+	public boolean selects(BitRectangle selectionRect) {
+		return selectionRect.contains(rect);
+	}
 }

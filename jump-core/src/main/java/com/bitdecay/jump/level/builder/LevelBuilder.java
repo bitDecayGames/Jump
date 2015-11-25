@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
+import jdk.nashorn.internal.runtime.Debug;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the
@@ -30,6 +31,11 @@ public class LevelBuilder {
 	 */
 	public HashMap<String, LevelObject> otherObjects;
 
+	/**
+	 * Holds all triggers
+	 */
+	public HashMap<String, TriggerObject> triggers;
+
 	public int tileSize;
 	public TileObject[][] grid;
 	public BitPointInt gridOffset;
@@ -49,7 +55,8 @@ public class LevelBuilder {
 		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
-		otherObjects = new HashMap<String, LevelObject>();
+		otherObjects = new HashMap<>();
+		triggers = new HashMap<>();
 		actions = new LinkedList<>();
 		lastAction = -1;
 	}
@@ -67,6 +74,12 @@ public class LevelBuilder {
 		if (level.otherObjects != null) {
 			for (LevelObject object : level.otherObjects) {
 				otherObjects.put(object.uuid, object);
+			}
+		}
+		triggers = new HashMap<>();
+		if (level.triggers != null) {
+			for (TriggerObject trigger : level.triggers) {
+				triggers.put(trigger.uuid, trigger);
 			}
 		}
 		debugSpawn = level.debugSpawn;
@@ -106,14 +119,6 @@ public class LevelBuilder {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void addTrigger(LevelObject triggerer, LevelObject triggeree) {
-		pushAction(new TriggerAction(triggerer, triggeree, true));
-	}
-
-	public void removeTrigger(LevelObject triggerer, LevelObject triggeree) {
-		pushAction(new TriggerAction(triggerer, triggeree, false));
 	}
 
 	public void undo() {
@@ -165,6 +170,10 @@ public class LevelBuilder {
 				}
 				grid[gridX][gridY] = (TileObject)obj;
 				updateNeighbors(gridX, gridY);
+			} else if (obj instanceof TriggerObject) {
+				triggers.put(obj.uuid, (TriggerObject) obj);
+			} else if (obj instanceof DebugSpawnObject) {
+				debugSpawn = (DebugSpawnObject) obj;
 			} else {
 				otherObjects.put(obj.uuid, obj);
 			}
@@ -173,9 +182,33 @@ public class LevelBuilder {
 		return removedObjects;
 	}
 
-	void removeObjects(Set<LevelObject> objects) {
+	/**
+	 *
+	 * @param objects
+	 * @return set of any additionally removed objects that were collateral of removing the provided objects
+	 */
+	Set<LevelObject> removeObjects(Set<LevelObject> objects) {
+		Set<LevelObject> additionalRemovedObjects = new HashSet<>();
+		additionalRemovedObjects.addAll(objects);
 		// clean up out of other newObjects
-		objects.forEach(object -> otherObjects.remove(object.uuid));
+		objects.forEach(object -> {
+			if (object == debugSpawn) {
+				debugSpawn = null;
+			}
+			otherObjects.remove(object.uuid);
+			triggers.remove(object.uuid);
+
+			Iterator<TriggerObject> iterator = triggers.values().iterator();
+			TriggerObject trigger;
+			while (iterator.hasNext()) {
+				trigger = iterator.next();
+				if (trigger.triggerer.uuid.equals(object.uuid) || trigger.triggeree.uuid.equals(object.uuid)) {
+					// need to remove the trigger.
+					iterator.remove();
+					additionalRemovedObjects.add(trigger);
+				}
+			}
+		});
 		// clean out our grid
 		int gridX;
 		int gridY;
@@ -188,6 +221,7 @@ public class LevelBuilder {
 			}
 		}
 		fireToListeners();
+		return additionalRemovedObjects;
 	}
 
 	public void fireToListeners() {
@@ -295,6 +329,12 @@ public class LevelBuilder {
 		if (!add) {
 			selection.clear();
 		}
+		triggers.values().forEach(trigger -> {
+			if (trigger.selects(selectionArea)) {
+				selection.add(trigger);
+				return;
+			}
+		});
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				LevelObject object = grid[x][y];
@@ -308,6 +348,13 @@ public class LevelBuilder {
 				selection.add(object);
 			}
 		});
+		if (debugSpawn != null) {
+			// This is gross. I don't like.
+			if (debugSpawn.selects(selectionArea)) {
+				selection.add(debugSpawn);
+				return;
+			}
+		}
 	}
 
 	public void selectObject(BitPointInt point, boolean add) {
@@ -318,8 +365,14 @@ public class LevelBuilder {
 		if (!add) {
 			selection.clear();
 		}
+		triggers.values().forEach(trigger -> {
+			if (trigger.selects(point)) {
+				selection.add(trigger);
+				return;
+			}
+		});
 		otherObjects.values().forEach(object -> {
-			if (object.rect.contains(point)) {
+			if (object.selects(point)) {
 				selection.add(object);
 				return;
 			}
@@ -328,7 +381,7 @@ public class LevelBuilder {
 			for (int x = 0; x < grid.length; x++) {
 				for (int y = 0; y < grid[0].length; y++) {
 					LevelObject object = grid[x][y];
-					if (object != null && object.rect.contains(point)) {
+					if (object != null && object.selects(point)) {
 						selection.add(object);
 						return;
 					}
@@ -337,10 +390,12 @@ public class LevelBuilder {
 		}
 		if (debugSpawn != null) {
 			// This is gross. I don't like.
-			if (debugSpawn.rect.xy.minus(point).len() < DebugSpawnObject.OUTER_DIAMETER) {
+			if (debugSpawn.selects(point)) {
 				selection.add(debugSpawn);
+				return;
 			}
 		}
+
 	}
 
 	public String getJson() {
@@ -382,6 +437,7 @@ public class LevelBuilder {
 		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.gridObjects = optimizedGrid;
 		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
+		optimizedLevel.triggers = new ArrayList<>(triggers.values());
 		optimizedLevel.debugSpawn = debugSpawn;
 		optimizedLevel.theme = theme;
 
@@ -427,8 +483,8 @@ public class LevelBuilder {
 		listeners.remove(levelListener);
 	}
 
-	public void setDebugSpawn(BitPointInt point) {
-		debugSpawn = new DebugSpawnObject(point);
+	public void setDebugSpawn(DebugSpawnObject spawn) {
+		debugSpawn = spawn;
 		fireToListeners();
 	}
 

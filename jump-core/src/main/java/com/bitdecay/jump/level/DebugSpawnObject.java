@@ -52,4 +52,9 @@ public class DebugSpawnObject extends LevelObject {
     public String name() {
         return "Debug Spawn Point";
     }
+
+    @Override
+    public boolean selects(BitPointInt point) {
+        return rect.xy.minus(point).len() < DebugSpawnObject.OUTER_DIAMETER;
+    }
 }

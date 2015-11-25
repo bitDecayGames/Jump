@@ -3,6 +3,7 @@ package com.bitdecay.jump.leveleditor.render.mouse;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.level.TriggerObject;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -26,9 +27,9 @@ public class TriggerMouseMode extends BaseMouseMode {
                 if (triggerer == null) {
                     triggerer = builder.selection.get(0);
                 } else {
-                    // create our trigger connection;
+                    // create our trigger
                     triggeree = builder.selection.get(0);
-                    builder.addTrigger(triggerer, triggeree);
+                    builder.createObject(new TriggerObject(triggerer, triggeree));
                     triggerer = null;
                     triggeree = null;
                 }
