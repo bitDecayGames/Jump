@@ -452,9 +452,6 @@ public class BitWorld {
 	}
 
 	private void maybeFlagNewContact(BitBody body, BitBody against) {
-		if (against instanceof TileBody) {
-			return;
-		}
 		if (!ongoingContacts.get(body).contains(against)) {
 			if (!newContacts.containsKey(body)) {
 				newContacts.put(body, new HashSet<>());
