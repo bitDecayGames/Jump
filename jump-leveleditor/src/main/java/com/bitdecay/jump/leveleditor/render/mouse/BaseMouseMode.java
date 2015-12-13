@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.ToolAction;
 
 public abstract class BaseMouseMode implements MouseMode, ToolAction {
@@ -55,6 +56,6 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
 
     @Override
     public TextureRegion getIcon() {
-        return new TextureRegion(new Texture(Gdx.files.internal("editorAssets/fill.png")));
+        return new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "editorAssets/fill.png")));
     }
 }

@@ -43,8 +43,8 @@ public class EditorMenus {
 
     public EditorMenus(LevelEditor levelEditor, EditorHook hooker) {
         this.levelEditor = levelEditor;
-        TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal("skins/ui.atlas"));
-        skin = new Skin(Gdx.files.internal("skins/menu-skin.json"), menuAtlas);
+        TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/ui.atlas"));
+        skin = new Skin(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/menu-skin.json"), menuAtlas);
         stage = new Stage();
         topMenus.put(MenuPage.MainMenu, buildMainMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
@@ -115,7 +115,7 @@ public class EditorMenus {
 
     private void buildImageButton(Table menu, OptionsMode mode, ButtonGroup btnGroup) {
         Table itemTable = new Table();
-        TextureRegion testIcon = new TextureRegion(new Texture(Gdx.files.internal(mode.icon)));
+        TextureRegion testIcon = new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + mode.icon)));
         TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegionDrawable(new TextureRegion(testIcon)));
         SpriteDrawable downSprite = upDrawable.tint(Color.GREEN);
         ImageButton button;
