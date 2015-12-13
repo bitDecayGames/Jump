@@ -36,15 +36,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
 
-    public static final String EDITOR_ASSETS_FOLDER = "editorAssets";
+    public static String ASSETS_FOLDER = "editorAssets";
+    public static String EDITOR_ASSETS_FOLDER = "editorAssets";
+
+    public static void setAssetsFolder(String assetsPath) {
+        ASSETS_FOLDER = assetsPath.replaceAll("[/\\\\]$", "") + "/";
+        EDITOR_ASSETS_FOLDER = ASSETS_FOLDER + "editorAssets";
+    }
+
     private EditorMenus menus;
 
     private static final int CAM_SPEED = 5;
 
-    public BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/test2.fnt"), Gdx.files.internal("fonts/test2.png"), false);
+    public BitmapFont font = new BitmapFont(Gdx.files.internal(ASSETS_FOLDER + "fonts/test2.fnt"), Gdx.files.internal(ASSETS_FOLDER + "fonts/test2.png"), false);
 
-    public Texture playIcon = new Texture("icons/play.png");
-    public Texture pauseIcon = new Texture("icons/pause.png");
+    public Texture playIcon = new Texture(ASSETS_FOLDER + "icons/play.png");
+    public Texture pauseIcon = new Texture(ASSETS_FOLDER + "icons/pause.png");
 
     private String jumpVersion = "Jump v" + BitWorld.VERSION;
     private GlyphLayout jumpVersionGlyphLayout = new GlyphLayout(font, jumpVersion);
