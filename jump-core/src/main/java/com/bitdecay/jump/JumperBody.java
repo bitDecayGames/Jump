@@ -7,7 +7,7 @@ import com.bitdecay.jump.properties.JumperProperties;
  * Created by Monday on 11/5/2015.
  */
 public class JumperBody extends BitBody {
-    public JumperProperties jumperProps;
+    public JumperProperties jumperProps = new JumperProperties();
 
     /**
      *

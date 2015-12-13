@@ -2,7 +2,6 @@ package com.bitdecay.jump.leveleditor.ui.component;
 
 import com.bitdecay.jump.annotation.ValueRange;
 import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
-import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 
 import javax.swing.*;
 import java.lang.reflect.Field;
