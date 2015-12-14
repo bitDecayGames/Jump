@@ -15,7 +15,7 @@ public abstract class LevelObject {
 	public BitRectangle rect;
 
 	@CantInspect
-	public final String uuid = UUID.randomUUID().toString();
+	public String uuid = UUID.randomUUID().toString();
 
 	public LevelObject() {
 		// Here for JSON
