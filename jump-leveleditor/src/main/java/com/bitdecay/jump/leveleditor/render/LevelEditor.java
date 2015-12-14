@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
-
     public static String ASSETS_FOLDER = "editorAssets";
     public static String EDITOR_ASSETS_FOLDER = "editorAssets";
 
@@ -43,6 +42,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         ASSETS_FOLDER = assetsPath.replaceAll("[/\\\\]$", "") + "/";
         EDITOR_ASSETS_FOLDER = ASSETS_FOLDER + "editorAssets";
     }
+
+    public static int TILE_SIZE = 16;
 
     private EditorMenus menus;
 
@@ -107,7 +108,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         font.setColor(BitColors.UI_TEXT);
 
-        curLevelBuilder = new LevelBuilder(16);
+        curLevelBuilder = new LevelBuilder(TILE_SIZE);
         curLevelBuilder.addListener(hooker);
 
         camera = new OrthographicCamera(1600, 900);
