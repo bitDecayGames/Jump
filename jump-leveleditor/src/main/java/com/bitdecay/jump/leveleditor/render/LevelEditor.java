@@ -121,6 +121,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.SELECT, new SelectMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.CREATE, new CreateMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.ONEWAY, new CreateOneWayMouseMode(curLevelBuilder));
+        //erik
+        mouseModes.put(OptionsMode.FOREGROUND, new CreateForegroundMouseMode(curLevelBuilder));
+        //end.erik
         mouseModes.put(OptionsMode.MOVING_PLATFORM, new MovingPlatformMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DELETE, new DeleteMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.TRIGGERS, new TriggerMouseMode(curLevelBuilder));
@@ -487,6 +490,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void setMaterial(int tileset) {
         ((CreateMouseMode)mouseModes.get(OptionsMode.CREATE)).setMaterial(tileset);
         ((CreateOneWayMouseMode)mouseModes.get(OptionsMode.ONEWAY)).setMaterial(tileset);
+        //erik
+        ((CreateForegroundMouseMode)mouseModes.get(OptionsMode.FOREGROUND)).setMaterial(tileset);
+        //end.erik
     }
 
     public void queueReload() {

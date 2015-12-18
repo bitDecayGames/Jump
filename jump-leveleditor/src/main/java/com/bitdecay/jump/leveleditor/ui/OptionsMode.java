@@ -15,6 +15,9 @@ public enum OptionsMode {
     MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, "icons/movingPlatform.png"),
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, "icons/tiles.png"),
     ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, "icons/oneway.png"),
+    //erik
+    FOREGROUND("Foreground", ModeType.MOUSE, MenuPage.TileMenu, "icons/oneway.png"),
+    //end.erik
     THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, "icons/theme.png"),
 
     // Modes that are a one-time action

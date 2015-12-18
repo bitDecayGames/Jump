@@ -102,10 +102,20 @@ public class LevelBuilder {
 		pushAction(createKineticAction);
 	}
 
-	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
+	//public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
+	//	List<LevelObject> newObjects = new ArrayList<>();
+	//	GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
+	//			newObjects.add(new TileObject(rect, oneway, material)));
+	//	if (newObjects.size() > 0) {
+	//		BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());
+	//		pushAction(createLevelObjectAction);
+	//	}
+	//}
+	//erik
+	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, boolean foreground, int material) {
 		List<LevelObject> newObjects = new ArrayList<>();
 		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
-				newObjects.add(new TileObject(rect, oneway, material)));
+				newObjects.add(new TileObject(rect, oneway, foreground, material)));
 		if (newObjects.size() > 0) {
 			BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());
 			pushAction(createLevelObjectAction);
@@ -262,11 +272,11 @@ public class LevelBuilder {
 
 		// check right
 		if (ArrayUtilities.onGrid(grid, x + 1, y) && grid[x + 1][y] != null) {
-			if (grid[x+1][y].oneway) {
-				grid[x][y].collideNValue &= Direction.NOT_RIGHT;
-			} else {
+			//if (grid[x+1][y].oneway) {
+			//	grid[x][y].collideNValue &= Direction.NOT_RIGHT;
+			//} else {
 				grid[x][y].collideNValue |= Direction.RIGHT;
-			}
+			//}
 			grid[x][y].renderNValue |= Direction.RIGHT;
 		} else {
 			grid[x][y].collideNValue &= Direction.NOT_RIGHT;
@@ -274,11 +284,11 @@ public class LevelBuilder {
 		}
 		// check left
 		if (ArrayUtilities.onGrid(grid, x - 1, y) && grid[x - 1][y] != null) {
-			if (grid[x-1][y].oneway) {
-				grid[x][y].collideNValue &= Direction.NOT_LEFT;
-			} else {
+			//if (grid[x-1][y].oneway) {
+			//	grid[x][y].collideNValue &= Direction.NOT_LEFT;
+			//} else {
 				grid[x][y].collideNValue |= Direction.LEFT;
-			}
+			//}
 			grid[x][y].renderNValue |= Direction.LEFT;
 		} else {
 			grid[x][y].collideNValue &= Direction.NOT_LEFT;
@@ -286,7 +296,9 @@ public class LevelBuilder {
 		}
 		// check up
 		if (ArrayUtilities.onGrid(grid, x, y + 1) && grid[x][y + 1] != null) {
-			if (grid[x][y+1].oneway) {
+			if ((grid[x][y].oneway && grid[x][y+1].oneway)||(grid[x][y].foreground && grid[x][y+1].foreground)) {
+				grid[x][y].collideNValue |= Direction.UP;
+			} else if (grid[x][y+1].oneway || grid[x][y+1].foreground ) {
 				grid[x][y].collideNValue &= Direction.NOT_UP;
 			} else {
 				grid[x][y].collideNValue |= Direction.UP;
@@ -298,11 +310,11 @@ public class LevelBuilder {
 		}
 		// check down
 		if (ArrayUtilities.onGrid(grid, x, y - 1) && grid[x][y - 1] != null) {
-			if (grid[x][y-1].oneway) {
-				grid[x][y].collideNValue &= Direction.NOT_DOWN;
-			} else {
+			//if (grid[x][y-1].oneway) {
+			//	grid[x][y].collideNValue &= Direction.NOT_DOWN;
+			//} else {
 				grid[x][y].collideNValue |= Direction.DOWN;
-			}
+			//}
 			grid[x][y].renderNValue |= Direction.DOWN;
 		} else {
 			grid[x][y].collideNValue &= Direction.NOT_DOWN;

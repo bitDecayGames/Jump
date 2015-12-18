@@ -29,6 +29,10 @@ public class BitColors {
     public static final Color COLLISION = Color.ORANGE;
     public static final Color RESOLVED_COLLISION = new Color(.8f, .2f, 0, 1);
 
+    //erik
+    public static final Color FOREGROUND = Color.WHITE;
+    //end.erik
+
     public static final Color UI_TEXT = Color.YELLOW;
     public static final Color GRID_SIZE = Color.OLIVE;
     public static final Color GRID_LINES = new Color(.1f, .1f, .1f, 1f);
