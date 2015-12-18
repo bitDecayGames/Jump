@@ -20,14 +20,16 @@ public class TileObject extends LevelObject {
 	public int collideNValue;
 
 	public boolean oneway;
+	public boolean foreground;
 
 	public TileObject() {
 		// Here for JSON
 	}
 
-	public TileObject(BitRectangle rect, boolean oneway, int material) {
+	public TileObject(BitRectangle rect, boolean oneway, boolean foreground, int material) {
 		super(rect);
 		this.oneway = oneway;
+		this.foreground = foreground;
 		this.material = material;
 	}
 
@@ -40,6 +42,10 @@ public class TileObject extends LevelObject {
 		body.bodyType = BodyType.STATIC;
 		if (oneway) {
 			body.collisionAxis = GeomUtils.Y_AXIS;
+		}
+		//erik
+		if (foreground) {
+			body.collisionAxis = GeomUtils.ZERO_AXIS;
 		}
 		return body;
 	}

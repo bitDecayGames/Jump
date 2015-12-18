@@ -49,14 +49,21 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                         if (levelObject instanceof TileBody) {
                             nValue = ((TileBody) levelObject).nValue;
                         }
-                        if (((TileBody) levelObject).collisionAxis != null) {
-                            // currently we are just assuming it's a one-way platform
+                        //erik
+                        if (((TileBody) levelObject).collisionAxis == GeomUtils.Y_AXIS) {
+                            // one-way platform
                             renderer.setColor(BitColors.COLLISION);
                             renderer.line(leftX, topY, rightX, topY);
+                            continue;
+                        } else if (((TileBody) levelObject).collisionAxis == GeomUtils.ZERO_AXIS) {
+                            // foreground
+                            renderer.setColor(BitColors.FOREGROUND);
+                            //renderer.line(leftX, topY, rightX, topY);
                             continue;
                         } else {
                             renderer.setColor(BitColors.STATIC_OBJECT);
                         }
+                        //end.erik
 
 
                         if ((nValue & Direction.UP) == 0) {
@@ -90,6 +97,10 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
         renderer.setColor(BitColors.RESOLVED_COLLISION);
+        for (BitRectangle col : world.resolvedCollisions) {
+            renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
+        }
+        renderer.setColor(BitColors.FOREGROUND);
         for (BitRectangle col : world.resolvedCollisions) {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
