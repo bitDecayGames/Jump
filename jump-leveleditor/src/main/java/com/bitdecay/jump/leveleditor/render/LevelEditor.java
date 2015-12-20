@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LevelEditor extends InputAdapter implements Screen, OptionsUICallback {
-    public static String ASSETS_FOLDER = "editorAssets";
+    public static String ASSETS_FOLDER = "assets/";
     public static String EDITOR_ASSETS_FOLDER = "editorAssets";
 
     public static void setAssetsFolder(String assetsPath) {
@@ -72,6 +72,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public SpriteBatch uiBatch;
 
     public LevelBuilder curLevelBuilder;
+    public String currentFile = "";
 
     private OrthographicCamera camera;
     private LibGDXWorldRenderer worldRenderer;
@@ -219,8 +220,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             uiBatch.draw(pauseIcon, 20, 20);
         }
 
+        if (currentFile != null && !currentFile.isEmpty()) {
+            font.draw(uiBatch, currentFile, Gdx.graphics.getWidth() - unsavedWarningSize.x - 10 , Gdx.graphics.getHeight() - 10);
+        }
         if (curLevelBuilder.hasChanges()) {
-            font.draw(uiBatch, unsavedChangeWarning, Gdx.graphics.getWidth() - unsavedWarningSize.x - 10 , Gdx.graphics.getHeight() - 10);
+            font.draw(uiBatch, unsavedChangeWarning, Gdx.graphics.getWidth() - unsavedWarningSize.x - 10 , Gdx.graphics.getHeight() - 20);
         }
     }
 
@@ -452,10 +456,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         } else if (OptionsMode.REDO.equals(mode)) {
             curLevelBuilder.redo();
         } else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
-            setLevelBuilder(LevelUtilities.saveLevel(curLevelBuilder, true));
+            Level savedLevel = LevelUtilities.saveLevel(curLevelBuilder, true);
+            if (savedLevel != null) {
+                currentFile = FileUtils.lastTouchedFile;
+                setLevelBuilder(savedLevel);
+            }
         } else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
             Level loadLevel = LevelUtilities.loadLevel();
             if (loadLevel != null) {
+                currentFile = FileUtils.lastTouchedFile;
                 setLevelBuilder(loadLevel);
                 setCamToOrigin();
             }

@@ -22,13 +22,17 @@ public class AddRemoveAction implements BuilderAction {
 
     @Override
     public void perform(LevelBuilder builder) {
+        /*
+         *when performing our actions, it may be the case that adding an option removes something where the
+         * object was placed (specifically in when drawing out tiles)
+         */
         removeObjects.addAll(builder.addObjects(newObjects));
         newObjects.addAll(builder.removeObjects(removeObjects));
     }
 
     @Override
     public void undo(LevelBuilder builder) {
-        removeObjects.addAll(builder.removeObjects(newObjects));
-        newObjects.addAll(builder.addObjects(removeObjects));
+        builder.removeObjects(newObjects);
+        builder.addObjects(removeObjects);
     }
 }

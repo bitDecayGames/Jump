@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.*;
 
 public class FileUtils {
 
+	public static String lastTouchedFile = "";
+
 	private static String nextSaveDir = null;
 
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -55,6 +57,7 @@ public class FileUtils {
 		fileChooser.setApproveButtonText("Save");
 		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			lastTouchedFile = fileChooser.getSelectedFile().getName();
 			nextSaveDir = fileChooser.getSelectedFile().getParent();
 			try {
 				FileWriter writer = new FileWriter(fileChooser.getSelectedFile());
@@ -98,6 +101,7 @@ public class FileUtils {
 
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
+			lastTouchedFile = selectedFile.getName();
 			return loadFile(selectedFile);
 		}
 		return null;

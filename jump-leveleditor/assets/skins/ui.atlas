@@ -2,11 +2,11 @@
 ui.png
 size: 256,64
 format: RGBA8888
-filter: Linear,Linear
+filter: Nearest,Nearest
 repeat: none
 button
   rotate: false
-  xy: 2, 2
+  xy: 1, 15
   size: 48, 48
   split: 15, 16, 12, 18
   pad: 15, 16, -1, -1
@@ -15,7 +15,7 @@ button
   index: -1
 button_down
   rotate: false
-  xy: 52, 2
+  xy: 51, 15
   size: 48, 48
   split: 15, 16, 12, 18
   pad: 15, 16, -1, -1
@@ -24,37 +24,37 @@ button_down
   index: -1
 checkbox_checked
   rotate: false
-  xy: 214, 34
+  xy: 182, 47
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 checkbox_unchecked
   rotate: false
-  xy: 214, 16
+  xy: 182, 29
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 scrollChannel
   rotate: false
-  xy: 152, 2
-  size: 29, 48
+  xy: 151, 33
+  size: 29, 30
   split: 12, 12, 12, 12
-  orig: 29, 48
+  orig: 29, 30
   offset: 0, 0
   index: -1
 scrollKnob
   rotate: false
-  xy: 183, 2
-  size: 29, 48
+  xy: 151, 1
+  size: 29, 30
   split: 9, 9, 9, 9
-  orig: 29, 48
+  orig: 29, 30
   offset: 0, 0
   index: -1
 scrollPane
   rotate: false
-  xy: 102, 2
+  xy: 101, 15
   size: 48, 48
   split: 9, 9, 9, 9
   orig: 48, 48

@@ -46,6 +46,8 @@ public class BitTexturePacker {
         System.out.println("Finished packing textures");
         System.out.println("Atlases Packed: " + count);
         System.out.println(String.format("Total time: %.2f seconds", duration / 1000f));
+
+        TexturePacker.process(settings, "ui", "skins", "ui");
     }
 
     public static void main(String[] args) {
