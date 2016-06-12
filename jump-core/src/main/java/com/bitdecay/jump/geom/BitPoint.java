@@ -55,15 +55,6 @@ public class BitPoint {
 		return new BitPoint(this.x + x, this.y + y);
 	}
 
-
-	public void subtract(BitPoint other) {
-		add(-other.x, -other.y);
-	}
-
-	public void subtract(float x, float y) {
-		add(-x, -y);
-	}
-
 	public BitPoint minus(BitPoint point) {
 		return minus(point.x, point.y);
 	}
@@ -77,17 +68,8 @@ public class BitPoint {
 		return minus(point.x, point.y);
 	}
 
-	public BitPoint times(float scalar) {
-		return new BitPoint(x * scalar, y *scalar);
-	}
-
 	public BitPoint scale(float scale) {
 		return new BitPoint(x * scale, y * scale);
-	}
-
-	@Override
-	public String toString() {
-		return "(" + x + ", " + y + ")";
 	}
 
 	public BitPoint dividedBy(float divisor) {
@@ -110,14 +92,6 @@ public class BitPoint {
 		return (float)Math.sqrt(x * x + y * y);
 	}
 
-	public float distanceTo(BitPoint other){
-		return other.minus(this).len();
-	}
-
-	public float manhattanDistanceTo(BitPoint other){
-		return Math.abs(other.x - this.x) + Math.abs(other.y - this.y);
-	}
-
 	public BitPoint normalize() {
 		BitPoint normal = new BitPoint(this);
 		float len = normal.len();
@@ -126,22 +100,6 @@ public class BitPoint {
 			normal.y /= len;
 		}
 		return normal;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof BitPoint) {
-			return ((BitPoint) other).x == this.x && ((BitPoint) other).y == this.y;
-		} else {
-			return false;
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
-		result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
-		return result;
 	}
 
 	/**
@@ -154,43 +112,6 @@ public class BitPoint {
 	 */
 	public boolean looseEquals(BitPoint other) {
 		return MathUtils.close(this.x, other.x) && MathUtils.close(this.y, other.y);
-	}
-
-	/**
-	 * Shifts a point {@link MathUtils#FLOAT_PRECISION} in the direction of dir
-	 *
-	 * @param dir
-	 * @return this object for chaining
-	 */
-
-	public BitPoint influence(BitPoint dir) {
-		BitPoint result = new BitPoint(this);
-		if (dir.x < 0) {
-			result.x -= MathUtils.FLOAT_PRECISION;
-		} else if (dir.x > 0) {
-			result.x += MathUtils.FLOAT_PRECISION;
-		} else {
-			// just shift it close to zero
-			if (x < 0) {
-				result.x = Math.min(0, x + MathUtils.FLOAT_PRECISION);
-			} else if (x > 0) {
-				result.x = Math.max(0, x - MathUtils.FLOAT_PRECISION);
-			}
-		}
-
-		if (dir.y < 0) {
-			result.y -= MathUtils.FLOAT_PRECISION;
-		} else if (dir.y > 0) {
-			result.y += MathUtils.FLOAT_PRECISION;
-		} else {
-			// just shift it close to zero
-			if (x < 0) {
-				result.y = Math.min(0, y + MathUtils.FLOAT_PRECISION);
-			} else if (y > 0) {
-				result.y = Math.max(0, y - MathUtils.FLOAT_PRECISION);
-			}
-		}
-		return this;
 	}
 
 	/**
@@ -214,6 +135,27 @@ public class BitPoint {
 		} else if (result.y < 0) {
 			result.y = Math.min(0, y + amount);
 		}
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof BitPoint) {
+			return ((BitPoint) other).x == this.x && ((BitPoint) other).y == this.y;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
+		result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
 		return result;
 	}
 }

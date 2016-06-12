@@ -19,7 +19,7 @@ public class SATCollision {
 
     public void addCandidate(Manifold manifold) {
         if (manifold.distance < 0) {
-            manifold = new Manifold(manifold.axis.times(-1), manifold.distance * -1);
+            manifold = new Manifold(manifold.axis.scale(-1), manifold.distance * -1);
         }
         manifoldCandidates.add(manifold);
     }
@@ -85,7 +85,7 @@ public class SATCollision {
                             if (manifold.distance < 0) {
                                 continue;
                             }
-                        } else if (manifold.axis.equals(((TileBody) otherBody).collisionAxis.times(-1))) {
+                        } else if (manifold.axis.equals(((TileBody) otherBody).collisionAxis.scale(-1))) {
                             if (manifold.distance > 0) {
                                 continue;
                             }
