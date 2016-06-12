@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
-import jdk.nashorn.internal.runtime.Debug;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the

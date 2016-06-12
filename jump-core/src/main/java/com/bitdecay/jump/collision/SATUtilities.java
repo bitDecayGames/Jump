@@ -22,9 +22,13 @@ public class SATUtilities {
 
         Set<BitPoint> perpendicularAxes = new HashSet<>();
 
-        buildAxes(points1, perpendicularAxes);
-        buildAxes(points2, perpendicularAxes);
+        perpendicularAxes.addAll(buildAxes(points1));
+        perpendicularAxes.addAll(buildAxes(points2));
 
+        return maybeBuildCollision(points1, points2, perpendicularAxes);
+    }
+
+    private static SATCollision maybeBuildCollision(BitPoint[] points1, BitPoint[] points2, Set<BitPoint> perpendicularAxes) {
         SATCollision res = null;
         for (BitPoint axis : perpendicularAxes) {
             BitPoint line1 = project(axis, points1);
@@ -47,9 +51,9 @@ public class SATUtilities {
     /**
      * Builds all perpendicular axes. Intentionally creates them all as unit vectors in the first and second cartesian quardrants.
      * @param points The points to build perpendiculars for
-     * @param perpendicularAxes The set of axes to add to
      */
-    private static void buildAxes(BitPoint[] points, Set<BitPoint> perpendicularAxes) {
+    private static Set<BitPoint> buildAxes(BitPoint[] points) {
+        Set<BitPoint> perpendicularAxes = new HashSet<>();
         BitPoint firstPoint;
         BitPoint secondPoint;
         for (int i = 0; i < points.length; i++) {
@@ -69,6 +73,7 @@ public class SATUtilities {
                 perpendicularAxes.add(perpAxis);
             }
         }
+        return perpendicularAxes;
     }
 
     public static BitPoint project(BitPoint slope, BitPoint... points) {

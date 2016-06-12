@@ -1,6 +1,7 @@
 package com.bitdecay.jump.level.builder;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.Level;

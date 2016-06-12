@@ -21,6 +21,10 @@ public class BitCollision implements Comparable<BitCollision> {
 		this.against = against;
 	}
 
+	public boolean canBeIgnored() {
+		return body.resolutionLocked || (!body.props.collides || !against.props.collides);
+	}
+
 	@Override
 	public int compareTo(BitCollision o) {
 		return Integer.compare(against.bodyType.order, o.against.bodyType.order);
