@@ -13,9 +13,12 @@ public class BitPointInt {
 		this.y = y;
 	}
 
-	public void add(int x, int y) {
-		this.x += x;
-		this.y += y;
+	public BitPointInt minus(BitPointInt point) {
+		return new BitPointInt(x - point.x, y - point.y);
+	}
+
+	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
+		return new BitPointInt(Math.floorDiv(x, xDiv), Math.floorDiv(y, yDiv));
 	}
 
 	@Override
@@ -30,17 +33,5 @@ public class BitPointInt {
 	@Override
 	public String toString() {
 		return "(" + x + ", " + y + ")";
-	}
-
-	public BitPointInt floorDivideBy(int xDiv, int yDiv) {
-		return new BitPointInt(Math.floorDiv(x, xDiv), Math.floorDiv(y, yDiv));
-	}
-
-	public BitPointInt minus(BitPointInt point) {
-		return new BitPointInt(x - point.x, y - point.y);
-	}
-
-	public void addAndReset(int x, int y) {
-		add(x, y);
 	}
 }

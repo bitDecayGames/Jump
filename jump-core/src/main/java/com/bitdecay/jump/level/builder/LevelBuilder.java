@@ -103,7 +103,8 @@ public class LevelBuilder {
 
 	public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
 		List<LevelObject> newObjects = new ArrayList<>();
-		GeomUtils.split(GeomUtils.makeRect(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
+
+		GeomUtils.splitRect(new BitRectangle(startPoint, endPoint), tileSize, tileSize).forEach(rect ->
 				newObjects.add(new TileObject(rect, oneway, material)));
 		if (newObjects.size() > 0) {
 			BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());

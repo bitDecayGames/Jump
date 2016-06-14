@@ -17,7 +17,6 @@ public class BitPoint {
 		this(other.x, other.y);
 	}
 
-
 	public void set(float x, float y) {
 		this.x = x;
 		this.y = y;

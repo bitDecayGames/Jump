@@ -41,8 +41,8 @@ public class BitRectangleTest {
         BitRectangle rect = new BitRectangle(0, 0, 10, 10);
         assertTrue(rect.xy.x == 0);
         assert(rect.xy.y == 0);
-        assert(rect.width == 10);
-        assert(rect.height == 10);
+        assert(rect.getWidth() == 10);
+        assert(rect.getHeight() == 10);
 
         BitRectangle rectNegValues = new BitRectangle(0, 0, -10, -10);
         assert(rectNegValues.xy.x == -10);
