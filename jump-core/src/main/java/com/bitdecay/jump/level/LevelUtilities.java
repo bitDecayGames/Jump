@@ -33,8 +33,4 @@ public class LevelUtilities {
 			return null;
 		}
 	}
-
-//	private static Level levelFromJson(String json) {
-//		return new GsonBuilder().create().fromJson(json, Level.class);
-//	}
 }
