@@ -1,13 +1,14 @@
 package com.bitdecay.jump.level;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.io.*;
-
-import javax.swing.*;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
 
 public class FileUtils {
 
@@ -122,7 +123,7 @@ public class FileUtils {
 			} else {
 				System.out.println("File was empty. Could not load.");
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (reader != null) {
