@@ -51,13 +51,26 @@ public class BitRectangle implements Projectable {
 		return height;
 	}
 
-	public void translate(BitPoint point) {
+	/**
+	 * Translates and returns this BitRectangle for chaining
+	 * @param point
+	 * @return
+	 */
+	public BitRectangle translate(BitPoint point) {
 		translate(point.x, point.y);
+		return this;
 	}
 
-	public void translate(float x, float y) {
+	/**
+	 * Translates and returns this BitRectangle for chaining
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public BitRectangle translate(float x, float y) {
 		xy.x += x;
 		xy.y += y;
+		return this;
 	}
 
 	public BitPoint center() {

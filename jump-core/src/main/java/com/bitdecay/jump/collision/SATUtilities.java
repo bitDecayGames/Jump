@@ -1,5 +1,6 @@
 package com.bitdecay.jump.collision;
 
+import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.Projectable;
@@ -16,6 +17,7 @@ public class SATUtilities {
 
     /**
      * Builds a resolution to move p1 out of p2 if necessary
+     *
      * @param p1 the shape to be resolved
      * @param p2 the shape to resolve against
      * @return the resolution strategy, or null if the shapes do not intersect
@@ -52,8 +54,19 @@ public class SATUtilities {
         return res;
     }
 
+    public static Manifold getCollisionSolution(BitBody body, BitBody against, BitPoint cumulativeResolution) {
+        ManifoldBundle bundle = SATUtilities.getCollision(body.aabb.copyOf().translate(cumulativeResolution), against.aabb);
+        if (bundle == null) {
+            return GeomUtils.ZERO_MANIFOLD;
+        } else {
+            return CollisionUtilities.solve(bundle, body, against, cumulativeResolution);
+        }
+    }
+
+
     /**
      * Builds all perpendicular axes. Intentionally creates them all as unit vectors in the first and second cartesian quardrants.
+     *
      * @param points The points to build perpendiculars for
      */
     private static Set<BitPoint> buildAxes(BitPoint[] points) {
@@ -62,7 +75,7 @@ public class SATUtilities {
         BitPoint secondPoint;
         for (int i = 0; i < points.length; i++) {
             firstPoint = points[i];
-            secondPoint = points[(i+1) % points.length];
+            secondPoint = points[(i + 1) % points.length];
 
             float run = secondPoint.x - firstPoint.x;
             float rise = secondPoint.y - firstPoint.y;
