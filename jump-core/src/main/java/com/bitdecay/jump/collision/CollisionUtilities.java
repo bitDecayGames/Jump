@@ -67,7 +67,7 @@ public class CollisionUtilities {
      * @param otherBody the other body that participated in the collision
      * @param cumulativeResolution the current partially built resolved position
      */
-    public Manifold solve(ManifoldBundle bundle, BitBody body, BitBody otherBody, BitPoint cumulativeResolution) {
+    public static Manifold solve(ManifoldBundle bundle, BitBody body, BitBody otherBody, BitPoint cumulativeResolution) {
         bundle.getCandidates().sort((o1, o2) -> Float.compare(Math.abs(o1.distance), Math.abs(o2.distance)));
 
         BitPoint relativeMovement = CollisionUtilities.getRelativeMovement(body, otherBody, cumulativeResolution);

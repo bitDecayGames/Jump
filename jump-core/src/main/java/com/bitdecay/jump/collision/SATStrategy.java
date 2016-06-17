@@ -95,7 +95,7 @@ public class SATStrategy {
         effectiveSpace.xy.add(cumulativeResolution);
         ManifoldBundle bundle = SATUtilities.getCollision(effectiveSpace, collisionBundle.against.aabb); //this effective space is calculated again inside of collision.solve()
         if (bundle != null) {
-            Manifold candidate = bundle.solve(body, collisionBundle.against, cumulativeResolution);
+            Manifold candidate = CollisionUtilities.solve(bundle, body, collisionBundle.against, cumulativeResolution);
             if (candidate.axis.x != 0 && candidate.axis.y > 0) {
                 // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
                 // atan is our angle of resolution
