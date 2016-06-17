@@ -1,9 +1,13 @@
 package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.Projectable;
+import com.bitdecay.jump.level.Direction;
+import com.bitdecay.jump.level.TileBody;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Monday on 9/4/2015.
@@ -16,7 +20,7 @@ public class SATUtilities {
      * @param p2 the shape to resolve against
      * @return the resolution strategy, or null if the shapes do not intersect
      */
-    public static SATCollision getCollision(Projectable p1, Projectable p2) {
+    public static ManifoldBundle getCollision(Projectable p1, Projectable p2) {
         BitPoint[] points1 = p1.getProjectionPoints();
         BitPoint[] points2 = p2.getProjectionPoints();
 
@@ -28,8 +32,8 @@ public class SATUtilities {
         return maybeBuildCollision(points1, points2, perpendicularAxes);
     }
 
-    private static SATCollision maybeBuildCollision(BitPoint[] points1, BitPoint[] points2, Set<BitPoint> perpendicularAxes) {
-        SATCollision res = null;
+    private static ManifoldBundle maybeBuildCollision(BitPoint[] points1, BitPoint[] points2, Set<BitPoint> perpendicularAxes) {
+        ManifoldBundle res = null;
         for (BitPoint axis : perpendicularAxes) {
             BitPoint line1 = project(axis, points1);
             BitPoint line2 = project(axis, points2);
@@ -37,7 +41,7 @@ public class SATUtilities {
             if (overlap != null) {
                 if (res == null) {
                     // only instantiate the resolution if we need to.
-                    res = new SATCollision();
+                    res = new ManifoldBundle();
                 }
                 res.addCandidate(new Manifold(axis, overlap));
             } else {
@@ -108,6 +112,20 @@ public class SATUtilities {
             return overlap;
         } else {
             return null;
+        }
+    }
+
+    public static boolean axisValidForNValue(Manifold axisOver, TileBody body) {
+        if (axisOver.axis.equals(GeomUtils.X_AXIS) && (body.nValue & Direction.RIGHT) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.NEG_X_AXIS) && (body.nValue & Direction.LEFT) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.Y_AXIS) && (body.nValue & Direction.UP) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.NEG_Y_AXIS) && (body.nValue & Direction.DOWN) == 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 

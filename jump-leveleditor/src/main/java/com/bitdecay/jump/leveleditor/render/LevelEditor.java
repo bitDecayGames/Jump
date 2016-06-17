@@ -28,6 +28,7 @@ import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
+import com.bitdecay.jump.leveleditor.utils.LevelUtilities;
 
 import javax.swing.*;
 import java.util.HashMap;
