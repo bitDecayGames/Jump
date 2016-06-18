@@ -1,14 +1,13 @@
 package com.bitdecay.jump.collision;
 
-import java.util.*;
-
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.Level;
-import com.bitdecay.jump.level.TileBody;
 import com.bitdecay.jump.level.TileObject;
 import com.bitdecay.jump.properties.KineticProperties;
+
+import java.util.*;
 
 /**
  * A Pseudo-Physics simulation world. Will step according to all body's
@@ -388,7 +387,7 @@ public class BitWorld {
 		BitBody otherBody;
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
-			if (SATUtilities.getCollision(body.aabb, otherBody.aabb) == null) {
+			if (ProjectionUtilities.getBundle(body.aabb, otherBody.aabb) == null) {
 				iterator.remove();
 				endedContacts.get(body).add(otherBody);
 			}

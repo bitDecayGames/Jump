@@ -1,11 +1,8 @@
 package com.bitdecay.jump.collision;
 
-import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.annotation.VisibleForTesting;
 import com.bitdecay.jump.geom.BitPoint;
-import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.Projectable;
-import com.bitdecay.jump.level.Direction;
-import com.bitdecay.jump.level.TileBody;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +10,7 @@ import java.util.Set;
 /**
  * Created by Monday on 9/4/2015.
  */
-public class SATUtilities {
+public class ProjectionUtilities {
 
     /**
      * Builds a resolution to move p1 out of p2 if necessary
@@ -22,19 +19,20 @@ public class SATUtilities {
      * @param p2 the shape to resolve against
      * @return the resolution strategy, or null if the shapes do not intersect
      */
-    public static ManifoldBundle getCollision(Projectable p1, Projectable p2) {
+    public static ManifoldBundle getBundle(Projectable p1, Projectable p2) {
         BitPoint[] points1 = p1.getProjectionPoints();
         BitPoint[] points2 = p2.getProjectionPoints();
 
         Set<BitPoint> perpendicularAxes = new HashSet<>();
 
-        perpendicularAxes.addAll(buildAxes(points1));
-        perpendicularAxes.addAll(buildAxes(points2));
+        perpendicularAxes.addAll(buildNormals(points1));
+        perpendicularAxes.addAll(buildNormals(points2));
 
-        return maybeBuildCollision(points1, points2, perpendicularAxes);
+        return maybeBuildBundle(points1, points2, perpendicularAxes);
     }
 
-    private static ManifoldBundle maybeBuildCollision(BitPoint[] points1, BitPoint[] points2, Set<BitPoint> perpendicularAxes) {
+    @VisibleForTesting
+    static ManifoldBundle maybeBuildBundle(BitPoint[] points1, BitPoint[] points2, Set<BitPoint> perpendicularAxes) {
         ManifoldBundle res = null;
         for (BitPoint axis : perpendicularAxes) {
             BitPoint line1 = project(axis, points1);
@@ -54,22 +52,13 @@ public class SATUtilities {
         return res;
     }
 
-    public static Manifold getCollisionSolution(BitBody body, BitBody against, BitPoint cumulativeResolution) {
-        ManifoldBundle bundle = SATUtilities.getCollision(body.aabb.copyOf().translate(cumulativeResolution), against.aabb);
-        if (bundle == null) {
-            return GeomUtils.ZERO_MANIFOLD;
-        } else {
-            return CollisionUtilities.solve(bundle, body, against, cumulativeResolution);
-        }
-    }
-
-
     /**
      * Builds all perpendicular axes. Intentionally creates them all as unit vectors in the first and second cartesian quardrants.
      *
      * @param points The points to build perpendiculars for
      */
-    private static Set<BitPoint> buildAxes(BitPoint[] points) {
+    @VisibleForTesting
+    static Set<BitPoint> buildNormals(BitPoint[] points) {
         Set<BitPoint> perpendicularAxes = new HashSet<>();
         BitPoint firstPoint;
         BitPoint secondPoint;
@@ -80,10 +69,11 @@ public class SATUtilities {
             float run = secondPoint.x - firstPoint.x;
             float rise = secondPoint.y - firstPoint.y;
             if (run == 0) {
-                // vertical line
-                perpendicularAxes.add(new BitPoint(0, 1));
-            } else if (rise == 0) {
+                // vertical line, so perpendicular is horizontal
                 perpendicularAxes.add(new BitPoint(1, 0));
+            } else if (rise == 0) {
+                // horizontal line, so perpendicular is vertical
+                perpendicularAxes.add(new BitPoint(0, 1));
             } else {
                 float perpSlope = -run / rise;
                 BitPoint perpAxis = new BitPoint(1, perpSlope).normalize();
@@ -93,6 +83,12 @@ public class SATUtilities {
         return perpendicularAxes;
     }
 
+    /**
+     * Projects the given points along the provided axis.
+     * @param slope
+     * @param points
+     * @return A pair of floats of the format (min, max) values along the given axis
+     */
     public static BitPoint project(BitPoint slope, BitPoint... points) {
         BitPoint axis = new BitPoint(slope.x, slope.y).normalize();
 
@@ -108,6 +104,15 @@ public class SATUtilities {
         return new BitPoint(min, max);
     }
 
+    /**
+     * Given two pairs of (min, max), return the distance they overlap.
+     * The pairs are assumed to be projections onto the same axis. The
+     * sign of the distance will be such that l1 will no longer be
+     * overlapping l2 if it is translated by the distance.
+     * @param l1
+     * @param l2
+     * @return the distance of overlap, or null if the two do not overlap
+     */
     public static Float getLinearOverlap(BitPoint l1, BitPoint l2) {
         // knowing which ends are closer will tell us which way the intersection came from.
         float minEnd = Math.min(l1.y, l2.y);
@@ -127,19 +132,4 @@ public class SATUtilities {
             return null;
         }
     }
-
-    public static boolean axisValidForNValue(Manifold axisOver, TileBody body) {
-        if (axisOver.axis.equals(GeomUtils.X_AXIS) && (body.nValue & Direction.RIGHT) == 0) {
-            return true;
-        } else if (axisOver.axis.equals(GeomUtils.NEG_X_AXIS) && (body.nValue & Direction.LEFT) == 0) {
-            return true;
-        } else if (axisOver.axis.equals(GeomUtils.Y_AXIS) && (body.nValue & Direction.UP) == 0) {
-            return true;
-        } else if (axisOver.axis.equals(GeomUtils.NEG_Y_AXIS) && (body.nValue & Direction.DOWN) == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 }

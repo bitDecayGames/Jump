@@ -4,6 +4,7 @@ import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.MathUtils;
+import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
 
 /**
@@ -19,7 +20,7 @@ public class CollisionUtilities {
     }
 
     public static boolean isTileValidCollision(TileBody otherBody, Manifold manifold, float resolutionPosition, float lastPosition) {
-        if (!SATUtilities.axisValidForNValue(manifold, otherBody)) {
+        if (!axisValidForNValue(manifold, otherBody)) {
             return true;
         }
 
@@ -93,5 +94,28 @@ public class CollisionUtilities {
          * something than to leave ourselves open to an NPE
          */
         return GeomUtils.ZERO_MANIFOLD;
+    }
+
+    public static boolean axisValidForNValue(Manifold axisOver, TileBody body) {
+        if (axisOver.axis.equals(GeomUtils.X_AXIS) && (body.nValue & Direction.RIGHT) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.NEG_X_AXIS) && (body.nValue & Direction.LEFT) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.Y_AXIS) && (body.nValue & Direction.UP) == 0) {
+            return true;
+        } else if (axisOver.axis.equals(GeomUtils.NEG_Y_AXIS) && (body.nValue & Direction.DOWN) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Manifold getSolutionCandidate(BitBody body, BitBody against, BitPoint cumulativeResolution) {
+        ManifoldBundle bundle = ProjectionUtilities.getBundle(body.aabb.copyOf().translate(cumulativeResolution), against.aabb);
+        if (bundle == null) {
+            return GeomUtils.ZERO_MANIFOLD;
+        } else {
+            return solve(bundle, body, against, cumulativeResolution);
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.bitdecay.jump.collision;
 
 /**
+ * Compares SATStrategy objects to allow for filtering collisions involving dynamic objects
+ * to the front.
  * Created by Monday on 11/18/2015.
  */
 public class SATStrategyComparator implements java.util.Comparator {
