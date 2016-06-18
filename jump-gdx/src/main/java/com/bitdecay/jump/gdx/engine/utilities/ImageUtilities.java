@@ -101,9 +101,9 @@ public class ImageUtilities {
     public static TextureRegion[] getImageRow(String folder, String image, int row, int frames) {
         // TODO: need to make this smarter -- or change how we get certain animations (maybe just make them different files? that'd be easy enough.
         if (frames <= 1) {
-            // return getTextureRegion(folder, image).split(Cubicle.SPRITE_SIZE, Cubicle.SPRITE_SIZE)[row];
+            // return getTextureRegion(folder, image).splitRect(Cubicle.SPRITE_SIZE, Cubicle.SPRITE_SIZE)[row];
         } else {
-            // return Arrays.copyOf(getTextureRegion(folder, image).split(Cubicle.SPRITE_SIZE, Cubicle.SPRITE_SIZE)[row], frames);
+            // return Arrays.copyOf(getTextureRegion(folder, image).splitRect(Cubicle.SPRITE_SIZE, Cubicle.SPRITE_SIZE)[row], frames);
         }
         return null;
     }

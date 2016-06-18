@@ -441,7 +441,7 @@ public class BitWorld {
 	private void applyResolution(SATStrategy resolution) {
 		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
 			resolution.body.aabb.translate(resolution.resolution);
-			BitPoint velocityAdjustment = resolution.resolution.times(BitWorld.STEP_PER_SEC);
+			BitPoint velocityAdjustment = resolution.resolution.scale(BitWorld.STEP_PER_SEC);
 			resolution.body.velocity.add(velocityAdjustment);
 			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
 				resolution.body.grounded = true;

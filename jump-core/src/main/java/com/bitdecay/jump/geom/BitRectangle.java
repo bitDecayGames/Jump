@@ -76,15 +76,16 @@ public class BitRectangle implements Projectable {
 		return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
 	}
 
+	/**
+	 * Tests if this rectangle contains another rectangle. A rectangle
+	 * is considered 'contained' if all of its edges are on or within
+	 * this rectangles edges.
+	 * @param other
+	 * @return true if the rectangle is contained within this rect, false otherwise
+	 */
 	public boolean contains(BitRectangle other) {
 		return other.xy.x >= this.xy.x && other.xy.y >= this.xy.y && other.xy.x + other.width <= this.xy.x + this.width
 				&& other.xy.y + other.height <= this.xy.y + this.height;
-	}
-
-	public boolean containsInternal(BitPointInt point) {
-		int x = point.x;
-		int y = point.y;
-		return x > xy.x && x < xy.x + width && y > xy.y && y < xy.y + height;
 	}
 
 	@Override

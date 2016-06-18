@@ -47,7 +47,7 @@ public class SATStrategy {
                 collision.contactOccurred = true;
             }
 
-            if (body.resolutionLocked || (!body.props.collides || !collision.against.props.collides)) {
+            if (collision.canBeIgnored()) {
                 continue;
             }
             if (BodyType.DYNAMIC.equals(body.bodyType) && BodyType.DYNAMIC.equals(collision.against.bodyType)) {
