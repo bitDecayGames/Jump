@@ -1,5 +1,7 @@
-package com.bitdecay.jump.level;
+package com.bitdecay.jump.leveleditor.utils;
 
+import com.bitdecay.jump.level.FileUtils;
+import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 
 import javax.swing.*;

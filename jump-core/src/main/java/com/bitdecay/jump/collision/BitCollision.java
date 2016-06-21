@@ -1,9 +1,6 @@
 package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.BitBody;
-import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.geom.GeomUtils;
 
 /**
  * Collision data object. Handles priority vs other collisions. Larger

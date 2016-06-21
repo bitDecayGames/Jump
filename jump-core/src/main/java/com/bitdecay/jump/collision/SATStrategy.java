@@ -1,6 +1,7 @@
 package com.bitdecay.jump.collision;
 
-import com.bitdecay.jump.*;
+import com.bitdecay.jump.BitBody;
+import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
@@ -92,36 +93,30 @@ public class SATStrategy {
     private Manifold getSolution(BitPoint cumulativeResolution, BitCollision collisionBundle) {
         BitRectangle effectiveSpace = new BitRectangle(collisionBundle.body.aabb);
         effectiveSpace.xy.add(cumulativeResolution);
-        SATCollision collision = SATUtilities.getCollision(effectiveSpace, collisionBundle.against.aabb);
-        if (collision != null) {
-            Manifold candidate = collision.solve(body, collisionBundle.against, cumulativeResolution);
-            if (candidate.axis.x != 0 && candidate.axis.y > 0) {
-                // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
-                // atan is our angle of resolution
-                double atan = Math.atan(candidate.axis.y / candidate.axis.x);
+        Manifold candidate = CollisionUtilities.getSolutionCandidate(body, collisionBundle.against, cumulativeResolution); //this effective space is calculated again inside of collision.solve()
+        if (candidate.axis.x != 0 && candidate.axis.y > 0) {
+            // this is logic to make it so the player doesn't move slower when running uphill. Likewise, we will need logic to 'glue' the player to the ground when running downhill.
+            // atan is our angle of resolution
+            double atan = Math.atan(candidate.axis.y / candidate.axis.x);
 
-                if (Math.abs(atan - MathUtils.PI_OVER_TWO) <= Math.toRadians(30)) {
-                    // currently we impose a hard limit of 30 degree angle 'walkability'
-                    if (atan > 0) {
-                        double angleToUpright;
-                        angleToUpright = MathUtils.PI_OVER_TWO - atan;
-                        double straightUp = candidate.distance / Math.cos(angleToUpright);
-                        cumulativeResolution.add(0, (float) straightUp);
-                    } else {
-                        double angleToUpright;
-                        angleToUpright = -MathUtils.PI_OVER_TWO - atan;
-                        double straightUp = candidate.distance / Math.cos(angleToUpright);
-                        cumulativeResolution.add(0, (float) straightUp);
-                    }
-                    return candidate;
+            if (Math.abs(atan - MathUtils.PI_OVER_TWO) <= Math.toRadians(30)) {
+                // currently we impose a hard limit of 30 degree angle 'walkability'
+                if (atan > 0) {
+                    double angleToUpright;
+                    angleToUpright = MathUtils.PI_OVER_TWO - atan;
+                    double straightUp = candidate.distance / Math.cos(angleToUpright);
+                    cumulativeResolution.add(0, (float) straightUp);
                 } else {
-                    // TODO: we need to actually resolve the player horizontally, showing the angle is too steep.
+                    double angleToUpright;
+                    angleToUpright = -MathUtils.PI_OVER_TWO - atan;
+                    double straightUp = candidate.distance / Math.cos(angleToUpright);
+                    cumulativeResolution.add(0, (float) straightUp);
                 }
+            } else {
+                // TODO: we need to actually resolve the player horizontally, showing the angle is too steep.
             }
-            return candidate;
-        } else {
-            return GeomUtils.ZERO_MANIFOLD;
         }
+        return candidate;
     }
 
     /**
