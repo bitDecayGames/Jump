@@ -1,9 +1,10 @@
 package com.bitdecay.jump.level.builder;
 
-import java.util.*;
-
+import com.bitdecay.jump.annotation.VisibleForTesting;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
+
+import java.util.*;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the
@@ -16,11 +17,14 @@ import com.bitdecay.jump.level.*;
  * @author Monday
  */
 public class LevelBuilder {
-	private static final int START_SIZE = 20;
+	@VisibleForTesting
+	static final int START_SIZE = 20;
 
-	private LinkedList<BuilderAction> actions = new LinkedList<>();
+	@VisibleForTesting
+	LinkedList<BuilderAction> actions = new LinkedList<>();
 
-	private int lastAction = -1;
+	@VisibleForTesting
+	int lastAction = -1;
 
 	public List<LevelObject> selection;
 
