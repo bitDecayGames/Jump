@@ -9,6 +9,7 @@ import com.bitdecay.jump.level.*;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -134,12 +135,53 @@ public class LevelBuilderTest {
 
     @Test
     public void testCreateLevelObjectsOverride() {
-        // TODO: Test that grid cells are overridden if new objects placed on them
+        LevelBuilder test = new LevelBuilder(32);
+        test.gridOffset = new BitPointInt(); // make our math easier
+
+        // should result in 2 blocks created
+        test.createLevelObject(new BitPointInt(32, 0), new BitPointInt(64, 64), false, 0);
+
+        // should result in 1 block created
+        test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
+
+        assertTrue("Block 1 created", test.grid[1][0] != null);
+        assertTrue("Block 2 created", test.grid[1][1] != null);
+        assertTrue("Block 3 created", test.grid[2][1] != null);
+
+        TileObject tile1 = test.grid[1][0];
+        TileObject tile2 = test.grid[1][1];
+        TileObject tile3 = test.grid[2][1];
+
+        // should result in 2 blocks created
+        test.createLevelObject(new BitPointInt(32, 0), new BitPointInt(64, 64), false, 0);
+
+        // should result in 1 block created
+        test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
+
+        assertNotEquals("Block 1 overridden", tile1.uuid, test.grid[1][0].uuid);
+        assertNotEquals("Block 2 overridden", tile2.uuid, test.grid[1][1].uuid);
+        assertNotEquals("Block 3 overridden", tile3.uuid, test.grid[2][1].uuid);
     }
 
     @Test
-    public void testAddObjectsDirectly() {
-        // TODO: Test adding Trigger objects and DebugSpawn directly
+    public void testAddTriggerDirectly() {
+        LevelBuilder test = new LevelBuilder(32);
+
+        TriggerObject triggerObj = new TriggerObject();
+
+        test.addObjects(new HashSet<>(Arrays.asList(triggerObj)));
+        assertTrue("Builder contains one trigger", test.triggers.size() == 1);
+        assertEquals("Builder contains correct trigger", triggerObj, test.triggers.get(triggerObj.uuid));
+    }
+
+    @Test
+    public void testAddDebugSpawnDirectly() {
+        LevelBuilder test = new LevelBuilder(32);
+
+        DebugSpawnObject debugSpawnObj = new DebugSpawnObject(new BitPointInt());
+
+        test.addObjects(new HashSet<>(Arrays.asList(debugSpawnObj)));
+        assertEquals("Builder contains correct trigger", debugSpawnObj, test.debugSpawn);
     }
 
     @Test
@@ -165,7 +207,233 @@ public class LevelBuilderTest {
     }
 
     @Test
+    public void testRemoveGridTiles() {
+        LevelBuilder test = new LevelBuilder(32);
+        test.gridOffset = new BitPointInt(); // make our math easier
+
+        // should result in 2 blocks created
+        test.createLevelObject(new BitPointInt(32, 0), new BitPointInt(64, 64), false, 0);
+
+        // should result in 1 block created
+        test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
+
+        assertTrue("Block 1 created", test.grid[1][0] != null);
+        assertTrue("Block 2 created", test.grid[1][1] != null);
+        assertTrue("Block 3 created", test.grid[2][1] != null);
+
+        TileObject tile1 = test.grid[1][0];
+        TileObject tile2 = test.grid[1][1];
+        TileObject tile3 = test.grid[2][1];
+
+        test.removeObjects(new HashSet<>(Arrays.asList(tile1, tile2, tile3)));
+
+        assertTrue("Block 1 removed", test.grid[1][0] == null);
+        assertTrue("Block 2 removed", test.grid[1][1] == null);
+        assertTrue("Block 3 removed", test.grid[2][1] == null);
+    }
+
+    @Test
+    public void testRemoveObjects() {
+        LevelBuilder test = new LevelBuilder(32);
+
+        LevelObject obj = new LevelObject(new BitRectangle(10, 10, 10, 10)) {
+            @Override
+            public BitBody buildBody() {
+                return null;
+            }
+
+            @Override
+            public String name() {
+                return null;
+            }
+        };
+
+        test.otherObjects.put(obj.uuid, obj);
+
+        test.removeObjects(new HashSet<>(Arrays.asList(obj)));
+
+        assertTrue("Object removed from builder", test.otherObjects.isEmpty());
+    }
+
+    @Test
+    public void testRemoveTriggers() {
+        LevelBuilder test = new LevelBuilder(32);
+
+        LevelObject levelObject = new LevelObject(new BitRectangle(32, 32, 64, 64)) {
+            @Override
+            public BitBody buildBody() {
+                return null;
+            }
+
+            @Override
+            public String name() {
+                return null;
+            }
+        };
+
+        TriggerObject obj = new TriggerObject(levelObject, levelObject);
+
+        test.triggers.put(obj.uuid, obj);
+
+        test.removeObjects(new HashSet<>(Arrays.asList(obj)));
+
+        assertTrue("Object removed from builder", test.triggers.isEmpty());
+    }
+
+    @Test
     public void testEnsureGridFits() {
         //TODO test this
+    }
+
+    @Test
+    public void testUpdateNeighbors() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        builder.grid = new TileObject[3][3];
+
+        // center
+        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+
+        // sides
+        builder.grid[1][0] = new TileObject(new BitRectangle(), false, 0);
+        builder.grid[0][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.grid[2][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.grid[1][2] = new TileObject(new BitRectangle(), false, 0);
+
+        assertTrue(builder.grid[1][0].collideNValue == 0);
+        assertTrue(builder.grid[0][1].collideNValue == 0);
+        assertTrue(builder.grid[2][1].collideNValue == 0);
+        assertTrue(builder.grid[1][2].collideNValue == 0);
+
+        builder.updateNeighbors(1, 1);
+
+        assertTrue(builder.grid[1][0].collideNValue == Direction.UP);
+        assertTrue(builder.grid[0][1].collideNValue == Direction.RIGHT);
+        assertTrue(builder.grid[2][1].collideNValue == Direction.LEFT);
+        assertTrue(builder.grid[1][2].collideNValue == Direction.DOWN);
+    }
+
+    @Test
+    public void testUpdateOwnNeighborValues() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        builder.grid = new TileObject[3][3];
+
+        // center
+        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+
+        // sides
+        builder.grid[1][0] = new TileObject(new BitRectangle(), false, 0); // bottom
+        builder.grid[0][1] = new TileObject(new BitRectangle(), false, 0); // left
+        builder.grid[2][1] = new TileObject(new BitRectangle(), false, 0); // right
+        builder.grid[1][2] = new TileObject(new BitRectangle(), false, 0); // bottom
+
+        assertTrue("Neighbor value is zero on new tile", builder.grid[1][1].collideNValue == 0);
+        assertTrue("Neighbor render is zero on new tile", builder.grid[1][1].renderNValue == 0);
+
+        builder.updateOwnNeighborValues(1, 1);
+
+        assertTrue("All neighbors are set", builder.grid[1][1].collideNValue == Direction.ALL);
+        assertTrue("All neighbors are set", builder.grid[1][1].renderNValue == Direction.ALL);
+
+        builder.grid[1][0] = null; // bottom
+        builder.grid[0][1] = null; // left
+
+        builder.updateOwnNeighborValues(1, 1);
+
+        assertTrue("Up and right set", builder.grid[1][1].collideNValue == (Direction.UP | Direction.RIGHT));
+        assertTrue("Up and right set", builder.grid[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
+    }
+
+    @Test
+    public void testUpdateOwnNeighborValuesOneWay() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        builder.grid = new TileObject[3][3];
+
+        // center
+        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+
+        // sides
+        builder.grid[1][0] = new TileObject(new BitRectangle(), true, 0); // bottom
+        builder.grid[0][1] = new TileObject(new BitRectangle(), true, 0); // left
+        builder.grid[2][1] = new TileObject(new BitRectangle(), true, 0); // right
+        builder.grid[1][2] = new TileObject(new BitRectangle(), true, 0); // bottom
+
+        assertTrue("Neighbor value is zero on new tile", builder.grid[1][1].collideNValue == 0);
+        assertTrue("Neighbor render is zero on new tile", builder.grid[1][1].renderNValue == 0);
+
+        builder.updateOwnNeighborValues(1, 1);
+
+        assertTrue("All neighbors are set", builder.grid[1][1].collideNValue == 0);
+        assertTrue("All neighbors are set", builder.grid[1][1].renderNValue == Direction.ALL);
+
+        builder.grid[1][0] = null; // bottom
+        builder.grid[0][1] = null; // left
+
+        builder.updateOwnNeighborValues(1, 1);
+
+        assertTrue("Up and right set", builder.grid[1][1].collideNValue == 0);
+        assertTrue("Up and right set", builder.grid[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
+    }
+
+    @Test
+    public void testSelectObjectsTiles() {
+        // TODO: Do this
+    }
+
+    @Test
+    public void testAddListener() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        LevelBuilderListener listener = new LevelBuilderListener() {
+            @Override
+            public void levelChanged(Level level) {
+
+            }
+        };
+
+        builder.addListener(listener);
+
+        assertTrue("Builder should only have one listener", builder.listeners.size() == 1);
+        assertEquals("Builder should be the right object", listener, builder.listeners.get(0));
+    }
+
+    @Test
+    public void testRemoveListener() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        LevelBuilderListener listener = new LevelBuilderListener() {
+            @Override
+            public void levelChanged(Level level) {
+
+            }
+        };
+
+        builder.listeners.add(listener);
+
+        builder.removeListener(listener);
+
+        assertTrue("Listener should be removed", builder.listeners.size() == 0);
+    }
+
+    @Test
+    public void testSetDebugSpawn() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        DebugSpawnObject debugSpawnObject = new DebugSpawnObject(new BitPointInt());
+
+        builder.setDebugSpawn(debugSpawnObject);
+
+        assertEquals("Builder has correct spawn", debugSpawnObject, builder.debugSpawn);
+    }
+
+    @Test
+    public void testSetTheme() {
+        LevelBuilder builder = new LevelBuilder(10);
+
+        builder.setTheme(5);
+
+        assertTrue("Theme set correctly", builder.theme == 5);
     }
 }

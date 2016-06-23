@@ -250,16 +250,18 @@ public class LevelBuilder {
 		return action;
 	}
 
-	private void updateNeighbors(int x, int y) {
-		updateOwnNeighbors(x, y);
+	@VisibleForTesting
+	void updateNeighbors(int x, int y) {
+		updateOwnNeighborValues(x, y);
 
-		updateOwnNeighbors(x+1, y);
-		updateOwnNeighbors(x-1, y);
-		updateOwnNeighbors(x, y+1);
-		updateOwnNeighbors(x, y-1);
+		updateOwnNeighborValues(x + 1, y);
+		updateOwnNeighborValues(x - 1, y);
+		updateOwnNeighborValues(x, y + 1);
+		updateOwnNeighborValues(x, y - 1);
 	}
 
-	public void updateOwnNeighbors(int x, int y) {
+	@VisibleForTesting
+	void updateOwnNeighborValues(int x, int y) {
 		if (!ArrayUtilities.onGrid(grid, x, y) || grid[x][y] == null) {
 			return;
 		}
