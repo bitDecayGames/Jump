@@ -1,9 +1,10 @@
 package com.bitdecay.jump.level.builder;
 
-import java.util.*;
-
+import com.bitdecay.jump.annotation.VisibleForTesting;
 import com.bitdecay.jump.geom.*;
 import com.bitdecay.jump.level.*;
+
+import java.util.*;
 
 /**
  * A wrapper object around a level to handle adding and removing things from the
@@ -16,11 +17,14 @@ import com.bitdecay.jump.level.*;
  * @author Monday
  */
 public class LevelBuilder {
-	private static final int START_SIZE = 20;
+	@VisibleForTesting
+	static final int START_SIZE = 20;
 
-	private LinkedList<BuilderAction> actions = new LinkedList<>();
+	@VisibleForTesting
+	LinkedList<BuilderAction> actions = new LinkedList<>();
 
-	private int lastAction = -1;
+	@VisibleForTesting
+	int lastAction = -1;
 
 	public List<LevelObject> selection;
 
@@ -246,16 +250,18 @@ public class LevelBuilder {
 		return action;
 	}
 
-	private void updateNeighbors(int x, int y) {
-		updateOwnNeighbors(x, y);
+	@VisibleForTesting
+	void updateNeighbors(int x, int y) {
+		updateOwnNeighborValues(x, y);
 
-		updateOwnNeighbors(x+1, y);
-		updateOwnNeighbors(x-1, y);
-		updateOwnNeighbors(x, y+1);
-		updateOwnNeighbors(x, y-1);
+		updateOwnNeighborValues(x + 1, y);
+		updateOwnNeighborValues(x - 1, y);
+		updateOwnNeighborValues(x, y + 1);
+		updateOwnNeighborValues(x, y - 1);
 	}
 
-	public void updateOwnNeighbors(int x, int y) {
+	@VisibleForTesting
+	void updateOwnNeighborValues(int x, int y) {
 		if (!ArrayUtilities.onGrid(grid, x, y) || grid[x][y] == null) {
 			return;
 		}
