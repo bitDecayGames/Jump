@@ -11,21 +11,21 @@ public class GDXControls implements ControlMap {
     public static final GDXControls defaultMapping = new GDXControls();
 
     static {
-        defaultMapping.set(PlayerAction.LEFT, Keys.A);
-        defaultMapping.set(PlayerAction.RIGHT, Keys.D);
-        defaultMapping.set(PlayerAction.UP, Keys.W);
-        defaultMapping.set(PlayerAction.DOWN, Keys.S);
-        defaultMapping.set(PlayerAction.JUMP, Keys.SPACE);
+        defaultMapping.set(PlayerAction.LEFT, new KeyState(Keys.A));
+        defaultMapping.set(PlayerAction.RIGHT, new KeyState(Keys.D));
+        defaultMapping.set(PlayerAction.UP, new KeyState(Keys.W));
+        defaultMapping.set(PlayerAction.DOWN, new KeyState(Keys.S));
+        defaultMapping.set(PlayerAction.JUMP, new KeyState(Keys.SPACE));
     }
 
-    Map<PlayerAction, ButtonState> map = new HashMap<>();
+    Map<PlayerAction, InputStateReporter> map = new HashMap<>();
 
-    public ButtonState get(PlayerAction btn) {
+    public InputStateReporter get(PlayerAction btn) {
         return map.get(btn);
     }
 
-    public void set(PlayerAction btn, int key) {
-        map.put(btn, new ButtonState(key));
+    public void set(PlayerAction btn, InputStateReporter input) {
+        map.put(btn, input);
     }
 
     @Override
