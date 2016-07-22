@@ -20,10 +20,32 @@ public class GDXControlsTest {
         MockController controller = new MockController();
 
         GDXControls controls = new GDXControls();
-        controls.set(PlayerAction.JUMP, new ControllerButtonState(controller, 1));
-        controls.set(PlayerAction.LEFT, new ControllerButtonState(controller, 2));
+        ControllerButtonState jumpButton = new ControllerButtonState(controller, 1);
+        controls.set(PlayerAction.JUMP, jumpButton);
+
+        ControllerButtonState leftButton = new ControllerButtonState(controller, 2);
+        controls.set(PlayerAction.LEFT, leftButton);
+
+        jumpButton.buttonDown(controller, 1);
+        leftButton.buttonUp(controller, 2);
+
         assertTrue(controls.isJustPressed(PlayerAction.JUMP));
         assertFalse(controls.isJustPressed(PlayerAction.LEFT));
+    }
+
+    @Test
+    public void testJustPressed() {
+        MockController controller = new MockController();
+
+        GDXControls controls = new GDXControls();
+        ControllerButtonState jumpButtonState = new ControllerButtonState(controller, 1);
+        controls.set(PlayerAction.JUMP, jumpButtonState);
+        controls.set(PlayerAction.LEFT, new ControllerButtonState(controller, 2));
+
+        jumpButtonState.buttonDown(controller, 1);
+
+        assertTrue(controls.isPressed(PlayerAction.JUMP));
+        assertFalse(controls.isJustPressed(PlayerAction.JUMP));
     }
 
     private static class MockController implements Controller {
