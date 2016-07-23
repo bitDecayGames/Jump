@@ -30,11 +30,19 @@ public class GDXControls implements ControlMap {
 
     @Override
     public boolean isJustPressed(PlayerAction action) {
-        return map.get(action).isJustPressed();
+        if (map.containsKey(action)) {
+            return map.get(action).isJustPressed();
+        } else {
+            return false;
+        }
     }
 
     @Override
     public boolean isPressed(PlayerAction action) {
-        return map.get(action).isPressed();
+        if (map.containsKey(action)) {
+            return map.get(action).isPressed();
+        } else {
+            return false;
+        }
     }
 }
