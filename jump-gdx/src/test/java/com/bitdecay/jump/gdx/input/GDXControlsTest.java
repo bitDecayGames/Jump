@@ -66,6 +66,14 @@ public class GDXControlsTest {
 
     }
 
+    @Test
+    public void testControllersNotConfigured() {
+        GDXControls controls = new GDXControls();
+
+        controls.isPressed(PlayerAction.LEFT);
+        controls.isJustPressed(PlayerAction.DOWN);
+    }
+
     private static class MockController implements Controller {
 
         @Override
