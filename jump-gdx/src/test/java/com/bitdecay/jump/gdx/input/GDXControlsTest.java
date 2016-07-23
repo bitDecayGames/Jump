@@ -48,6 +48,24 @@ public class GDXControlsTest {
         assertFalse(controls.isJustPressed(PlayerAction.JUMP));
     }
 
+    @Test
+    public void testPOVButtons() {
+        MockController controller = new MockController();
+
+        GDXControls controls = new GDXControls();
+        ControllerPOVState leftButtonState = new ControllerPOVState(controller, PovDirection.west);
+        controls.set(PlayerAction.LEFT, leftButtonState);
+
+        leftButtonState.povMoved(controller, 1, PovDirection.west);
+
+        assertTrue(controls.isPressed(PlayerAction.LEFT));
+
+        leftButtonState.povMoved(controller, 1, PovDirection.center);
+
+        assertFalse(controls.isPressed(PlayerAction.LEFT));
+
+    }
+
     private static class MockController implements Controller {
 
         @Override

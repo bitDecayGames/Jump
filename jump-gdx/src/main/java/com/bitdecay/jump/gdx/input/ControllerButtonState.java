@@ -36,6 +36,7 @@ public class ControllerButtonState extends ControllerAdapter implements InputSta
     public boolean buttonUp(Controller controller, int buttonIndex) {
         if (this.controller == controller && this.button == buttonIndex) {
             buttonDown = false;
+            fresh = false;
             return true;
         } else {
             return false;
