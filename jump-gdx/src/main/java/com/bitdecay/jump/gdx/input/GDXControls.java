@@ -41,6 +41,11 @@ public class GDXControls implements ControlMap {
     }
 
     @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
     public boolean isJustPressed(PlayerAction action) {
         if (!enabled) {
             return false;

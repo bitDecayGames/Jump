@@ -81,7 +81,7 @@ public class GDXControlsTest {
         ControllerButtonState jumpButtonState = new ControllerButtonState(controller, 1);
         controls.set(PlayerAction.JUMP, jumpButtonState);
 
-        assertTrue("Controls enabled by default", controls.enabled);
+        assertTrue("Controls enabled by default", controls.isEnabled());
 
         jumpButtonState.buttonDown(controller, 1);
 
@@ -89,7 +89,7 @@ public class GDXControlsTest {
 
         controls.disable();
 
-        assertFalse(controls.enabled);
+        assertFalse(controls.isEnabled());
 
         assertFalse("Controls disabled does not return input", controls.isPressed(PlayerAction.JUMP));
     }
