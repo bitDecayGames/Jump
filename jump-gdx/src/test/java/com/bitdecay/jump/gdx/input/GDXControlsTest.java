@@ -74,6 +74,26 @@ public class GDXControlsTest {
         controls.isJustPressed(PlayerAction.DOWN);
     }
 
+    @Test
+    public void testEnabled() {
+        MockController controller = new MockController();
+        GDXControls controls = new GDXControls();
+        ControllerButtonState jumpButtonState = new ControllerButtonState(controller, 1);
+        controls.set(PlayerAction.JUMP, jumpButtonState);
+
+        assertTrue("Controls enabled by default", controls.enabled);
+
+        jumpButtonState.buttonDown(controller, 1);
+
+        assertTrue("Controls enabled returns correctly", controls.isPressed(PlayerAction.JUMP));
+
+        controls.disable();
+
+        assertFalse(controls.enabled);
+
+        assertFalse("Controls disabled does not return input", controls.isPressed(PlayerAction.JUMP));
+    }
+
     private static class MockController implements Controller {
 
         @Override

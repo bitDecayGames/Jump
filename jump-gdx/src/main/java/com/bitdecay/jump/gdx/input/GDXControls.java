@@ -18,6 +18,8 @@ public class GDXControls implements ControlMap {
         defaultMapping.set(PlayerAction.JUMP, new KeyState(Keys.SPACE));
     }
 
+    public boolean enabled = true;
+
     Map<PlayerAction, InputStateReporter> map = new HashMap<>();
 
     public InputStateReporter get(PlayerAction btn) {
@@ -29,7 +31,21 @@ public class GDXControls implements ControlMap {
     }
 
     @Override
+    public void enable() {
+        enabled = true;
+    }
+
+    @Override
+    public void disable() {
+        enabled = false;
+    }
+
+    @Override
     public boolean isJustPressed(PlayerAction action) {
+        if (!enabled) {
+            return false;
+        }
+
         if (map.containsKey(action)) {
             return map.get(action).isJustPressed();
         } else {
@@ -39,6 +55,10 @@ public class GDXControls implements ControlMap {
 
     @Override
     public boolean isPressed(PlayerAction action) {
+        if (!enabled) {
+            return false;
+        }
+
         if (map.containsKey(action)) {
             return map.get(action).isPressed();
         } else {
