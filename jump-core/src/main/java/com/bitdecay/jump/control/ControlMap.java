@@ -6,6 +6,7 @@ package com.bitdecay.jump.control;
 public interface ControlMap {
     void enable();
     void disable();
+    boolean isEnabled();
     boolean isJustPressed(PlayerAction action);
     boolean isPressed(PlayerAction action);
 }

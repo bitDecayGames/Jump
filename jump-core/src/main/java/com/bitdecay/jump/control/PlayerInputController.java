@@ -7,7 +7,7 @@ import com.bitdecay.jump.control.state.GroundedControlState;
 import com.bitdecay.jump.control.state.JumperBodyControlState;
 
 public class PlayerInputController implements BitBodyController {
-    private ControlMap controls;
+    public ControlMap controls;
     private JumperBodyControlState state = new FallingControlState();
 
     public PlayerInputController(ControlMap controls) {
