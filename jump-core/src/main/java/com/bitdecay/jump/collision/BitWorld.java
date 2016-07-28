@@ -487,20 +487,17 @@ public class BitWorld {
 		return Collections.unmodifiableList(staticBodies);
 	}
 
-	public void setTileSize(int tileSize) {
-		this.tileSize = tileSize;
-	}
-
 	public void setGridOffset(BitPointInt bodyOffset) {
 		this.gridOffset = bodyOffset;
 	}
 
 	public void setLevel(Level level) {
+		tileSize = level.tileSize;
 		if (tileSize <= 0) {
 			System.err.println("Tile Size cannot be less than 1");
+			new Exception().printStackTrace();
 			System.exit(-2);
 		}
-		tileSize = level.tileSize;
 		gridOffset = level.gridOffset;
 		parseGrid(level.gridObjects);
 	}

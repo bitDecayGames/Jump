@@ -12,6 +12,8 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.JumperBody;
 import com.bitdecay.jump.collision.BitWorld;
 import com.bitdecay.jump.collision.ContactAdapter;
+import com.bitdecay.jump.control.PlayerInputController;
+import com.bitdecay.jump.gdx.input.GDXControls;
 import com.bitdecay.jump.gdx.level.EditorIdentifierObject;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitRectangle;
@@ -25,8 +27,6 @@ import com.bitdecay.jump.leveleditor.example.game.SecretObject;
 import com.bitdecay.jump.leveleditor.example.game.ShellObject;
 import com.bitdecay.jump.leveleditor.example.level.GravityLvlObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
-import com.bitdecay.jump.gdx.input.GDXControls;
-import com.bitdecay.jump.control.PlayerInputController;
 import com.bitdecay.jump.leveleditor.example.level.ShellLevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.render.JumperRenderStateWatcher;
@@ -137,10 +137,7 @@ public class ExampleEditorLevel implements EditorHook {
         gameObjects.clear();
 
         currentLevel = level;
-        world.setTileSize(16);
-        world.setGridOffset(level.gridOffset);
-        world.setGrid(level.gridObjects);
-        world.setTileSize(level.tileSize);
+        world.setLevel(level);
         world.setObjects(buildBodies(level.otherObjects));
         world.resetTimePassed();
 
