@@ -30,6 +30,8 @@ public class Level {
 		gridObjects = new TileObject[10][10];
 		otherObjects = new ArrayList<>();
 		triggers = new ArrayList<>();
+
+        gridOffset = new BitPointInt();
 	}
 
 	public Level(Level level) {
