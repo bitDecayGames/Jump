@@ -8,6 +8,7 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
+import com.bitdecay.jump.leveleditor.utils.EditorKeys;
 
 /**
  * Created by Monday on 10/19/2015.
@@ -35,13 +36,21 @@ public class DropObjectMode extends BaseMouseMode{
     @Override
     public void mouseMoved(BitPointInt point) {
         super.mouseMoved(point);
-        currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+        if (EditorKeys.DISABLE_SNAP.isPressed()) {
+            currentLocation = new BitPointInt(point.x, point.y);
+        } else {
+            currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+        }
     }
 
     @Override
     public void mouseDragged(BitPointInt point) {
         super.mouseDragged(point);
-        currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+        if (EditorKeys.DISABLE_SNAP.isPressed()) {
+            currentLocation = new BitPointInt(point.x, point.y);
+        } else {
+            currentLocation = GeomUtils.snap(point.x - builder.tileSize / 2, point.y - builder.tileSize / 2, builder.tileSize, 0, 0);
+        }
     }
 
     @Override

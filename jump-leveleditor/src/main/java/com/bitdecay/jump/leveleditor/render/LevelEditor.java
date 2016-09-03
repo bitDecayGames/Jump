@@ -1,7 +1,6 @@
 package com.bitdecay.jump.leveleditor.render;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -28,6 +27,7 @@ import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.OptionsMode;
 import com.bitdecay.jump.leveleditor.ui.OptionsUICallback;
 import com.bitdecay.jump.leveleditor.ui.menus.EditorMenus;
+import com.bitdecay.jump.leveleditor.utils.EditorKeys;
 import com.bitdecay.jump.leveleditor.utils.LevelUtilities;
 
 import javax.swing.*;
@@ -39,6 +39,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public static String ASSETS_FOLDER = "assets/";
     public static String EDITOR_ASSETS_FOLDER = "editorAssets";
 
+    /** This should be called with the assets folder for the editor from any game
+     *  to prevent errors finding things like fonts.
+     * @param  assetsPath the path to the editor assets
+     */
     public static void setAssetsFolder(String assetsPath) {
         ASSETS_FOLDER = assetsPath.replaceAll("[/\\\\]$", "") + "/";
         EDITOR_ASSETS_FOLDER = ASSETS_FOLDER + "editorAssets";
@@ -83,8 +87,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private Map<OptionsMode, MouseMode> mouseModes;
     private MouseMode mouseMode;
     private final NoOpMouseMode noOpMouseMode = new NoOpMouseMode();
-
-    private Map<Integer, JDialog> uiKeys;
 
     // a flags to control whether we are moving the world forward or not
     private boolean stepWorld = true;
@@ -132,8 +134,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.PROPERTY_INSPECT, new PropertyInspectMode(curLevelBuilder, this));
 
         mouseMode = mouseModes.get(OptionsMode.SELECT);
-
-        uiKeys = new HashMap<>();
     }
 
     private void setUpMenus() {
@@ -271,6 +271,16 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (RenderLayer.UI_STRINGS.enabled) {
             font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 20, 20);
             font.draw(uiBatch, "Mouse Coordinates: " + getMouseCoords().toString(), 200, 20);
+            font.draw(uiBatch, EditorKeys.HELP.getHelp(), 10, Gdx.graphics.getHeight() - 100);
+        }
+
+        if (EditorKeys.HELP.isPressed()) {
+            int curY = Gdx.graphics.getHeight() - 200;
+            for (EditorKeys editorKey : EditorKeys.values()) {
+                font.draw(uiBatch, editorKey.getHelp(), 10, curY);
+                curY -= 20;
+            }
+
         }
     }
 
@@ -324,38 +334,38 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void handleInput() {
-        if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) {
+        if (EditorKeys.PAUSE.isJustPressed()) {
             stepWorld = !stepWorld;
         }
-        if (!stepWorld && (Gdx.input.isKeyJustPressed(Keys.PLUS) || Gdx.input.isKeyJustPressed(Keys.EQUALS))) {
+        if (!stepWorld && EditorKeys.STEP_WORLD.isJustPressed()) {
             singleStep = true;
         }
 
-        if (Gdx.input.isKeyPressed(Keys.MINUS)) {
+        if (EditorKeys.ROLL_WORLD.isPressed()) {
             stepWorld = false;
             if (editorUpdates % 4 == 0) {
                 singleStep = true;
             }
         }
 
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+        if (EditorKeys.PAN_LEFT.isPressed()) {
             camera.translate(-CAM_SPEED * camera.zoom, 0);
-        } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+        } else if (EditorKeys.PAN_RIGHT.isPressed()) {
             camera.translate(CAM_SPEED * camera.zoom, 0);
         }
-        if (Gdx.input.isKeyPressed(Keys.UP)) {
+        if (EditorKeys.PAN_UP.isPressed()) {
             camera.translate(0, CAM_SPEED * camera.zoom);
-        } else if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+        } else if (EditorKeys.PAN_DOWN.isPressed()) {
             camera.translate(0, -CAM_SPEED * camera.zoom);
         }
 
-        if (Gdx.input.isKeyPressed(Keys.NUM_2)) {
+        if (EditorKeys.ZOOM_IN.isPressed()) {
             if (camera.zoom > 5) {
                 adjustCamZoom(-.2f);
             } else if (camera.zoom > .2) {
                 adjustCamZoom(-.05f);
             }
-        } else if (Gdx.input.isKeyPressed(Keys.NUM_1)) {
+        } else if (EditorKeys.ZOOM_OUT.isPressed()) {
             if (camera.zoom < 5) {
                 adjustCamZoom(.05f);
             } else if (camera.zoom < 20) {
@@ -363,17 +373,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Keys.DEL) || Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
+        if (EditorKeys.DELETE_SELECTED.isJustPressed()) {
             curLevelBuilder.deleteSelected();
-        }
-
-        for (Integer uiKey : uiKeys.keySet()) {
-            if (Gdx.input.isKeyPressed(uiKey)) {
-                JDialog dialog = uiKeys.get(uiKey);
-                if (!dialog.isShowing()) {
-                    dialog.setVisible(true);
-                }
-            }
         }
     }
 
