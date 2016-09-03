@@ -16,8 +16,7 @@ public class TriggerObject extends LevelObject {
     }
 
     public TriggerObject(LevelObject triggerer, LevelObject triggeree) {
-        super(new BitRectangle(triggerer.rect.center().plus(triggeree.rect.center()).dividedBy(2),
-                triggerer.rect.center().plus(triggeree.rect.center()).dividedBy(2)));
+        super(new BitRectangle(triggerer.rect.center(), triggeree.rect.center()));
         this.triggerer = triggerer;
         this.triggeree = triggeree;
     }

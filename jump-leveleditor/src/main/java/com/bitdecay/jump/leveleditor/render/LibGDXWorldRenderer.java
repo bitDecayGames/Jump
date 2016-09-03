@@ -1,7 +1,7 @@
 package com.bitdecay.jump.leveleditor.render;
 
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.glutils.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.collision.BitWorld;
@@ -76,13 +76,13 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             }
         }
         if (RenderLayer.STATIC_BODIES.enabled) {
-            renderBodies(renderer, world.getStaticBodies());
+            renderBodies(renderer, world.getStaticBodies(), view);
         }
         if (RenderLayer.KINETIC_BODIES.enabled) {
-            renderBodies(renderer, world.getKineticBodies());
+            renderBodies(renderer, world.getKineticBodies(), view);
         }
         if (RenderLayer.DYNAMIC_BODIES.enabled) {
-            renderBodies(renderer, world.getDynamicBodies());
+            renderBodies(renderer, world.getDynamicBodies(),view);
         }
 
         renderer.setColor(BitColors.COLLISION);
@@ -96,8 +96,13 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
         renderer.end();
     }
 
-    private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies) {
+    private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies, BitRectangle view) {
         for (BitBody body : bodies) {
+            if (GeomUtils.intersection(body.aabb, view) == null) {
+                // don't render it if it's not in our view
+                continue;
+            }
+
             if (body.renderStateWatcher != null) {
                 LevelEditor.addStringForRender(body.renderStateWatcher.getState().toString(), new BitPoint(body.aabb.xy.x, body.aabb.xy.y + body.aabb.height + 20), RenderLayer.STATE_HELPERS);
             }
