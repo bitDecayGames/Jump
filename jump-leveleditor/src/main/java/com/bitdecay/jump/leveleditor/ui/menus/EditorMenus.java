@@ -129,7 +129,10 @@ public class EditorMenus {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 levelEditor.setMode(mode);
-                rightMenuTransition(mode.menu);
+                if (!ModeType.ACTION.equals(mode.type)) {
+                    // Actions don't have menus, so only transition for non-action modes
+                    rightMenuTransition(mode.menu);
+                }
             }
         });
         // If we want to set the size explicitly, do it like this
