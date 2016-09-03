@@ -1,8 +1,8 @@
 package com.bitdecay.jump.leveleditor.render;
 
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
@@ -35,23 +35,27 @@ public class LibGDXLevelRenderer {
         batch.begin();
         batch.setColor(1, 1, 1, .3f);
         builder.otherObjects.values().forEach(object -> {
-            if (object instanceof RenderableLevelObject) {
-                batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
+            if (GeomUtils.intersection(view, object.rect) != null) {
+                if (object instanceof RenderableLevelObject) {
+                    batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
+                }
+                renderer.setColor(BitColors.INACTIVE_OBJECT);
+                renderer.rect(object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
+                LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL_OBJECTS);
             }
-            renderer.setColor(BitColors.INACTIVE_OBJECT);
-            renderer.rect(object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
-            LevelEditor.addStringForRender(object.name(), new BitPoint(object.rect.xy), RenderLayer.LEVEL_OBJECTS);
         });
         if (RenderLayer.TRIGGERS.enabled) {
             builder.triggers.values().forEach(trigger -> {
-                renderer.setColor(BitColors.SELECTABLE);
-                LevelObject actor = builder.otherObjects.get(trigger.triggerer.uuid);
-                LevelObject victim = builder.otherObjects.get(trigger.triggeree.uuid);
+                if (GeomUtils.intersection(view, trigger.rect) != null) {
+                    renderer.setColor(BitColors.SELECTABLE);
+                    LevelObject actor = builder.otherObjects.get(trigger.triggerer.uuid);
+                    LevelObject victim = builder.otherObjects.get(trigger.triggeree.uuid);
 
-                BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
-                float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());
-                renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
-                renderer.line(actor.rect.center().x, actor.rect.center().y, victim.rect.center().x, victim.rect.center().y);
+                    BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
+                    float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());
+                    renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
+                    renderer.line(actor.rect.center().x, actor.rect.center().y, victim.rect.center().x, victim.rect.center().y);
+                }
             });
         }
         batch.end();
