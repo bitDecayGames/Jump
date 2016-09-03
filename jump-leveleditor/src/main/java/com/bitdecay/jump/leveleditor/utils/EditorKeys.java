@@ -8,39 +8,47 @@ import com.badlogic.gdx.Input;
  */
 public enum EditorKeys {
     // Help
-    HELP("Show Hotkey Help", Input.Keys.F1),
+    HELP("Show Hotkey Help", false, Input.Keys.F1),
 
     // World Controls
-    PAUSE("Pause/Resume", Input.Keys.GRAVE),
-    STEP_WORLD("Step World", Input.Keys.PLUS, Input.Keys.EQUALS),
-    ROLL_WORLD("Roll World", Input.Keys.MINUS),
+    PAUSE("Pause/Resume", false, Input.Keys.GRAVE),
+    STEP_WORLD("Step World", false, Input.Keys.PLUS, Input.Keys.EQUALS),
+    ROLL_WORLD("Roll World", false, Input.Keys.MINUS),
 
     // Camera controls
-    PAN_LEFT("Camera Left", Input.Keys.LEFT),
-    PAN_RIGHT("Camera Right", Input.Keys.RIGHT),
-    PAN_UP("Camera Up", Input.Keys.UP),
-    PAN_DOWN("Camera Down", Input.Keys.DOWN),
-    ZOOM_IN("Camera Zoom In", Input.Keys.NUM_2, Input.Keys.NUMPAD_2),
-    ZOOM_OUT("Camera Zoom Out", Input.Keys.NUM_1, Input.Keys.NUMPAD_1),
+    PAN_LEFT("Camera Left", false, Input.Keys.LEFT),
+    PAN_RIGHT("Camera Right", false, Input.Keys.RIGHT),
+    PAN_UP("Camera Up", false, Input.Keys.UP),
+    PAN_DOWN("Camera Down", false, Input.Keys.DOWN),
+    ZOOM_IN("Camera Zoom In", false, Input.Keys.NUM_2, Input.Keys.NUMPAD_2),
+    ZOOM_OUT("Camera Zoom Out", false, Input.Keys.NUM_1, Input.Keys.NUMPAD_1),
 
     // Tool Controls
-    DELETE_SELECTED("Deleted Selected Objects", Input.Keys.BACKSPACE, Input.Keys.FORWARD_DEL),
-    DISABLE_SNAP("Disable Snap (Hold)", Input.Keys.SHIFT_LEFT);
+    UNDO("Undo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Z),
+    REDO("Redo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Y),
+    DELETE_SELECTED("Deleted Selected Objects", false, Input.Keys.BACKSPACE, Input.Keys.FORWARD_DEL),
+    DISABLE_SNAP("Disable Snap (Hold)", false, Input.Keys.SHIFT_LEFT);
 
 
     private final String name;
     private final int[] keys;
+    private final boolean isKeyCombo;
     private final String keyHelp;
 
-    EditorKeys(String name, int... keyList) {
+    EditorKeys(String name, boolean isKeyCombo, int... keyList) {
         this.name = name;
+        this.isKeyCombo = isKeyCombo;
         this.keys = keyList;
 
         StringBuilder builder = new StringBuilder();
 
         for (int key : keys) {
             if (builder.length() > 0) {
-                builder.append(" or ");
+                if (isKeyCombo) {
+                    builder.append(" and ");
+                } else {
+                    builder.append(" or ");
+                }
             }
             builder.append(Input.Keys.toString(key));
         }
@@ -48,6 +56,24 @@ public enum EditorKeys {
     }
 
     public boolean isPressed() {
+        if (isKeyCombo) {
+            return allKeysPressed();
+        } else {
+            return atLeastOneKeyPressed();
+        }
+
+    }
+
+    private boolean allKeysPressed() {
+        for (int key : keys) {
+            if (!Gdx.input.isKeyPressed(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean atLeastOneKeyPressed() {
         for (int key : keys) {
             if (Gdx.input.isKeyPressed(key)) {
                 return true;
@@ -57,6 +83,28 @@ public enum EditorKeys {
     }
 
     public boolean isJustPressed() {
+        if (isKeyCombo) {
+            return comboJustPressed();
+        } else {
+            return atLeastOneKeyJustPressed();
+        }
+    }
+
+    private boolean comboJustPressed() {
+        boolean atLeastOneJustPressed = false;
+        for (int key : keys) {
+            if (!Gdx.input.isKeyPressed(key)) {
+                // some part of our combo isn't pressed.
+                return false;
+            } else if (Gdx.input.isKeyJustPressed(key)) {
+                atLeastOneJustPressed = true;
+            }
+        }
+        // combo is all pressed and at least one key was just pressed
+        return atLeastOneJustPressed;
+    }
+
+    private boolean atLeastOneKeyJustPressed() {
         for (int key : keys) {
             if (Gdx.input.isKeyJustPressed(key)) {
                 return true;
