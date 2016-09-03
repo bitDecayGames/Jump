@@ -1,41 +1,44 @@
 package com.bitdecay.jump.leveleditor.ui;
 
 import com.bitdecay.jump.leveleditor.ui.menus.MenuPage;
+import com.bitdecay.jump.leveleditor.utils.EditorKeys;
 
 public enum OptionsMode {
-    SAVE_LEVEL("Save", ModeType.ACTION, null, "icons/save.png"),
-    LOAD_LEVEL("Load", ModeType.ACTION, null, "icons/load.png"),
-    REFRESH("Refresh", ModeType.ACTION, null, "icons/refresh.png"),
-    UNDO("Undo", ModeType.ACTION, null, "icons/undo.png"),
-    REDO("Redo", ModeType.ACTION, null, "icons/redo.png"),
+    SAVE_LEVEL("Save", ModeType.ACTION, null, null, "icons/save.png"),
+    LOAD_LEVEL("Load", ModeType.ACTION, null, null, "icons/load.png"),
+    REFRESH("Refresh", ModeType.ACTION, null, null, "icons/refresh.png"),
+    UNDO("Undo", ModeType.ACTION, null, EditorKeys.UNDO, "icons/undo.png"),
+    REDO("Redo", ModeType.ACTION, null, EditorKeys.REDO, "icons/redo.png"),
 
     // Modes that are toggle
-    RENDER("Layers", ModeType.MOUSE, MenuPage.RenderMenu, "icons/render.png"),
-    SELECT("Select", ModeType.MOUSE, null, "icons/select.png"),
-    MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, "icons/movingPlatform.png"),
-    CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, "icons/tiles.png"),
-    ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, "icons/oneway.png"),
-    THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, "icons/theme.png"),
+    RENDER("Layers", ModeType.MOUSE, MenuPage.RenderMenu, null, "icons/render.png"),
+    SELECT("Select", ModeType.MOUSE, null, null, "icons/select.png"),
+    MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, null, "icons/movingPlatform.png"),
+    CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/tiles.png"),
+    ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/oneway.png"),
+    THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, null, "icons/theme.png"),
 
     // Modes that are a one-time action
-    DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, "icons/object.png"),
-    DROP_SIZABLE_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, null), // hidden differentiator for dropping objects
-    TRIGGERS("Triggers", ModeType.MOUSE, null, "icons/trigger.png"),
-    SET_SPAWN("Test Spawn", ModeType.MOUSE, null, "icons/debugSpawn.png"),
-    PROPERTY_INSPECT("Inspect", ModeType.MOUSE, null, "icons/inspect.png"),
-    DELETE("Delete", ModeType.MOUSE, null, "icons/delete.png");
+    DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, null, "icons/object.png"),
+    DROP_SIZABLE_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, null, null), // hidden differentiator for dropping objects
+    TRIGGERS("Triggers", ModeType.MOUSE, null, null, "icons/trigger.png"),
+    SET_SPAWN("Test Spawn", ModeType.MOUSE, null, null, "icons/debugSpawn.png"),
+    PROPERTY_INSPECT("Inspect", ModeType.MOUSE, null, null, "icons/inspect.png"),
+    DELETE("Delete", ModeType.MOUSE, null, null, "icons/delete.png");
 
 
 
     public final String label;
     public final ModeType type;
-    public final String icon;
     public final MenuPage menu;
+    public final EditorKeys hotkey;
+    public final String icon;
 
-    OptionsMode(String label, ModeType type, MenuPage menu, String icon) {
+    OptionsMode(String label, ModeType type, MenuPage menu, EditorKeys hotkey, String icon) {
         this.label = label;
         this.type = type;
         this.menu = menu;
+        this.hotkey = hotkey;
         this.icon = icon;
     }
 }

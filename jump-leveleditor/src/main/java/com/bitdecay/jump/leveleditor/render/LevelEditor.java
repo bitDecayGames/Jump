@@ -376,6 +376,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (EditorKeys.DELETE_SELECTED.isJustPressed()) {
             curLevelBuilder.deleteSelected();
         }
+
+        // check mode hotkeys
+        for (OptionsMode mode : OptionsMode.values()) {
+            if (mode.hotkey != null && mode.hotkey.isJustPressed()) {
+                setMode(mode);
+            }
+        }
     }
 
     private void adjustCamZoom(float change) {
