@@ -459,13 +459,13 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         } else if (OptionsMode.SAVE_LEVEL.equals(mode)) {
             Level savedLevel = LevelUtilities.saveLevel(curLevelBuilder, true);
             if (savedLevel != null) {
-                currentFile = FileUtils.lastTouchedFile;
+                currentFile = FileUtils.lastTouchedFileName;
                 setLevelBuilder(savedLevel);
             }
         } else if (OptionsMode.LOAD_LEVEL.equals(mode)) {
             Level loadLevel = LevelUtilities.loadLevel();
             if (loadLevel != null) {
-                currentFile = FileUtils.lastTouchedFile;
+                currentFile = FileUtils.lastTouchedFileName;
                 setLevelBuilder(loadLevel);
                 setCamToOrigin();
             }

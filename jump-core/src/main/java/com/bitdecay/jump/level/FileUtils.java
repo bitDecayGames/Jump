@@ -12,9 +12,9 @@ import java.io.*;
 
 public class FileUtils {
 
-	public static String lastTouchedFile = "";
+	public static String lastTouchedFileName = "";
 
-	private static String nextSaveDir = null;
+	private static String lastTouchedDirectory = null;
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
@@ -37,13 +37,8 @@ public class FileUtils {
 		return saveToFile(toJson(obj));
 	}
 
-	public static String saveToFile(Object obj, String dir) {
-		nextSaveDir = dir;
-		return saveToFile(obj);
-	}
-
 	public static String saveToFile(String json) {
-		JFileChooser fileChooser = new JFileChooser(nextSaveDir) {
+		JFileChooser fileChooser = new JFileChooser(lastTouchedDirectory) {
 			@Override
 			protected JDialog createDialog(Component parent) throws HeadlessException {
 				JDialog dialog = super.createDialog(parent);
@@ -56,10 +51,9 @@ public class FileUtils {
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setDialogTitle("Save As");
 		fileChooser.setApproveButtonText("Save");
-		fileChooser.setCurrentDirectory(new File("."));
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			lastTouchedFile = fileChooser.getSelectedFile().getName();
-			nextSaveDir = fileChooser.getSelectedFile().getParent();
+			lastTouchedFileName = fileChooser.getSelectedFile().getName();
+			lastTouchedDirectory = fileChooser.getSelectedFile().getParent();
 			try {
 				FileWriter writer = new FileWriter(fileChooser.getSelectedFile());
 				writer.write(json);
@@ -95,14 +89,13 @@ public class FileUtils {
 	}
 
 	public static String loadFile() {
-		JFileChooser fileChooser = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser(lastTouchedDirectory);
 		fileChooser.setApproveButtonText("Load");
-		fileChooser.setCurrentDirectory(new File("."));
-		// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			lastTouchedFile = selectedFile.getName();
+			lastTouchedFileName = selectedFile.getName();
+			lastTouchedDirectory = selectedFile.getParent();
 			return loadFile(selectedFile);
 		}
 		return null;
