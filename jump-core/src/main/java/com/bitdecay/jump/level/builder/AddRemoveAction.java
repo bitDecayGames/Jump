@@ -12,12 +12,15 @@ import java.util.Set;
  */
 public class AddRemoveAction implements BuilderAction {
     // All actions seem to be a mix of adds and deletes
-    public Set<LevelObject> newObjects;
+    public Set<LevelObject> createObjects;
     public Set<LevelObject> removeObjects;
 
+    public Set<LevelObject> collateralRemoves;
+
     public AddRemoveAction(List<LevelObject> newObjects, List<LevelObject> removeObjects) {
-        this.newObjects = new HashSet<>(newObjects);
+        this.createObjects = new HashSet<>(newObjects);
         this.removeObjects = new HashSet<>(removeObjects);
+        this.collateralRemoves = new HashSet<>();
     }
 
     @Override
@@ -26,13 +29,18 @@ public class AddRemoveAction implements BuilderAction {
          *when performing our actions, it may be the case that adding an option removes something where the
          * object was placed (specifically in when drawing out tiles)
          */
-        removeObjects.addAll(builder.addObjects(newObjects));
-        newObjects.addAll(builder.removeObjects(removeObjects));
+        collateralRemoves = builder.addObjects(createObjects);
+
+        /*
+         * Removing some objects may also remove attached data such as triggers tied to that object
+         */
+        removeObjects.addAll(builder.removeObjects(removeObjects));
     }
 
     @Override
     public void undo(LevelBuilder builder) {
-        builder.removeObjects(newObjects);
+        builder.removeObjects(createObjects);
         builder.addObjects(removeObjects);
+        builder.addObjects(collateralRemoves);
     }
 }
