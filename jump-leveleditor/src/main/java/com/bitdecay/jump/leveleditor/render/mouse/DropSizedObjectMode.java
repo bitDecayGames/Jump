@@ -9,12 +9,13 @@ import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.builder.LevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
+import com.bitdecay.jump.leveleditor.utils.EditorKeys;
 
 /**
  * Created by Monday on 10/19/2015.
  */
 public class DropSizedObjectMode extends BaseMouseMode{
-    private Class objectClass;
+    private Class<? extends RenderableLevelObject> objectClass;
     private RenderableLevelObject reference;
 
     private LevelEditor editor;
@@ -26,6 +27,10 @@ public class DropSizedObjectMode extends BaseMouseMode{
 
     public void setObject(Class<? extends RenderableLevelObject> objectClass) {
         this.objectClass = objectClass;
+        getNewReference();
+    }
+
+    private void getNewReference() {
         try {
             reference = objectClass.newInstance();
         } catch (Exception e) {
@@ -53,9 +58,13 @@ public class DropSizedObjectMode extends BaseMouseMode{
         if (reference != null) {
             reference.rect = new BitRectangle(startPoint, GeomUtils.snap(point, builder.tileSize));
             builder.createObject(reference);
-            reference = null;
             startPoint = null;
             endPoint = null;
+            if (EditorKeys.DROP_MULTI.isPressed()) {
+                getNewReference();
+            } else {
+                reference = null;
+            }
         }
     }
 
