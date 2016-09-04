@@ -7,9 +7,10 @@ public class Launcher {
 
     public static void main(String[] arg) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.resizable = false;
         config.width = 1600;
         config.height = 900;
-        config.title = "Jump";
+        config.title = "Jump Level Editor";
         new LwjglApplication(new EditorApp(), config);
     }
 }
