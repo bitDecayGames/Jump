@@ -27,7 +27,8 @@ public enum EditorKeys {
     UNDO("Undo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Z),
     REDO("Redo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Y),
     DELETE_SELECTED("Deleted Selected Objects", false, Input.Keys.BACKSPACE, Input.Keys.FORWARD_DEL),
-    DISABLE_SNAP("Disable Snap (Hold)", false, Input.Keys.SHIFT_LEFT);
+    DISABLE_SNAP("Disable Snap (Hold)", false, Input.Keys.CONTROL_LEFT),
+    DROP_MULTI("Drop Multiple Objects", false, Input.Keys.SHIFT_LEFT);
 
 
     private final String name;

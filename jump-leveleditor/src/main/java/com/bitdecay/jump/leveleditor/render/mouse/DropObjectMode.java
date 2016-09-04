@@ -14,7 +14,7 @@ import com.bitdecay.jump.leveleditor.utils.EditorKeys;
  * Created by Monday on 10/19/2015.
  */
 public class DropObjectMode extends BaseMouseMode{
-    private Class objectClass;
+    private Class<? extends RenderableLevelObject> objectClass;
     private RenderableLevelObject reference;
 
     private LevelEditor editor;
@@ -26,10 +26,23 @@ public class DropObjectMode extends BaseMouseMode{
 
     public void setObject(Class<? extends RenderableLevelObject> objectClass) {
         this.objectClass = objectClass;
+        getNewReference();
+    }
+
+    private void getNewReference() {
         try {
             reference = objectClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void mouseDown(BitPointInt point, MouseButton button) {
+        super.mouseDown(point, button);
+        if (MouseButton.RIGHT.equals(button)) {
+            // end our object dropping
+            reference = null;
         }
     }
 
@@ -58,7 +71,11 @@ public class DropObjectMode extends BaseMouseMode{
         if (reference != null) {
             reference.rect.xy.set(currentLocation.x, currentLocation.y);
             builder.createObject(reference);
-            reference = null;
+            if (EditorKeys.DROP_MULTI.isPressed()) {
+                getNewReference();
+            } else {
+                reference = null;
+            }
         }
     }
 
