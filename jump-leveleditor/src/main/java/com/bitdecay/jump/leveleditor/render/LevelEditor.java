@@ -52,7 +52,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private EditorMenus menus;
 
-    private static final int CAM_SPEED = 5;
+    private static final int CAM_MOVE_SPEED = 5;
+    private static final float CAM_MAX_ZOOM = 20;
+    private static final float CAM_MIN_ZOOM= .2f;
+    private static final float CAM_ZOOM_SPEED_SLOW = .05f;
+    private static final float CAM_ZOOM_SPEED_FAST = .2f;
+    private static final int ZOOM_THRESHOLD = 5;
 
     public BitmapFont font = new BitmapFont(Gdx.files.internal(ASSETS_FOLDER + "fonts/test2.fnt"), Gdx.files.internal(ASSETS_FOLDER + "fonts/test2.png"), false);
 
@@ -305,6 +310,9 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void drawGrid() {
+        if (camera.zoom >= ZOOM_THRESHOLD) {
+            return;
+        }
         shaper.begin(ShapeType.Line);
         shaper.setColor(BitColors.GRID_LINES);
         Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.tileSize, -curLevelBuilder.tileSize, 0));
@@ -349,27 +357,27 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
 
         if (EditorKeys.PAN_LEFT.isPressed()) {
-            camera.translate(-CAM_SPEED * camera.zoom, 0);
+            camera.translate(-CAM_MOVE_SPEED * camera.zoom, 0);
         } else if (EditorKeys.PAN_RIGHT.isPressed()) {
-            camera.translate(CAM_SPEED * camera.zoom, 0);
+            camera.translate(CAM_MOVE_SPEED * camera.zoom, 0);
         }
         if (EditorKeys.PAN_UP.isPressed()) {
-            camera.translate(0, CAM_SPEED * camera.zoom);
+            camera.translate(0, CAM_MOVE_SPEED * camera.zoom);
         } else if (EditorKeys.PAN_DOWN.isPressed()) {
-            camera.translate(0, -CAM_SPEED * camera.zoom);
+            camera.translate(0, -CAM_MOVE_SPEED * camera.zoom);
         }
 
         if (EditorKeys.ZOOM_IN.isPressed()) {
-            if (camera.zoom > 5) {
-                adjustCamZoom(-.2f);
-            } else if (camera.zoom > .2) {
-                adjustCamZoom(-.05f);
+            if (camera.zoom >= ZOOM_THRESHOLD) {
+                adjustCamZoom(-CAM_ZOOM_SPEED_FAST);
+            } else if (camera.zoom > CAM_MIN_ZOOM) {
+                adjustCamZoom(-CAM_ZOOM_SPEED_SLOW);
             }
         } else if (EditorKeys.ZOOM_OUT.isPressed()) {
-            if (camera.zoom < 5) {
-                adjustCamZoom(.05f);
-            } else if (camera.zoom < 20) {
-                adjustCamZoom(.2f);
+            if (camera.zoom < ZOOM_THRESHOLD) {
+                adjustCamZoom(CAM_ZOOM_SPEED_SLOW);
+            } else if (camera.zoom < CAM_MAX_ZOOM) {
+                adjustCamZoom(CAM_ZOOM_SPEED_FAST);
             }
         }
 

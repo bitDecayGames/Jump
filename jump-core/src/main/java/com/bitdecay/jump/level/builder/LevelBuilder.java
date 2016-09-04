@@ -140,6 +140,11 @@ public class LevelBuilder {
 		}
 	}
 
+	/**
+	 * Ensures the given object fits on the builder's grid. If not, resize
+	 * and rebuild the grid such that it does fit.
+	 * @param obj The new tile object being added to the builder
+     */
 	private void ensureGridFitsObject(TileObject obj) {
 		BitPointInt objCell = getOccupiedCell(obj);
 		while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
