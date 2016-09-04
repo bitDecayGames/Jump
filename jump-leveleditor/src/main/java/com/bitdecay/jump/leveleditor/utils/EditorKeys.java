@@ -24,6 +24,7 @@ public enum EditorKeys {
     ZOOM_OUT("Camera Zoom Out", false, Input.Keys.NUM_1, Input.Keys.NUMPAD_1),
 
     // Tool Controls
+    REFRESH("Refresh Level", true, Input.Keys.CONTROL_LEFT, Input.Keys.R),
     UNDO("Undo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Z),
     REDO("Redo", true, Input.Keys.CONTROL_LEFT, Input.Keys.Y),
     DELETE_SELECTED("Deleted Selected Objects", false, Input.Keys.BACKSPACE, Input.Keys.FORWARD_DEL),
@@ -77,7 +78,9 @@ public enum EditorKeys {
     private boolean atLeastOneKeyPressed() {
         for (int key : keys) {
             if (Gdx.input.isKeyPressed(key)) {
-                return true;
+                if (isKeyAModifer(key) || !isAnyModiferPressed()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -108,7 +111,9 @@ public enum EditorKeys {
     private boolean atLeastOneKeyJustPressed() {
         for (int key : keys) {
             if (Gdx.input.isKeyJustPressed(key)) {
-                return true;
+                if (isKeyAModifer(key) || !isAnyModiferPressed()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -117,5 +122,49 @@ public enum EditorKeys {
     public String getHelp() {
 
         return name + ": " + keyHelp;
+    }
+
+    private static boolean isKeyAModifer(int key) {
+        if (Input.Keys.SHIFT_LEFT == key) {
+            return true;
+        }
+        if (Input.Keys.SHIFT_RIGHT == key) {
+            return true;
+        }
+        if (Input.Keys.CONTROL_LEFT == key) {
+            return true;
+        }
+        if (Input.Keys.CONTROL_RIGHT == key) {
+            return true;
+        }
+        if (Input.Keys.ALT_LEFT == key) {
+            return true;
+        }
+        if (Input.Keys.ALT_RIGHT == key) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isAnyModiferPressed() {
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+            return true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+            return true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+            return true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
+            return true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT)) {
+            return true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
+            return true;
+        }
+        return false;
     }
 }

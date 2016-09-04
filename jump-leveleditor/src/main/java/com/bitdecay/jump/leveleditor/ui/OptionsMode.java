@@ -4,9 +4,13 @@ import com.bitdecay.jump.leveleditor.ui.menus.MenuPage;
 import com.bitdecay.jump.leveleditor.utils.EditorKeys;
 
 public enum OptionsMode {
+    /*
+     * Can't add key bindings to save/load because they pop up a dialog which causes the game to lose focus.
+     * This causes the key up event is lost and the app thinks the buttons are pressed when they aren't
+     */
     SAVE_LEVEL("Save", ModeType.ACTION, null, null, "icons/save.png"),
     LOAD_LEVEL("Load", ModeType.ACTION, null, null, "icons/load.png"),
-    REFRESH("Refresh", ModeType.ACTION, null, null, "icons/refresh.png"),
+    REFRESH("Refresh", ModeType.ACTION, null, EditorKeys.REFRESH, "icons/refresh.png"),
     UNDO("Undo", ModeType.ACTION, null, EditorKeys.UNDO, "icons/undo.png"),
     REDO("Redo", ModeType.ACTION, null, EditorKeys.REDO, "icons/redo.png"),
 
