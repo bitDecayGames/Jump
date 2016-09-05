@@ -38,10 +38,20 @@ public class BodyCollisionPack {
      */
     final List<Overlap> actionableResolutions;
 
+    /**
+     * A vector which will satisfy all actionableResolutions
+     */
     final BitPoint neededResolution;
 
+    /**
+     * A flag to indicate if this pack had opposing resolutions
+     */
     boolean resultsInCrush = false;
 
+    /**
+     * A flag to indicate if the body should stop being resolved for the rest of the world step after this has
+     * been applied
+     */
     boolean lockingResolution = false;
 
 

@@ -43,8 +43,8 @@ public class BitWorld {
 	 * A map of x to y to an occupying body.
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
-	private Map<BitBody, BodyCollisionPack> potentialCollisionsRefac = new HashMap<>();
-	private BodyCollisionPackComparator collisionPackComparator = new BodyCollisionPackComparator();
+	private Map<BitBody, BodyCollisionPack> potentialCollisions;
+	private BodyCollisionPackComparator collisionPackComparator;
 
 	private Map<BitBody, Set<BitBody>> newContacts;
 	private Map<BitBody, Set<BitBody>> ongoingContacts;
@@ -68,6 +68,8 @@ public class BitWorld {
 		pendingAdds = new ArrayList<>();
 		pendingRemoves = new ArrayList<>();
 		occupiedSpaces = new HashMap<>();
+		potentialCollisions = new HashMap<>();
+		collisionPackComparator = new BodyCollisionPackComparator();
 		newContacts = new HashMap<>();
 		ongoingContacts = new HashMap<>();
 		endedContacts = new HashMap<>();
@@ -294,7 +296,7 @@ public class BitWorld {
 	private boolean processCollisions() {
 		boolean resolutionsApplied = false;
 
-		ArrayList<BodyCollisionPack> allPacks = new ArrayList<>(potentialCollisionsRefac.values());
+		ArrayList<BodyCollisionPack> allPacks = new ArrayList<>(potentialCollisions.values());
 		Collections.sort(allPacks, collisionPackComparator);
 		for (BodyCollisionPack pack : allPacks) {
 			pack.findTrueCollisions();
@@ -303,28 +305,33 @@ public class BitWorld {
 			}
 			pack.filterActionableResolutions();
 			pack.setCumulativeResolution();
-			if (pack.resultsInCrush && pack.actor.props.crushable) {
-				pack.actor.active = false;
-				pack.actor.velocity.set(0, 0);
-				pack.actor.getContactListeners().forEach(listener -> listener.crushed());
-			} else {
-				if (pack.neededResolution.x != 0 || pack.neededResolution.y != 0) {
-					pack.actor.aabb.translate(pack.neededResolution);
-					BitPoint velocityAdjustment = pack.neededResolution.scale(BitWorld.STEP_PER_SEC);
-					pack.actor.velocity.add(velocityAdjustment);
-					if (BitWorld.gravity.dot(pack.neededResolution) < 0) {
-						pack.actor.grounded = true;
-					}
-				}
-				pack.actor.lastResolution.add(pack.neededResolution);
-				pack.actor.resolutionLocked = pack.lockingResolution;
-
-				resolutionsApplied = true;
-			}
+			resolutionsApplied |= maybeApplyResolution(pack);
 		}
 
-		potentialCollisionsRefac.clear();
+		potentialCollisions.clear();
 		return resolutionsApplied;
+	}
+
+	private boolean maybeApplyResolution(BodyCollisionPack pack) {
+		if (pack.resultsInCrush && pack.actor.props.crushable) {
+            pack.actor.active = false;
+            pack.actor.velocity.set(0, 0);
+            pack.actor.getContactListeners().forEach(listener -> listener.crushed());
+        } else {
+            if (pack.neededResolution.x != 0 || pack.neededResolution.y != 0) {
+                pack.actor.aabb.translate(pack.neededResolution);
+                BitPoint velocityAdjustment = pack.neededResolution.scale(BitWorld.STEP_PER_SEC);
+                pack.actor.velocity.add(velocityAdjustment);
+                if (BitWorld.gravity.dot(pack.neededResolution) < 0) {
+                    pack.actor.grounded = true;
+                }
+            }
+            pack.actor.lastResolution.add(pack.neededResolution);
+            pack.actor.resolutionLocked = pack.lockingResolution;
+
+			return true;
+        }
+		return false;
 	}
 
 
@@ -462,11 +469,11 @@ public class BitWorld {
 
 	private void maybeAddToPotentialCollisions(BitBody body, BitBody against) {
 		if (BodyType.DYNAMIC.equals(body.bodyType) || BodyType.DYNAMIC.equals(against.bodyType)) {
-			if (!potentialCollisionsRefac.containsKey(body)) {
-				potentialCollisionsRefac.put(body, new BodyCollisionPack(body, this));
+			if (!potentialCollisions.containsKey(body)) {
+				potentialCollisions.put(body, new BodyCollisionPack(body, this));
 			}
 
-			BodyCollisionPack pack = potentialCollisionsRefac.get(body);
+			BodyCollisionPack pack = potentialCollisions.get(body);
 			if (!pack.suspects.contains(against)) {
 				pack.suspects.add(against);
 			}
