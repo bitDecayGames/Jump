@@ -12,20 +12,21 @@ Definitions:
 * Static Body - A body that is stationary and therefore does not collide with anything.
 * Potential Collision - The loose bounding boxes of two bodies overlap. This might be a collision, but we haven't done the full calculation yet. This is held in an object called SATStrategy. This object is a body (the focus) and a list of other bodies it might be colliding with
 * Manifold - A vector that describes the calculated translation needed to separate two bodies
+* Manifold Bundle - A list of all calculated vectors that can separate two bodies. This contains both the shortest solution as well as any others found
 * Crushed - A body is has been resolved in opposing directions in a single collision resolution step
 
 Core Step Loop:
 
 1) Move all bodies
-	- Update effects of gravity
-	- Update any controls that might be attached
-	- Reset any collision variables in preparation for this collision step
+	1) Update effects of gravity
+	2) Update any controls that might be attached
+	3) Reset any collision variables in preparation for this collision step
 		- This includes things like:
 			- Grounded
 			- Parent objects (in case of contact with moving platforms)
 			- Resolution Locked to false
 			- Last Resolution
-	- Update occupied spaces
+	4) Update occupied spaces
 	
 2) Collision loop (continues for 10 steps, or until no collisions exist)
 	1) Find all potential collisions between Dynamic -> Level (based on grid)
@@ -40,10 +41,11 @@ Core Step Loop:
 		1) *Satisfy* the collision
 		2) Buffer any new contact events
 		3) *Apply* the resolution
+	3) Return true if at least one potential collision resulted in a body being moved
 		
 	*Satisfy*
 	1) For each suspect body in the potential collision
-		1) Find the Manifold, taking into account any needed resolution that's already been found
+		1) *Find the Manifold*, taking into account any needed resolution that's already been found
 		2) Flag contact if the manifold is non-zero (indicating some amount of movement was needed / contact had occurred)
 		3) Bail early if both bodies are Dynamic
 		4) Mark the potential collision as a locking resolution if it was against
@@ -54,6 +56,47 @@ Core Step Loop:
 		6) Normalize the manifold
 		7) Check against the previously resolved directions
 			- If opposing resolutions are found, the body was 'crushed'
+		8) Add the normalized manifold to the list of axes resolved against
+		9) Call *Post Resolve*
+	2) Set the end resolution to the cumulative resolution calculated from all the suspect bodies
+	3) Return true if we moved the body, false otherwise
+	
+	*Find The Manifold*
+	1) *Calculate the Manifold* candidate based on the two bodies, taking into account the cumulative resolution
+	2) This is where we originally tried to handle angled platforms, currently this step doesn't exist
+	3) Return the candidate
+	
+	*Calculate The Manifold*
+	1) Copy the body's bounding box and translate it by the cumulative resolution calculated up to this point
+	2) Calculate the Manifold Bundle (Separating Axis Theorem is used here)
+	3) If we get null back, return the zero manifold (a zero length vector indicating no overlap was found)
+	4) Otherwise, *Solve The Bundle* and return the selected Manifold
+	
+	*Solve The Bundle*
+	1) Sort the bundle by Manifold length from shortest to longest
+	2) Take note of the relative movement between the two bodies
+	3) For each Manifold:
+		1) Calculate the dot product between the relative movement and the manifolds axis
+		2) If the dot product is non-zero (indicating that we are being resolved along the line of relative movement):
+			1) *Handle Tile Collisions* specially
+			2) Otherwise, just return the manifold
+			
+	*Handle Tile Collisions*
+	1) Store the dot product of the calculated resolved position with the current Manifold
+	2) Store the dot product of the body's last position against the Manifold axis (these two points let us know relative positioning of the body/tile)
+	3) Check that the tile collision is a *Valid Tile Collision*
+	
+	*Valid Tile Collision*
+	1) Fail early if it's not a valid collision for the neighbour value of the tile
+	2) Return true if the resolution position and last position of the body are opposing each other. (Is this actually valid? the next two steps seem more reliable/correct)
+	3) If the Manifold's distance is negative, return true if the last position is greater than the resolution position.
+	4) If the Manifold's distance is positive, return true if the last postition is less than the resolution position.
+	5) Handle one-way validation (walk through this and see how it works... I'm confused by my own work)
+		
+	*Post Resolve*
+	1) If body was resolved against a kinetic body against gravity:
+		1) add the kinetic body as a parent of this body
+		2) add this body as a child of the kinetic body
 	
 3) For each dynamic body:
 	1) Update any render state watchers
