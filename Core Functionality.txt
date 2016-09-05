@@ -1,0 +1,62 @@
+Jump Core Functionality requirements as of commit b2a1aa63e3244c33f94eb2d00f3de72cda62e7ab
+
+1) Step at even intervals (default to 128 updates/second)
+	- Run as many steps as is needed to consume the given delta unless one of the two following occur:
+	- If less than 1/128 of a second has passed, do a non-update (just add/remove any pending bodies)
+	- If more than 1 second has passed, trim the total calculations in one call to 1 second
+2) Track the occupied spaces of all non-level-tile bodies
+
+Definitions:
+* Dynamic Body - A body that freely moves about the world - possibly controlled by a player, or some other entity. Collides with Static and Kinetic Bodies
+* Kinetic Body - A body that can move around in the world, but does not collide with anything else.
+* Static Body - A body that is stationary and therefore does not collide with anything.
+* Potential Collision - The loose bounding boxes of two bodies overlap. This might be a collision, but we haven't done the full calculation yet. This is held in an object called SATStrategy. This object is a body (the focus) and a list of other bodies it might be colliding with
+* Manifold - A vector that describes the calculated translation needed to separate two bodies
+* Crushed - A body is has been resolved in opposing directions in a single collision resolution step
+
+Core Step Loop:
+
+1) Move all bodies
+	- Update effects of gravity
+	- Update any controls that might be attached
+	- Reset any collision variables in preparation for this collision step
+		- This includes things like:
+			- Grounded
+			- Parent objects (in case of contact with moving platforms)
+			- Resolution Locked to false
+			- Last Resolution
+	- Update occupied spaces
+	
+2) Collision loop (continues for 10 steps, or until no collisions exist)
+	1) Find all potential collisions between Dynamic -> Level (based on grid)
+	2) Check for any ongoing contacts to have ended (Does this make sense to be here?)
+	3) Find all potential collisions between Dynamic -> Static/Kinetic bodies
+	4) Perform *Collision Resolution*
+	5) Loop back to step 1 if collisions are found and resolved
+	
+	*Collision Resolution*
+	1) Sort all potential solutions (collisions against static objects are prioritized)
+	2) For each potential collision
+		1) *Satisfy* the collision
+		2) Buffer any new contact events
+		3) *Apply* the resolution
+		
+	*Satisfy*
+	1) For each suspect body in the potential collision
+		1) Find the Manifold, taking into account any needed resolution that's already been found
+		2) Flag contact if the manifold is non-zero (indicating some amount of movement was needed / contact had occurred)
+		3) Bail early if both bodies are Dynamic
+		4) Mark the potential collision as a locking resolution if it was against
+			1) A static body
+			2) A kinetic body
+			3) the other body is already resolution locked
+		5) Add the found Manifold to the cumulative resolution
+		6) Normalize the manifold
+		7) Check against the previously resolved directions
+			- If opposing resolutions are found, the body was 'crushed'
+	
+3) For each dynamic body:
+	1) Update any render state watchers
+	2) Fire all contact ended events for each dynamic body
+	3) Fire all continued contacts for each dynamic body
+	
