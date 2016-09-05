@@ -2,7 +2,10 @@ package com.bitdecay.jump.collision;
 
 import com.bitdecay.jump.BitBody;
 import com.bitdecay.jump.BodyType;
-import com.bitdecay.jump.geom.*;
+import com.bitdecay.jump.geom.BitPoint;
+import com.bitdecay.jump.geom.BitPointInt;
+import com.bitdecay.jump.geom.BitRectangle;
+import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.TileObject;
 import com.bitdecay.jump.properties.KineticProperties;
@@ -40,8 +43,8 @@ public class BitWorld {
 	 * A map of x to y to an occupying body.
 	 */
 	private Map<Integer, Map<Integer, Set<BitBody>>> occupiedSpaces;
-	private Map<BitBody, SATStrategy> potentialResolutions;
-	private SATStrategyComparator strategyComparator = new SATStrategyComparator();
+	private Map<BitBody, BodyCollisionPack> potentialCollisionsRefac = new HashMap<>();
+	private BodyCollisionPackComparator collisionPackComparator = new BodyCollisionPackComparator();
 
 	private Map<BitBody, Set<BitBody>> newContacts;
 	private Map<BitBody, Set<BitBody>> ongoingContacts;
@@ -65,7 +68,6 @@ public class BitWorld {
 		pendingAdds = new ArrayList<>();
 		pendingRemoves = new ArrayList<>();
 		occupiedSpaces = new HashMap<>();
-		potentialResolutions = new HashMap<>();
 		newContacts = new HashMap<>();
 		ongoingContacts = new HashMap<>();
 		endedContacts = new HashMap<>();
@@ -198,7 +200,7 @@ public class BitWorld {
 			 * END COLLISIONS
 			 */
 
-			continueCollisions = resolveAndApplyPotentialResolutions();
+			continueCollisions = processCollisions();
 		}
 
 		dynamicBodies.parallelStream().forEach(body -> {
@@ -285,21 +287,44 @@ public class BitWorld {
 		pendingAdds.clear();
 	}
 
-	private boolean resolveAndApplyPotentialResolutions() {
-		boolean somethingWasResolved = false;
-		ArrayList<SATStrategy> list = new ArrayList<>(potentialResolutions.values());
-		Collections.sort(list, strategyComparator);
-		for (SATStrategy pending : list) {
-			somethingWasResolved |= pending.satisfy(this);
-			pending.potentialCollisions.forEach(bitCollision -> {
-				if (bitCollision.contactOccurred) {
-					maybeFlagNewContact(bitCollision.body, bitCollision.against);
+	/**
+	 * Full collision processing
+	 * @return true if any bodies were moved as a result of collision resolution, false otherwise.
+     */
+	private boolean processCollisions() {
+		boolean resolutionsApplied = false;
+
+		ArrayList<BodyCollisionPack> allPacks = new ArrayList<>(potentialCollisionsRefac.values());
+		Collections.sort(allPacks, collisionPackComparator);
+		for (BodyCollisionPack pack : allPacks) {
+			pack.findTrueCollisions();
+			for (BodyCollisionPack.Overlap overlap : pack.allResolutions) {
+				maybeFlagNewContact(pack.actor, overlap.with);
+			}
+			pack.filterActionableResolutions();
+			pack.setCumulativeResolution();
+			if (pack.resultsInCrush && pack.actor.props.crushable) {
+				pack.actor.active = false;
+				pack.actor.velocity.set(0, 0);
+				pack.actor.getContactListeners().forEach(listener -> listener.crushed());
+			} else {
+				if (pack.neededResolution.x != 0 || pack.neededResolution.y != 0) {
+					pack.actor.aabb.translate(pack.neededResolution);
+					BitPoint velocityAdjustment = pack.neededResolution.scale(BitWorld.STEP_PER_SEC);
+					pack.actor.velocity.add(velocityAdjustment);
+					if (BitWorld.gravity.dot(pack.neededResolution) < 0) {
+						pack.actor.grounded = true;
+					}
 				}
-			});
-			applyResolution(pending);
+				pack.actor.lastResolution.add(pack.neededResolution);
+				pack.actor.resolutionLocked = pack.lockingResolution;
+
+				resolutionsApplied = true;
+			}
 		}
-		potentialResolutions.clear();
-		return somethingWasResolved;
+
+		potentialCollisionsRefac.clear();
+		return resolutionsApplied;
 	}
 
 
@@ -395,23 +420,12 @@ public class BitWorld {
 	}
 
 	private void buildLevelCollisions(BitBody body) {
-		// 1. determine tile that x,y lives in
-		BitPoint startCell = body.aabb.xy.floorDivideBy(tileSize, tileSize).minus(gridOffset);
 
-		// 2. determine width/height in tiles
-		int endX = (int) (startCell.x + Math.ceil(1.0 * body.aabb.width / tileSize));
-		int endY = (int) (startCell.y + Math.ceil(1.0 * body.aabb.height / tileSize));
-
-		// 3. loop over those all occupied tiles
-		for (int x = (int) startCell.x; x <= endX; x++) {
-			for (int y = (int) startCell.y; y <= endY; y++) {
-				// ensure valid cell
-				if (ArrayUtilities.onGrid(gridObjects, x, y) && gridObjects[x][y] != null) {
-					BitBody checkObj = gridObjects[x][y];
-					maybeAddToPotentialCollisions(body, checkObj);
-				}
-			}
+		Set<BitBody> suspectBodies = CollisionHelper.getGriddedPotentialCollisions(body, gridObjects, tileSize, gridOffset);
+		for (BitBody otherBody : suspectBodies) {
+			maybeAddToPotentialCollisions(body, otherBody);
 		}
+
 	}
 
 	private void updateOccupiedSpaces(BitBody body) {
@@ -437,19 +451,6 @@ public class BitWorld {
 		}
 	}
 
-	private void applyResolution(SATStrategy resolution) {
-		if (resolution.resolution.x != 0 || resolution.resolution.y != 0) {
-			resolution.body.aabb.translate(resolution.resolution);
-			BitPoint velocityAdjustment = resolution.resolution.scale(BitWorld.STEP_PER_SEC);
-			resolution.body.velocity.add(velocityAdjustment);
-			if (BitWorld.gravity.dot(resolution.resolution) < 0) {
-				resolution.body.grounded = true;
-			}
-		}
-		resolution.body.lastResolution.add(resolution.resolution);
-		resolution.body.resolutionLocked = resolution.lockingResolution;
-	}
-
 	private void maybeFlagNewContact(BitBody body, BitBody against) {
 		if (!ongoingContacts.get(body).contains(against)) {
 			if (!newContacts.containsKey(body)) {
@@ -461,17 +462,14 @@ public class BitWorld {
 
 	private void maybeAddToPotentialCollisions(BitBody body, BitBody against) {
 		if (BodyType.DYNAMIC.equals(body.bodyType) || BodyType.DYNAMIC.equals(against.bodyType)) {
-			// all we have to do is take out the xor if and dynamic bodies will collide. There are still bugs, however
-			if (!potentialResolutions.containsKey(body)) {
-				potentialResolutions.put(body, new SATStrategy(body));
+			if (!potentialCollisionsRefac.containsKey(body)) {
+				potentialCollisionsRefac.put(body, new BodyCollisionPack(body, this));
 			}
-			SATStrategy resolution = potentialResolutions.get(body);
-			for (BitCollision collision : resolution.potentialCollisions) {
-				if (collision.against == against) {
-					return;
-				}
+
+			BodyCollisionPack pack = potentialCollisionsRefac.get(body);
+			if (!pack.suspects.contains(against)) {
+				pack.suspects.add(against);
 			}
-			resolution.potentialCollisions.add(new BitCollision(body, against));
 		}
 	}
 

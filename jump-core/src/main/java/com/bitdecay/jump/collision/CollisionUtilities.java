@@ -24,11 +24,11 @@ public class CollisionUtilities {
             return true;
         }
 
-        if (MathUtils.opposing(resolutionPosition, lastPosition)) {
-            // all collisions should push a body backwards according to the
-            // relative movement. If it's not doing so, it's not a valid case.
-            return true;
-        }
+//        if (MathUtils.opposing(resolutionPosition, lastPosition)) {
+//            // all collisions should push a body backwards according to the
+//            // relative movement. If it's not doing so, it's not a valid case.
+//            return true;
+//        }
 
         if (manifold.distance < 0 && (lastPosition > resolutionPosition)) {
             return true;

@@ -34,7 +34,7 @@ public class SecretThing extends RenderableLevelObject {
 
     @Override
     public String name() {
-        return "Secret Thing";
+        return "Secret Overlap";
     }
 
     @Override

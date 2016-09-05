@@ -103,3 +103,15 @@ Core Step Loop:
 	2) Fire all contact ended events for each dynamic body
 	3) Fire all continued contacts for each dynamic body
 	
+	
+	
+Boiled down requirements:
+
+1) Move everything
+2) Find any potential collisions
+3) Find any true contacts
+4) Fire events for any contacts
+5) Validate contacts (such as using neighbour values for tile contacts)
+6) Resolve collisions iteratively
+	- Resolve Dynamic -> Static collisions before Dynamic -> Kinetic
+		This makes sure that collisions feel consistent, especially where kinetic platforms move through static platforms
