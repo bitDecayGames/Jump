@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.bitdecay</groupId>
         <artifactId>jump</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <artifactId>jump-common</artifactId>
     <packaging>jar</packaging>

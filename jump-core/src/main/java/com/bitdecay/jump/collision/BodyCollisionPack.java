@@ -66,11 +66,11 @@ public class BodyCollisionPack {
 
     public void findTrueCollisions() {
         for (BitBody suspect : suspects) {
-            Manifold candidate = CollisionUtilities.getSolutionCandidate(actor, suspect, new BitPoint());
-            if (candidate.axis.equals(GeomUtils.ZERO_AXIS)) {
+            ManifoldBundle bundle = ProjectionUtilities.getBundle(actor.aabb, suspect.aabb);
+            if (bundle == null) {
                 continue;
             } else {
-                allResolutions.add(new Overlap(suspect, candidate));
+                allResolutions.add(new Overlap(suspect, bundle));
             }
         }
     }
@@ -84,7 +84,10 @@ public class BodyCollisionPack {
             if (overlap.with.bodyType.equals(BodyType.DYNAMIC)) {
                 continue;
             }
-            if (overlap.with.props.collides) {
+            Manifold candidate = CollisionUtilities.solve(overlap.bundle, actor, overlap.with, new BitPoint());
+            if (candidate.axis.equals(GeomUtils.ZERO_AXIS)) {
+                continue;
+            } else if (overlap.with.props.collides) {
                 actionableResolutions.add(overlap);
             }
         }
@@ -129,11 +132,12 @@ public class BodyCollisionPack {
 
     public static class Overlap {
         BitBody with;
+        ManifoldBundle bundle;
         Manifold resolutionManifold;
 
-        public Overlap(BitBody suspect, Manifold candidate) {
+        public Overlap(BitBody suspect, ManifoldBundle bundle) {
             this.with = suspect;
-            this.resolutionManifold = candidate;
+            this.bundle = bundle;
         }
     }
 }
