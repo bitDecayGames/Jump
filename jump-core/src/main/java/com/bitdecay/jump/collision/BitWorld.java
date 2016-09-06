@@ -388,7 +388,13 @@ public class BitWorld {
 	}
 
 	private void fireExpiredContacts(BitBody body) {
+		if (!body.props.firesListenerEvents) {
+			return;
+		}
 		for (BitBody other : endedContacts.get(body)) {
+			if (!other.props.firesListenerEvents) {
+				continue;
+			}
 			for (ContactListener listener : body.getContactListeners()) {
 				listener.contactEnded(other);
 			}
@@ -402,7 +408,13 @@ public class BitWorld {
 	}
 
 	private void fireContinuedContacts(BitBody body) {
+		if (!body.props.firesListenerEvents) {
+			return;
+		}
 		for (BitBody other : ongoingContacts.get(body)) {
+			if (!other.props.firesListenerEvents) {
+				continue;
+			}
 			for (ContactListener listener : body.getContactListeners()) {
 				listener.contact(other);
 			}
@@ -415,10 +427,16 @@ public class BitWorld {
 	}
 
 	private void updateExistingContact(BitBody body) {
+		if (!body.props.firesListenerEvents) {
+			return;
+		}
 		Iterator<BitBody> iterator = ongoingContacts.get(body).iterator();
 		BitBody otherBody;
 		while(iterator.hasNext()) {
 			otherBody = iterator.next();
+			if (!otherBody.props.firesListenerEvents) {
+				continue;
+			}
 			if (ProjectionUtilities.getBundle(body.aabb, otherBody.aabb) == null) {
 				iterator.remove();
 				endedContacts.get(body).add(otherBody);
