@@ -313,6 +313,7 @@ public class BitWorld {
 	}
 
 	private boolean maybeApplyResolution(BodyCollisionPack pack) {
+		boolean resolutionApplied = false;
 		if (pack.resultsInCrush && pack.actor.props.crushable) {
             pack.actor.active = false;
             pack.actor.velocity.set(0, 0);
@@ -325,13 +326,13 @@ public class BitWorld {
                 if (BitWorld.gravity.dot(pack.neededResolution) < 0) {
                     pack.actor.grounded = true;
                 }
+                resolutionApplied = true;
             }
             pack.actor.lastResolution.add(pack.neededResolution);
             pack.actor.resolutionLocked = pack.lockingResolution;
 
-			return true;
         }
-		return false;
+		return resolutionApplied;
 	}
 
 
