@@ -84,8 +84,8 @@ public class BodyCollisionPack {
             if (overlap.with.bodyType.equals(BodyType.DYNAMIC)) {
                 continue;
             }
-            Manifold candidate = CollisionUtilities.solve(overlap.bundle, actor, overlap.with, new BitPoint());
-            if (candidate.axis.equals(GeomUtils.ZERO_AXIS)) {
+            overlap.resolutionManifold = CollisionUtilities.solve(overlap.bundle, actor, overlap.with, new BitPoint());
+            if (overlap.resolutionManifold.axis.equals(GeomUtils.ZERO_AXIS)) {
                 continue;
             } else if (overlap.with.props.collides) {
                 actionableResolutions.add(overlap);
