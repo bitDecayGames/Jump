@@ -44,6 +44,11 @@ public class BodyCollisionPack {
     final BitPoint neededResolution;
 
     /**
+     * New parents the actor will gain as the result of this pack resolution
+     */
+    final List<BitBody> resultingParents;
+
+    /**
      * A flag to indicate if this pack had opposing resolutions
      */
     boolean resultsInCrush = false;
@@ -62,6 +67,7 @@ public class BodyCollisionPack {
         allResolutions = new ArrayList<>();
         actionableResolutions = new ArrayList<>();
         neededResolution = new BitPoint();
+        resultingParents = new ArrayList<>();
     }
 
     public void findTrueCollisions() {
@@ -116,8 +122,7 @@ public class BodyCollisionPack {
 
             if (overlap.with.bodyType.equals(BodyType.KINETIC)) {
                 if (overlap.resolutionManifold.axis.dot(world.gravity.x, world.gravity.y) < 0) {
-                    actor.parents.add(overlap.with);
-                    overlap.with.children.add(actor);
+                    resultingParents.add(overlap.with);
                 }
             }
 

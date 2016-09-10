@@ -328,7 +328,12 @@ public class BitWorld {
                 }
                 resolutionApplied = true;
             }
-            pack.actor.lastResolution.add(pack.neededResolution);
+			for (BitBody resultingParent : pack.resultingParents) {
+				pack.actor.parents.add(resultingParent);
+				resultingParent.children.add(pack.actor);
+			}
+
+			pack.actor.lastResolution.add(pack.neededResolution);
             pack.actor.resolutionLocked = pack.lockingResolution;
 
         }

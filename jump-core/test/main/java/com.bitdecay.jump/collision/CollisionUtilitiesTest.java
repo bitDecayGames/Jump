@@ -129,11 +129,12 @@ public class CollisionUtilitiesTest {
 
     @Test
     public void testTileValidCollision() {
-        TileBody tile = new TileBody();
-        tile.nValue = 0;
+        TileBody body = new TileBody();
+        Manifold manifold = new Manifold(new BitPoint(), 0);
+        float resPosition = 0;
+        float lastPosition = 0;
+        CollisionUtilities.isTileValidCollision(body, manifold, resPosition, lastPosition);
 
-        Manifold manifold = new Manifold(new BitPoint(0, -1), 1);
-
-
+        // TODO: Finish this test out (This method is kinda hard to test)
     }
 }
