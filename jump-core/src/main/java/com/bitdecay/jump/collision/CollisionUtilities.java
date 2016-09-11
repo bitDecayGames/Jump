@@ -19,41 +19,29 @@ public class CollisionUtilities {
         return bodyAttempt.plus(cumulativeResolution).minus(otherBodyAttempt);
     }
 
-    public static boolean isTileValidCollision(TileBody tileBody, Manifold manifold, float resolutionPosition, float lastPosition) {
+    public static boolean canTileCollisionCanBeSkipped(TileBody tileBody, Manifold manifold, float resolutionPosition, float lastPosition) {
         if (!axisValidForNValue(manifold, tileBody)) {
             return true;
         }
 
-        // I don't think this check is valid. Collisions around the origin are the only ones that will get into this case.
-//        if (MathUtils.opposing(resolutionPosition, lastPosition)) {
-//            // all collisions should push a body backwards according to the
-//            // relative movement. If it's not doing so, it's not a valid case.
-//            return true;
-//        }
-
-        // this can't happen now
-        if (manifold.distance < 0 && (lastPosition > resolutionPosition)) {
-            return true;
-        }
-
         if (manifold.distance > 0 && lastPosition < resolutionPosition) {
+            // The actor was already inside the tileBody before it moved, so we can skip it.
             return true;
         }
 
         if (tileBody.collisionAxis != null) {
-            if (manifold.axis.equals(tileBody.collisionAxis)) {
-                if (manifold.distance < 0) {
-                    return true;
-                }
-            } else if (manifold.axis.equals(tileBody.collisionAxis.scale(-1))) {
-                if (manifold.distance > 0) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+            return canSkipAxis(tileBody.collisionAxis, manifold);
+        } else {
+            return false;
         }
-        return false;
+    }
+
+    private static boolean canSkipAxis(BitPoint axis, Manifold manifold) {
+        if (manifold.axis.equals(axis)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -84,7 +72,7 @@ public class CollisionUtilities {
                     float resolutionPosition = body.aabb.xy.plus(cumulativeResolution).plus(manifold.result).dot(manifold.axis);
                     float lastPosition = body.lastPosition.dot(manifold.axis);
 
-                    if (CollisionUtilities.isTileValidCollision((TileBody) otherBody, manifold, resolutionPosition, lastPosition)) {
+                    if (CollisionUtilities.canTileCollisionCanBeSkipped((TileBody) otherBody, manifold, resolutionPosition, lastPosition)) {
                         continue;
                     }
                 }

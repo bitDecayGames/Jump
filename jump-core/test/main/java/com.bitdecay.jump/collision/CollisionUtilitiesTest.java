@@ -6,8 +6,7 @@ import com.bitdecay.jump.level.Direction;
 import com.bitdecay.jump.level.TileBody;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Monday on 6/19/2016.
@@ -128,13 +127,49 @@ public class CollisionUtilitiesTest {
     }
 
     @Test
-    public void testTileValidCollision() {
+    public void testTileCollisionCanBeSkippedNValue() {
         TileBody body = new TileBody();
-        Manifold manifold = new Manifold(new BitPoint(), 0);
+        body.nValue = 15;
+        Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
         float resPosition = 0;
-        float lastPosition = 0;
-        CollisionUtilities.isTileValidCollision(body, manifold, resPosition, lastPosition);
+        float lastPosition = 1;
+        boolean canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
+        assertTrue(canBeSkipped);
+    }
 
-        // TODO: Finish this test out (This method is kinda hard to test)
+    @Test
+    public void testTileCollisionCanBeSkippedLastPosition() {
+        TileBody body = new TileBody();
+        Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
+        float resPosition = 0;
+        float lastPosition = -1;
+        boolean canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
+        assertTrue(canBeSkipped);
+    }
+
+    @Test
+    public void testTileCollisionsCanBeSkippedWithoutAxis() {
+        TileBody body = new TileBody();
+        Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
+        float resPosition = 0;
+        float lastPosition = 1;
+        boolean canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
+        assertFalse(canBeSkipped);
+    }
+
+    @Test
+    public void testTileCollisionsCanBeSkippedWithAxis() {
+        TileBody body = new TileBody();
+        body.collisionAxis = new BitPoint(1, 0);
+        Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
+        float resPosition = 0;
+        float lastPosition = 1;
+
+        boolean canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
+        assertFalse(canBeSkipped);
+
+        body.collisionAxis = new BitPoint(-1, 0);
+        canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
+        assertTrue(canBeSkipped);
     }
 }
