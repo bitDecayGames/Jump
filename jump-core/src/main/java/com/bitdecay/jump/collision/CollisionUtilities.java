@@ -19,39 +19,29 @@ public class CollisionUtilities {
         return bodyAttempt.plus(cumulativeResolution).minus(otherBodyAttempt);
     }
 
-    public static boolean isTileValidCollision(TileBody otherBody, Manifold manifold, float resolutionPosition, float lastPosition) {
-        if (!axisValidForNValue(manifold, otherBody)) {
-            return true;
-        }
-
-        if (MathUtils.opposing(resolutionPosition, lastPosition)) {
-            // all collisions should push a body backwards according to the
-            // relative movement. If it's not doing so, it's not a valid case.
-            return true;
-        }
-
-        if (manifold.distance < 0 && (lastPosition > resolutionPosition)) {
+    public static boolean canTileCollisionCanBeSkipped(TileBody tileBody, Manifold manifold, float resolutionPosition, float lastPosition) {
+        if (!axisValidForNValue(manifold, tileBody)) {
             return true;
         }
 
         if (manifold.distance > 0 && lastPosition < resolutionPosition) {
+            // The actor was already inside the tileBody before it moved, so we can skip it.
             return true;
         }
 
-        if (otherBody.collisionAxis != null) {
-            if (manifold.axis.equals(otherBody.collisionAxis)) {
-                if (manifold.distance < 0) {
-                    return true;
-                }
-            } else if (manifold.axis.equals(otherBody.collisionAxis.scale(-1))) {
-                if (manifold.distance > 0) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+        if (tileBody.collisionAxis != null) {
+            return canSkipAxis(tileBody.collisionAxis, manifold);
+        } else {
+            return false;
         }
-        return false;
+    }
+
+    private static boolean canSkipAxis(BitPoint axis, Manifold manifold) {
+        if (manifold.axis.equals(axis)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -82,7 +72,7 @@ public class CollisionUtilities {
                     float resolutionPosition = body.aabb.xy.plus(cumulativeResolution).plus(manifold.result).dot(manifold.axis);
                     float lastPosition = body.lastPosition.dot(manifold.axis);
 
-                    if (CollisionUtilities.isTileValidCollision((TileBody) otherBody, manifold, resolutionPosition, lastPosition)) {
+                    if (CollisionUtilities.canTileCollisionCanBeSkipped((TileBody) otherBody, manifold, resolutionPosition, lastPosition)) {
                         continue;
                     }
                 }
@@ -107,15 +97,6 @@ public class CollisionUtilities {
             return true;
         } else {
             return false;
-        }
-    }
-
-    public static Manifold getSolutionCandidate(BitBody body, BitBody against, BitPoint cumulativeResolution) {
-        ManifoldBundle bundle = ProjectionUtilities.getBundle(body.aabb.copyOf().translate(cumulativeResolution), against.aabb);
-        if (bundle == null) {
-            return GeomUtils.ZERO_MANIFOLD;
-        } else {
-            return solve(bundle, body, against, cumulativeResolution);
         }
     }
 }

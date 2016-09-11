@@ -1,7 +1,6 @@
 package com.bitdecay.jump.properties;
 
 import com.bitdecay.jump.annotation.ValueRange;
-import com.bitdecay.jump.geom.BitPoint;
 
 /**
  * Property object defining the configuration of a given body.
@@ -9,7 +8,15 @@ import com.bitdecay.jump.geom.BitPoint;
  */
 public class BitBodyProperties {
 
+    /**
+     * Flag to specify whether or not this body participates in collision resolution
+     */
     public boolean collides = true;
+
+    /**
+     * Flag to specify whether or not this body should fire contact events
+     */
+    public boolean firesListenerEvents = true;
 
     /**
      * Flag dictating if conflicting resolutions will deactive the body
