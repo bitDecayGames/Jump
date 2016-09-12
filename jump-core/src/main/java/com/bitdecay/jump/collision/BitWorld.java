@@ -378,7 +378,13 @@ public class BitWorld {
 	}
 
 	private void fireNewContacts(BitBody body) {
+		if (!body.props.firesListenerEvents) {
+			return;
+		}
 		for (BitBody other : newContacts.get(body)) {
+			if (!other.props.firesListenerEvents) {
+				continue;
+			}
 			for (ContactListener listener : body.getContactListeners()) {
 				listener.contactStarted(other);
 			}
@@ -388,8 +394,8 @@ public class BitWorld {
 					listener.contactStarted(body);
 				}
 			}
+			ongoingContacts.get(body).add(other);
 		}
-		ongoingContacts.get(body).addAll(newContacts.get(body));
 		newContacts.get(body).clear();
 	}
 
