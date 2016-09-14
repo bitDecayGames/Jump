@@ -40,7 +40,8 @@ public class LevelBuilder {
 	public HashMap<String, TriggerObject> triggers;
 
 	public int tileSize;
-	public TileObject[][] grid;
+	public Layers layers;
+//	public TileObject[][] grid;
 	public BitPointInt gridOffset;
 	public DebugSpawnObject debugSpawn;
 
@@ -55,7 +56,8 @@ public class LevelBuilder {
 	public void newLevel(int tileSize) {
 		this.tileSize = tileSize;
 		listeners = new ArrayList<>();
-		grid = new TileObject[START_SIZE][START_SIZE];
+		layers = new Layers(START_SIZE);
+//		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
 		otherObjects = new HashMap<>();
@@ -70,7 +72,8 @@ public class LevelBuilder {
 
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
-		grid = level.gridObjects;
+		layers = level.layers;
+//		grid = level.gridObjects;
 		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		otherObjects = new HashMap<>();
@@ -145,7 +148,7 @@ public class LevelBuilder {
 	 * and rebuild the grid such that it does fit.
 	 * @param obj The new tile object being added to the builder
      */
-	private void ensureGridFitsObject(TileObject obj) {
+	private TileObject[][] ensureGridFitsObject(TileObject[][] grid, TileObject obj) {
 		BitPointInt objCell = getOccupiedCell(obj);
 		while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
 			TileObject[][] newGrid = new TileObject[grid.length * 2][grid[0].length * 2];
@@ -163,22 +166,25 @@ public class LevelBuilder {
 			// rebuild our objCell now that we changed the grid
 			objCell = getOccupiedCell(obj);
 		}
+		return grid;
 	}
 
 	Set<LevelObject> addObjects(Set<LevelObject> objects) {
+		TileObject[][] grid = layers.getLayer(0);
+
 		Set<LevelObject> removedObjects = new HashSet<>();
 		int gridX;
 		int gridY;
 		for (LevelObject obj : objects) {
 			if (obj instanceof TileObject) {
-				ensureGridFitsObject((TileObject)obj);
+				grid = ensureGridFitsObject(grid, (TileObject)obj);
 				gridX = (int) ((obj.rect.xy.x / tileSize) - gridOffset.x);
 				gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
 				if (grid[gridX][gridY] != null) {
 					removedObjects.add(grid[gridX][gridY]);
 				}
 				grid[gridX][gridY] = (TileObject)obj;
-				updateNeighbors(gridX, gridY);
+				updateNeighbors(grid, gridX, gridY);
 			} else if (obj instanceof TriggerObject) {
 				triggers.put(obj.uuid, (TriggerObject) obj);
 			} else if (obj instanceof DebugSpawnObject) {
@@ -187,6 +193,7 @@ public class LevelBuilder {
 				otherObjects.put(obj.uuid, obj);
 			}
 		}
+		layers.addLayer(0, grid);
 		fireToListeners();
 		return removedObjects;
 	}
@@ -219,6 +226,8 @@ public class LevelBuilder {
 			}
 		});
 		// clean out our grid
+		TileObject[][] grid = layers.getLayer(0);
+
 		int gridX;
 		int gridY;
 		for (LevelObject obj : objects) {
@@ -226,7 +235,7 @@ public class LevelBuilder {
 			gridY = (int) ((obj.rect.xy.y / tileSize) - gridOffset.y);
 			if (ArrayUtilities.onGrid(grid, gridX, gridY) && grid[gridX][gridY] == obj) {
 				grid[gridX][gridY] = null;
-				updateNeighbors(gridX, gridY);
+				updateNeighbors(grid, gridX, gridY);
 			}
 		}
 		fireToListeners();
@@ -256,17 +265,18 @@ public class LevelBuilder {
 	}
 
 	@VisibleForTesting
-	void updateNeighbors(int x, int y) {
-		updateOwnNeighborValues(x, y);
+	void updateNeighbors(TileObject[][] grid, int x, int y) {
+		updateOwnNeighborValues(grid, x, y);
 
-		updateOwnNeighborValues(x + 1, y);
-		updateOwnNeighborValues(x - 1, y);
-		updateOwnNeighborValues(x, y + 1);
-		updateOwnNeighborValues(x, y - 1);
+		updateOwnNeighborValues(grid, x + 1, y);
+		updateOwnNeighborValues(grid, x - 1, y);
+		updateOwnNeighborValues(grid, x, y + 1);
+		updateOwnNeighborValues(grid, x, y - 1);
 	}
 
 	@VisibleForTesting
-	void updateOwnNeighborValues(int x, int y) {
+	void updateOwnNeighborValues(TileObject[][] grid, int x, int y) {
+
 		if (!ArrayUtilities.onGrid(grid, x, y) || grid[x][y] == null) {
 			return;
 		}
@@ -346,6 +356,8 @@ public class LevelBuilder {
 				return;
 			}
 		});
+
+		TileObject[][] grid = layers.getLayer(0);
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				LevelObject object = grid[x][y];
@@ -389,6 +401,8 @@ public class LevelBuilder {
 			}
 		});
 		if (includeGridObjects) {
+			TileObject[][] grid = layers.getLayer(0);
+
 			for (int x = 0; x < grid.length; x++) {
 				for (int y = 0; y < grid[0].length; y++) {
 					LevelObject object = grid[x][y];
@@ -422,8 +436,12 @@ public class LevelBuilder {
 		BitPointInt min = getMinXY();
 		BitPointInt max = getMaxXY();
 
+		TileObject[][] currentGrid = layers.getLayer(0);
+
+		Layers optimizedLayers = new Layers();
 		TileObject[][] optimizedGrid;
 		BitPointInt optimizedOffset = new BitPointInt();
+
 
 		if (min.x == Integer.MAX_VALUE || min.y == Integer.MAX_VALUE || max.x == Integer.MIN_VALUE || max.y == Integer.MIN_VALUE) {
 			min.x = -START_SIZE/2 * tileSize;
@@ -437,16 +455,17 @@ public class LevelBuilder {
 			int yOffset = (min.y / tileSize) - gridOffset.y;
 			for (int x = 0; x < optimizedGrid.length; x++) {
 				for (int y = 0; y < optimizedGrid[0].length; y++) {
-					optimizedGrid[x][y] = grid[x+xOffset][y+yOffset];
+					optimizedGrid[x][y] = currentGrid[x+xOffset][y+yOffset];
 				}
 			}
 		}
+		optimizedLayers.addLayer(0, optimizedGrid);
 
 		optimizedOffset.x = (min.x / tileSize);
 		optimizedOffset.y = (min.y / tileSize);
 
 		optimizedLevel.gridOffset = optimizedOffset;
-		optimizedLevel.gridObjects = optimizedGrid;
+		optimizedLevel.layers = optimizedLayers;
 		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
 		optimizedLevel.triggers = new ArrayList<>(triggers.values());
 		optimizedLevel.debugSpawn = debugSpawn;
@@ -456,6 +475,8 @@ public class LevelBuilder {
 	}
 
 	private BitPointInt getMinXY() {
+		TileObject[][] grid = layers.getLayer(0);
+
 		int xmin = Integer.MAX_VALUE;
 		int ymin = Integer.MAX_VALUE;
 		for (int x = 0; x < grid.length; x++) {
@@ -471,6 +492,8 @@ public class LevelBuilder {
 	}
 
 	private BitPointInt getMaxXY() {
+		TileObject[][] grid = layers.getLayer(0);
+
 		int xmax = Integer.MIN_VALUE;
 		int ymax = Integer.MIN_VALUE;
 		for (int x = 0; x < grid.length; x++) {

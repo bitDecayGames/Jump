@@ -529,12 +529,14 @@ public class BitWorld {
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
 		if (tileSize <= 0) {
-			System.err.println("Tile Size cannot be less than 1");
-			new Exception().printStackTrace();
-			System.exit(-2);
+			throw new RuntimeException("Tile Size cannot be less than 1");
 		}
 		gridOffset = level.gridOffset;
-		parseGrid(level.gridObjects);
+		if (level.layers.hasLayer(0)) {
+			parseGrid(level.layers.getLayer(0));
+		} else {
+			throw new RuntimeException("Level must contain layer 0 for the world to load");
+		}
 	}
 
 	public void setGrid(TileObject[][] grid) {

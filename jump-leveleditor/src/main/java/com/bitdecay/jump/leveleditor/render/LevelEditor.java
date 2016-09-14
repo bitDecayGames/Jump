@@ -151,8 +151,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void setCamToOrigin() {
         int tileSize = curLevelBuilder.tileSize;
-        float width = curLevelBuilder.grid.length * tileSize;
-        float height = curLevelBuilder.grid[0].length * tileSize;
+        float width = curLevelBuilder.layers.getLayer(0).length * tileSize;
+        float height = curLevelBuilder.layers.getLayer(0)[0].length * tileSize;
 
         BitPoint center = new BitPoint(0, 0).plus(curLevelBuilder.gridOffset.x * tileSize, curLevelBuilder.gridOffset.y * tileSize);
         center.add(width / 2, height / 2);
@@ -253,8 +253,10 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
             shaper.circle(curLevelBuilder.debugSpawn.rect.xy.x, curLevelBuilder.debugSpawn.rect.xy.y, DebugSpawnObject.INNER_DIAMETER);
         }
         shaper.setColor(BitColors.GRID_SIZE);
+
+        TileObject[][] grid = curLevelBuilder.layers.getLayer(0);
         shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
-                curLevelBuilder.grid.length * curLevelBuilder.tileSize, curLevelBuilder.grid[0].length * curLevelBuilder.tileSize);
+                grid.length * curLevelBuilder.tileSize, grid[0].length * curLevelBuilder.tileSize);
         shaper.end();
 
 

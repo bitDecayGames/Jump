@@ -1,13 +1,15 @@
 package com.bitdecay.jump.level;
 
-import java.util.*;
-
 import com.bitdecay.jump.geom.BitPointInt;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Level {
 	public int tileSize = 16;
-	public TileObject[][] gridObjects;
+	public Layers layers;
+//	public TileObject[][] gridObjects;
 	public List<LevelObject> otherObjects;
 	public List<TriggerObject> triggers;
 	/**
@@ -27,7 +29,9 @@ public class Level {
 
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
-		gridObjects = new TileObject[10][10];
+		layers = new Layers();
+		layers.addLayer(0, new TileObject[10][10]);
+//		gridObjects = new TileObject[10][10];
 		otherObjects = new ArrayList<>();
 		triggers = new ArrayList<>();
 
@@ -36,7 +40,8 @@ public class Level {
 
 	public Level(Level level) {
 		tileSize = level.tileSize;
-		gridObjects = level.gridObjects;
+		layers = new Layers();
+//		gridObjects = level.gridObjects;
 		otherObjects = level.otherObjects;
 		triggers = level.triggers;
 		gridOffset = level.gridOffset;

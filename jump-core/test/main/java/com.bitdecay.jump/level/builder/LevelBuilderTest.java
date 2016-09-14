@@ -23,8 +23,8 @@ public class LevelBuilderTest {
     public void testConstruction() {
         LevelBuilder test = new LevelBuilder(32);
         assertEquals("Tile size should be 32", 32, test.tileSize, 0);
-        assertEquals("Grid x should start at start_size", LevelBuilder.START_SIZE, test.grid.length, 0);
-        assertEquals("Grid y should start at start_size", LevelBuilder.START_SIZE, test.grid[0].length, 0);
+        assertEquals("Grid x should start at start_size", LevelBuilder.START_SIZE, test.layers.getLayer(0).length, 0);
+        assertEquals("Grid y should start at start_size", LevelBuilder.START_SIZE, test.layers.getLayer(0)[0].length, 0);
 
         assertEquals("Grid offset x should be centered in start grid", new BitPointInt(-(LevelBuilder.START_SIZE/2), -(LevelBuilder.START_SIZE/2)), test.gridOffset);
     }
@@ -124,13 +124,13 @@ public class LevelBuilderTest {
         // should result in 1 block created
         test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), true, 0);
 
-        assertTrue("Block 1 created", test.grid[1][0] != null);
-        assertTrue("Block 2 created", test.grid[1][1] != null);
-        assertTrue("Block 3 created", test.grid[2][1] != null);
+        assertTrue("Block 1 created", test.layers.getLayer(0)[1][0] != null);
+        assertTrue("Block 2 created", test.layers.getLayer(0)[1][1] != null);
+        assertTrue("Block 3 created", test.layers.getLayer(0)[2][1] != null);
 
-        assertFalse("Block 1 is not one-way", test.grid[1][0].oneway);
-        assertFalse("Block 2 is not one-way", test.grid[1][1].oneway);
-        assertTrue("Block 3 is one-way", test.grid[2][1].oneway);
+        assertFalse("Block 1 is not one-way", test.layers.getLayer(0)[1][0].oneway);
+        assertFalse("Block 2 is not one-way", test.layers.getLayer(0)[1][1].oneway);
+        assertTrue("Block 3 is one-way", test.layers.getLayer(0)[2][1].oneway);
     }
 
     @Test
@@ -144,13 +144,13 @@ public class LevelBuilderTest {
         // should result in 1 block created
         test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
 
-        assertTrue("Block 1 created", test.grid[1][0] != null);
-        assertTrue("Block 2 created", test.grid[1][1] != null);
-        assertTrue("Block 3 created", test.grid[2][1] != null);
+        assertTrue("Block 1 created", test.layers.getLayer(0)[1][0] != null);
+        assertTrue("Block 2 created", test.layers.getLayer(0)[1][1] != null);
+        assertTrue("Block 3 created", test.layers.getLayer(0)[2][1] != null);
 
-        TileObject tile1 = test.grid[1][0];
-        TileObject tile2 = test.grid[1][1];
-        TileObject tile3 = test.grid[2][1];
+        TileObject tile1 = test.layers.getLayer(0)[1][0];
+        TileObject tile2 = test.layers.getLayer(0)[1][1];
+        TileObject tile3 = test.layers.getLayer(0)[2][1];
 
         // should result in 2 blocks created
         test.createLevelObject(new BitPointInt(32, 0), new BitPointInt(64, 64), false, 0);
@@ -158,9 +158,9 @@ public class LevelBuilderTest {
         // should result in 1 block created
         test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
 
-        assertNotEquals("Block 1 overridden", tile1.uuid, test.grid[1][0].uuid);
-        assertNotEquals("Block 2 overridden", tile2.uuid, test.grid[1][1].uuid);
-        assertNotEquals("Block 3 overridden", tile3.uuid, test.grid[2][1].uuid);
+        assertNotEquals("Block 1 overridden", tile1.uuid, test.layers.getLayer(0)[1][0].uuid);
+        assertNotEquals("Block 2 overridden", tile2.uuid, test.layers.getLayer(0)[1][1].uuid);
+        assertNotEquals("Block 3 overridden", tile3.uuid, test.layers.getLayer(0)[2][1].uuid);
     }
 
     @Test
@@ -217,19 +217,19 @@ public class LevelBuilderTest {
         // should result in 1 block created
         test.createLevelObject(new BitPointInt(64, 32), new BitPointInt(96, 64), false, 0);
 
-        assertTrue("Block 1 created", test.grid[1][0] != null);
-        assertTrue("Block 2 created", test.grid[1][1] != null);
-        assertTrue("Block 3 created", test.grid[2][1] != null);
+        assertTrue("Block 1 created", test.layers.getLayer(0)[1][0] != null);
+        assertTrue("Block 2 created", test.layers.getLayer(0)[1][1] != null);
+        assertTrue("Block 3 created", test.layers.getLayer(0)[2][1] != null);
 
-        TileObject tile1 = test.grid[1][0];
-        TileObject tile2 = test.grid[1][1];
-        TileObject tile3 = test.grid[2][1];
+        TileObject tile1 = test.layers.getLayer(0)[1][0];
+        TileObject tile2 = test.layers.getLayer(0)[1][1];
+        TileObject tile3 = test.layers.getLayer(0)[2][1];
 
         test.removeObjects(new HashSet<>(Arrays.asList(tile1, tile2, tile3)));
 
-        assertTrue("Block 1 removed", test.grid[1][0] == null);
-        assertTrue("Block 2 removed", test.grid[1][1] == null);
-        assertTrue("Block 3 removed", test.grid[2][1] == null);
+        assertTrue("Block 1 removed", test.layers.getLayer(0)[1][0] == null);
+        assertTrue("Block 2 removed", test.layers.getLayer(0)[1][1] == null);
+        assertTrue("Block 3 removed", test.layers.getLayer(0)[2][1] == null);
     }
 
     @Test
@@ -289,92 +289,92 @@ public class LevelBuilderTest {
     public void testUpdateNeighbors() {
         LevelBuilder builder = new LevelBuilder(10);
 
-        builder.grid = new TileObject[3][3];
+        builder.layers.addLayer(0, new TileObject[3][3]);
 
         // center
-        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[1][1] = new TileObject(new BitRectangle(), false, 0);
 
         // sides
-        builder.grid[1][0] = new TileObject(new BitRectangle(), false, 0);
-        builder.grid[0][1] = new TileObject(new BitRectangle(), false, 0);
-        builder.grid[2][1] = new TileObject(new BitRectangle(), false, 0);
-        builder.grid[1][2] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[1][0] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[0][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[2][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[1][2] = new TileObject(new BitRectangle(), false, 0);
 
-        assertTrue(builder.grid[1][0].collideNValue == 0);
-        assertTrue(builder.grid[0][1].collideNValue == 0);
-        assertTrue(builder.grid[2][1].collideNValue == 0);
-        assertTrue(builder.grid[1][2].collideNValue == 0);
+        assertTrue(builder.layers.getLayer(0)[1][0].collideNValue == 0);
+        assertTrue(builder.layers.getLayer(0)[0][1].collideNValue == 0);
+        assertTrue(builder.layers.getLayer(0)[2][1].collideNValue == 0);
+        assertTrue(builder.layers.getLayer(0)[1][2].collideNValue == 0);
 
-        builder.updateNeighbors(1, 1);
+        builder.updateNeighbors(builder.layers.getLayer(0), 1, 1);
 
-        assertTrue(builder.grid[1][0].collideNValue == Direction.UP);
-        assertTrue(builder.grid[0][1].collideNValue == Direction.RIGHT);
-        assertTrue(builder.grid[2][1].collideNValue == Direction.LEFT);
-        assertTrue(builder.grid[1][2].collideNValue == Direction.DOWN);
+        assertTrue(builder.layers.getLayer(0)[1][0].collideNValue == Direction.UP);
+        assertTrue(builder.layers.getLayer(0)[0][1].collideNValue == Direction.RIGHT);
+        assertTrue(builder.layers.getLayer(0)[2][1].collideNValue == Direction.LEFT);
+        assertTrue(builder.layers.getLayer(0)[1][2].collideNValue == Direction.DOWN);
     }
 
     @Test
     public void testUpdateOwnNeighborValues() {
         LevelBuilder builder = new LevelBuilder(10);
 
-        builder.grid = new TileObject[3][3];
+        builder.layers.addLayer(0, new TileObject[3][3]);
 
         // center
-        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[1][1] = new TileObject(new BitRectangle(), false, 0);
 
         // sides
-        builder.grid[1][0] = new TileObject(new BitRectangle(), false, 0); // bottom
-        builder.grid[0][1] = new TileObject(new BitRectangle(), false, 0); // left
-        builder.grid[2][1] = new TileObject(new BitRectangle(), false, 0); // right
-        builder.grid[1][2] = new TileObject(new BitRectangle(), false, 0); // bottom
+        builder.layers.getLayer(0)[1][0] = new TileObject(new BitRectangle(), false, 0); // bottom
+        builder.layers.getLayer(0)[0][1] = new TileObject(new BitRectangle(), false, 0); // left
+        builder.layers.getLayer(0)[2][1] = new TileObject(new BitRectangle(), false, 0); // right
+        builder.layers.getLayer(0)[1][2] = new TileObject(new BitRectangle(), false, 0); // bottom
 
-        assertTrue("Neighbor value is zero on new tile", builder.grid[1][1].collideNValue == 0);
-        assertTrue("Neighbor render is zero on new tile", builder.grid[1][1].renderNValue == 0);
+        assertTrue("Neighbor value is zero on new tile", builder.layers.getLayer(0)[1][1].collideNValue == 0);
+        assertTrue("Neighbor render is zero on new tile", builder.layers.getLayer(0)[1][1].renderNValue == 0);
 
-        builder.updateOwnNeighborValues(1, 1);
+        builder.updateOwnNeighborValues(builder.layers.getLayer(0), 1, 1);
 
-        assertTrue("All neighbors are set", builder.grid[1][1].collideNValue == Direction.ALL);
-        assertTrue("All neighbors are set", builder.grid[1][1].renderNValue == Direction.ALL);
+        assertTrue("All neighbors are set", builder.layers.getLayer(0)[1][1].collideNValue == Direction.ALL);
+        assertTrue("All neighbors are set", builder.layers.getLayer(0)[1][1].renderNValue == Direction.ALL);
 
-        builder.grid[1][0] = null; // bottom
-        builder.grid[0][1] = null; // left
+        builder.layers.getLayer(0)[1][0] = null; // bottom
+        builder.layers.getLayer(0)[0][1] = null; // left
 
-        builder.updateOwnNeighborValues(1, 1);
+        builder.updateOwnNeighborValues(builder.layers.getLayer(0), 1, 1);
 
-        assertTrue("Up and right set", builder.grid[1][1].collideNValue == (Direction.UP | Direction.RIGHT));
-        assertTrue("Up and right set", builder.grid[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
+        assertTrue("Up and right set", builder.layers.getLayer(0)[1][1].collideNValue == (Direction.UP | Direction.RIGHT));
+        assertTrue("Up and right set", builder.layers.getLayer(0)[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
     }
 
     @Test
     public void testUpdateOwnNeighborValuesOneWay() {
         LevelBuilder builder = new LevelBuilder(10);
 
-        builder.grid = new TileObject[3][3];
+        builder.layers.addLayer(0, new TileObject[3][3]);
 
         // center
-        builder.grid[1][1] = new TileObject(new BitRectangle(), false, 0);
+        builder.layers.getLayer(0)[1][1] = new TileObject(new BitRectangle(), false, 0);
 
         // sides
-        builder.grid[1][0] = new TileObject(new BitRectangle(), true, 0); // bottom
-        builder.grid[0][1] = new TileObject(new BitRectangle(), true, 0); // left
-        builder.grid[2][1] = new TileObject(new BitRectangle(), true, 0); // right
-        builder.grid[1][2] = new TileObject(new BitRectangle(), true, 0); // bottom
+        builder.layers.getLayer(0)[1][0] = new TileObject(new BitRectangle(), true, 0); // bottom
+        builder.layers.getLayer(0)[0][1] = new TileObject(new BitRectangle(), true, 0); // left
+        builder.layers.getLayer(0)[2][1] = new TileObject(new BitRectangle(), true, 0); // right
+        builder.layers.getLayer(0)[1][2] = new TileObject(new BitRectangle(), true, 0); // bottom
 
-        assertTrue("Neighbor value is zero on new tile", builder.grid[1][1].collideNValue == 0);
-        assertTrue("Neighbor render is zero on new tile", builder.grid[1][1].renderNValue == 0);
+        assertTrue("Neighbor value is zero on new tile", builder.layers.getLayer(0)[1][1].collideNValue == 0);
+        assertTrue("Neighbor render is zero on new tile", builder.layers.getLayer(0)[1][1].renderNValue == 0);
 
-        builder.updateOwnNeighborValues(1, 1);
+        builder.updateOwnNeighborValues(builder.layers.getLayer(0), 1, 1);
 
-        assertTrue("All neighbors are set", builder.grid[1][1].collideNValue == 0);
-        assertTrue("All neighbors are set", builder.grid[1][1].renderNValue == Direction.ALL);
+        assertTrue("All neighbors are set", builder.layers.getLayer(0)[1][1].collideNValue == 0);
+        assertTrue("All neighbors are set", builder.layers.getLayer(0)[1][1].renderNValue == Direction.ALL);
 
-        builder.grid[1][0] = null; // bottom
-        builder.grid[0][1] = null; // left
+        builder.layers.getLayer(0)[1][0] = null; // bottom
+        builder.layers.getLayer(0)[0][1] = null; // left
 
-        builder.updateOwnNeighborValues(1, 1);
+        builder.updateOwnNeighborValues(builder.layers.getLayer(0), 1, 1);
 
-        assertTrue("Up and right set", builder.grid[1][1].collideNValue == 0);
-        assertTrue("Up and right set", builder.grid[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
+        assertTrue("Up and right set", builder.layers.getLayer(0)[1][1].collideNValue == 0);
+        assertTrue("Up and right set", builder.layers.getLayer(0)[1][1].renderNValue == (Direction.UP | Direction.RIGHT));
     }
 
     @Test
