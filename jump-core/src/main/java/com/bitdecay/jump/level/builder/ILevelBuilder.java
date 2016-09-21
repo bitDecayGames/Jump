@@ -17,9 +17,9 @@ public interface ILevelBuilder {
 
     void selectObject(BitPointInt startPoint, boolean shift);
 
-    void selectObject(BitPointInt point, boolean b, boolean b1);
+    void selectObject(BitPointInt point, boolean addToSelection, boolean selectGridObjects);
 
-    void selectObjects(BitRectangle rect, boolean shift);
+    void selectObjects(BitRectangle rect, boolean addToSelection);
 
     void deleteSelected();
 

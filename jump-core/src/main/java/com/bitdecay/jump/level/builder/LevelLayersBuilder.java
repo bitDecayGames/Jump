@@ -59,6 +59,8 @@ public class LevelLayersBuilder implements ILevelBuilder {
 
         actions = new LinkedList<>();
         lastAction = -1;
+
+        fireToListeners();
     }
 
     @Override
@@ -225,15 +227,6 @@ public class LevelLayersBuilder implements ILevelBuilder {
         return new BitPointInt(xmax, ymax);
     }
 
-    public void addListener(LevelBuilderListener levelListener) {
-        listeners.add(levelListener);
-        fireToListeners();
-    }
-
-    public void removeListener(LevelBuilderListener levelListener) {
-        listeners.remove(levelListener);
-    }
-
     public void setDebugSpawn(DebugSpawnObject spawn) {
         activeLevel.debugSpawn = spawn;
         fireToListeners();
@@ -247,41 +240,105 @@ public class LevelLayersBuilder implements ILevelBuilder {
         return actions.size() > 0 && lastAction > -1;
     }
 
-    public void fireToListeners() {
-        Level optimizedLevel = optimizeLevel();
-        for (LevelBuilderListener listener : listeners) {
-            listener.levelChanged(optimizedLevel);
+    @Override
+    public void selectObject(BitPointInt point, boolean add) {
+        selectObject(point, add, true);
+    }
+
+    @Override
+    public void selectObject(BitPointInt point, boolean add, boolean includeGridObjects) {
+        if (!add) {
+            selection.clear();
+        }
+        SingleLayer layer = activeLevel.layers.getLayer(activeLayer);
+
+        layer.triggers.values().forEach(trigger -> {
+            if (trigger.selects(point)) {
+                selection.add(trigger);
+                return;
+            }
+        });
+        layer.otherObjects.values().forEach(object -> {
+            if (object.selects(point)) {
+                selection.add(object);
+                return;
+            }
+        });
+        if (includeGridObjects) {
+            TileObject[][] grid = layer.grid;
+
+            for (int x = 0; x < grid.length; x++) {
+                for (int y = 0; y < grid[0].length; y++) {
+                    LevelObject object = grid[x][y];
+                    if (object != null && object.selects(point)) {
+                        selection.add(object);
+                        return;
+                    }
+                }
+            }
         }
     }
 
     @Override
-    public void selectObject(BitPointInt startPoint, boolean shift) {
+    public void selectObjects(BitRectangle selectionArea, boolean addToSelection) {
+        if (!addToSelection) {
+            selection.clear();
+        }
+        SingleLayer layer = activeLevel.layers.getLayer(activeLayer);
+        layer.triggers.values().forEach(trigger -> {
+            if (trigger.selects(selectionArea)) {
+                selection.add(trigger);
+                return;
+            }
+        });
 
-    }
-
-    @Override
-    public void selectObject(BitPointInt point, boolean b, boolean b1) {
-
-    }
-
-    @Override
-    public void selectObjects(BitRectangle rect, boolean shift) {
-
+        TileObject[][] grid = layer.grid;
+        for (int x = 0; x < grid.length; x++) {
+            for (int y = 0; y < grid[0].length; y++) {
+                LevelObject object = grid[x][y];
+                if (object != null && selectionArea.contains(object.rect)) {
+                    selection.add(object);
+                }
+            }
+        }
+        layer.otherObjects.values().forEach(object -> {
+            if (selectionArea.contains(object.rect)) {
+                selection.add(object);
+            }
+        });
     }
 
     @Override
     public void deleteSelected() {
-
+        if (selection.size() > 0) {
+            LayeredBuilderAction deleteAction = new AddRemoveLayerAction(activeLayer, Collections.emptyList(), selection);
+            pushAction(deleteAction);
+            selection.clear();
+        }
     }
 
     @Override
     public List<LevelObject> getSelection() {
-        return null;
+        return selection;
     }
 
     public Level getLevel() {
         return activeLevel;
     }
 
+    public void addListener(LevelBuilderListener levelListener) {
+        listeners.add(levelListener);
+        fireToListeners();
+    }
 
+    public void removeListener(LevelBuilderListener levelListener) {
+        listeners.remove(levelListener);
+    }
+
+    public void fireToListeners() {
+        Level optimizedLevel = optimizeLevel();
+        for (LevelBuilderListener listener : listeners) {
+            listener.levelChanged(optimizedLevel);
+        }
+    }
 }

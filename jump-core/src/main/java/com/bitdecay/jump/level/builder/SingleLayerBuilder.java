@@ -39,14 +39,10 @@ public class SingleLayerBuilder {
                 LayerUtilities.updateNeighbors(layer, gridX, gridY);
             } else if (obj instanceof TriggerObject) {
                 layer.triggers.put(obj.uuid, (TriggerObject) obj);
-            } else if (obj instanceof DebugSpawnObject) {
-//                debugSpawn = (DebugSpawnObject) obj;
             } else {
                 layer.otherObjects.put(obj.uuid, obj);
             }
         }
-//        layer.addLayer(0, grid);
-//        fireToListeners();
         return removedObjects;
     }
 
@@ -57,9 +53,6 @@ public class SingleLayerBuilder {
         additionalRemovedObjects.addAll(objects);
         // clean up out of other newObjects
         objects.forEach(object -> {
-//            if (object == debugSpawn) {
-//                debugSpawn = null;
-//            }
             layer.otherObjects.remove(object.uuid);
             layer.triggers.remove(object.uuid);
 
@@ -87,7 +80,6 @@ public class SingleLayerBuilder {
                 LayerUtilities.updateNeighbors(layer, gridX, gridY);
             }
         }
-//        fireToListeners();
         return additionalRemovedObjects;
     }
 }

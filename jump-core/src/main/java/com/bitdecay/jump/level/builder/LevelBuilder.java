@@ -356,8 +356,8 @@ public class LevelBuilder implements ILevelBuilder {
 		return selection;
 	}
 
-	public void selectObjects(BitRectangle selectionArea, boolean add) {
-		if (!add) {
+	public void selectObjects(BitRectangle selectionArea, boolean addToSelection) {
+		if (!addToSelection) {
 			selection.clear();
 		}
 		triggers.values().forEach(trigger -> {
