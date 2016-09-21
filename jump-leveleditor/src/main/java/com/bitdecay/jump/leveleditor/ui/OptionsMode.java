@@ -21,7 +21,7 @@ public enum OptionsMode {
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/tiles.png"),
     ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/oneway.png"),
     THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, null, "icons/theme.png"),
-    LAYERS("LevelLayers", ModeType.MOUSE, MenuPage.LayersMenu, null, "icons/layers.png"),
+    LAYERS("Layers", ModeType.MOUSE, MenuPage.LayersMenu, null, "icons/layers.png"),
 
     // Modes that are a one-time action
     DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, null, "icons/object.png"),
