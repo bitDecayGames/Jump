@@ -13,6 +13,8 @@ import java.util.List;
  * Created by Monday on 9/20/2016.
  */
 public interface ILevelBuilder {
+    void setActiveLayer(int number);
+
     void createObject(LevelObject object);
 
     void selectObject(BitPointInt startPoint, boolean shift);

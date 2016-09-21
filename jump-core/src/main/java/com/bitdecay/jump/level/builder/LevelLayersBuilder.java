@@ -68,8 +68,19 @@ public class LevelLayersBuilder implements ILevelBuilder {
         return activeLevel.tileSize;
     }
 
+    @Override
     public void setActiveLayer(int layer) {
         activeLayer = layer;
+
+        if (!activeLevel.layers.hasLayer(layer)) {
+            SingleLayer newLayer = new SingleLayer(activeLevel.layers.cellSize);
+            activeLevel.layers.addLayer(layer, newLayer);
+        }
+
+        if (!layerBuilders.containsKey(layer)) {
+            SingleLayerBuilder newLayerBuilder = new SingleLayerBuilder(activeLevel.layers, layer);
+            layerBuilders.put(layer, newLayerBuilder);
+        }
     }
 
     public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {

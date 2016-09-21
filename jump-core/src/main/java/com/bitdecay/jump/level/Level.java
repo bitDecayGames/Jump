@@ -8,8 +8,6 @@ import java.util.List;
 public class Level {
 	public int tileSize = 16;
 	public LevelLayers layers;
-//	public TileObject[][] gridObjects;
-//	public List<LevelObject> otherObjects;
 	public List<TriggerObject> triggers;
 	/**
 	 * This offset is to compensate from how far from the origin the 2d array

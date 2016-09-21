@@ -23,6 +23,8 @@ public class LevelLayers {
     public LevelLayers(int cellSize) {
         this.cellSize = cellSize;
         layers.put(0, new SingleLayer(cellSize));
+        int halfGrid = layers.get(0).grid.length / 2;
+        gridOffset.set(-halfGrid, -halfGrid);
     }
 
     public void addLayer(int index, SingleLayer grid) {
