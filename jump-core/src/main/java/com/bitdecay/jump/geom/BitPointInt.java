@@ -21,6 +21,11 @@ public class BitPointInt {
 		return new BitPointInt(Math.floorDiv(x, xDiv), Math.floorDiv(y, yDiv));
 	}
 
+	public void set(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof BitPointInt) {

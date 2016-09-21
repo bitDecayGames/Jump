@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Level {
 	public int tileSize = 16;
-	public Layers layers;
+	public LevelLayers layers;
 //	public TileObject[][] gridObjects;
 	public List<LevelObject> otherObjects;
 	public List<TriggerObject> triggers;
@@ -29,8 +29,8 @@ public class Level {
 
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
-		layers = new Layers();
-		layers.addLayer(0, new TileObject[10][10]);
+		layers = new LevelLayers(unitSize);
+//		layers.addLayer(0, new TileObject[10][10]);
 //		gridObjects = new TileObject[10][10];
 		otherObjects = new ArrayList<>();
 		triggers = new ArrayList<>();
@@ -40,7 +40,7 @@ public class Level {
 
 	public Level(Level level) {
 		tileSize = level.tileSize;
-		layers = new Layers();
+		layers = new LevelLayers();
 //		gridObjects = level.gridObjects;
 		otherObjects = level.otherObjects;
 		triggers = level.triggers;

@@ -13,7 +13,7 @@ import java.util.*;
  * <br>
  * If this causes performance issues down the road with larger levels, we will
  * figure out what to do then. For now it works quite well.
- * 
+ *
  * @author Monday
  */
 public class LevelBuilder {
@@ -40,7 +40,7 @@ public class LevelBuilder {
 	public HashMap<String, TriggerObject> triggers;
 
 	public int tileSize;
-	public Layers layers;
+	public LevelLayers layers;
 //	public TileObject[][] grid;
 	public BitPointInt gridOffset;
 	public DebugSpawnObject debugSpawn;
@@ -56,7 +56,7 @@ public class LevelBuilder {
 	public void newLevel(int tileSize) {
 		this.tileSize = tileSize;
 		listeners = new ArrayList<>();
-		layers = new Layers(START_SIZE);
+		layers = new LevelLayers(START_SIZE);
 //		grid = new TileObject[START_SIZE][START_SIZE];
 		gridOffset = new BitPointInt(-(START_SIZE / 2), -(START_SIZE / 2));
 		selection = new ArrayList<>();
@@ -170,7 +170,7 @@ public class LevelBuilder {
 	}
 
 	Set<LevelObject> addObjects(Set<LevelObject> objects) {
-		TileObject[][] grid = layers.getLayer(0);
+		TileObject[][] grid = layers.getLayer(0).grid;
 
 		Set<LevelObject> removedObjects = new HashSet<>();
 		int gridX;
@@ -193,7 +193,7 @@ public class LevelBuilder {
 				otherObjects.put(obj.uuid, obj);
 			}
 		}
-		layers.addLayer(0, grid);
+//		layers.addLayer(0, grid);
 		fireToListeners();
 		return removedObjects;
 	}
@@ -226,7 +226,7 @@ public class LevelBuilder {
 			}
 		});
 		// clean out our grid
-		TileObject[][] grid = layers.getLayer(0);
+		TileObject[][] grid = layers.getLayer(0).grid;
 
 		int gridX;
 		int gridY;
@@ -357,7 +357,7 @@ public class LevelBuilder {
 			}
 		});
 
-		TileObject[][] grid = layers.getLayer(0);
+		TileObject[][] grid = layers.getLayer(0).grid;
 		for (int x = 0; x < grid.length; x++) {
 			for (int y = 0; y < grid[0].length; y++) {
 				LevelObject object = grid[x][y];
@@ -401,7 +401,7 @@ public class LevelBuilder {
 			}
 		});
 		if (includeGridObjects) {
-			TileObject[][] grid = layers.getLayer(0);
+			TileObject[][] grid = layers.getLayer(0).grid;
 
 			for (int x = 0; x < grid.length; x++) {
 				for (int y = 0; y < grid[0].length; y++) {
@@ -436,9 +436,9 @@ public class LevelBuilder {
 		BitPointInt min = getMinXY();
 		BitPointInt max = getMaxXY();
 
-		TileObject[][] currentGrid = layers.getLayer(0);
+		TileObject[][] currentGrid = layers.getLayer(0).grid;
 
-		Layers optimizedLayers = new Layers();
+		LevelLayers optimizedLayers = new LevelLayers();
 		TileObject[][] optimizedGrid;
 		BitPointInt optimizedOffset = new BitPointInt();
 
@@ -459,7 +459,7 @@ public class LevelBuilder {
 				}
 			}
 		}
-		optimizedLayers.addLayer(0, optimizedGrid);
+//		optimizedLayers.addLayer(0, optimizedGrid);
 
 		optimizedOffset.x = (min.x / tileSize);
 		optimizedOffset.y = (min.y / tileSize);
@@ -475,7 +475,7 @@ public class LevelBuilder {
 	}
 
 	private BitPointInt getMinXY() {
-		TileObject[][] grid = layers.getLayer(0);
+		TileObject[][] grid = layers.getLayer(0).grid;
 
 		int xmin = Integer.MAX_VALUE;
 		int ymin = Integer.MAX_VALUE;
@@ -492,7 +492,7 @@ public class LevelBuilder {
 	}
 
 	private BitPointInt getMaxXY() {
-		TileObject[][] grid = layers.getLayer(0);
+		TileObject[][] grid = layers.getLayer(0).grid;
 
 		int xmax = Integer.MIN_VALUE;
 		int ymax = Integer.MIN_VALUE;

@@ -533,7 +533,7 @@ public class BitWorld {
 		}
 		gridOffset = level.gridOffset;
 		if (level.layers.hasLayer(0)) {
-			parseGrid(level.layers.getLayer(0));
+			parseGrid(level.layers.getLayer(0).grid);
 		} else {
 			throw new RuntimeException("Level must contain layer 0 for the world to load");
 		}
