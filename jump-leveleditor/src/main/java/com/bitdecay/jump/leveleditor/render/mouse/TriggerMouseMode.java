@@ -25,8 +25,9 @@ public class TriggerMouseMode extends BaseMouseMode {
         if (MouseButton.LEFT.equals(button)) {
             builder.selectObject(point, false, false);
             if (builder.getSelection().size() > 0) {
-                if (builder.getSelection().get(0) instanceof DebugSpawnObject) {
-                    // this is not a valid trigger object
+                if (builder.getSelection().get(0) instanceof DebugSpawnObject ||
+                        builder.getSelection().get(0) instanceof TriggerObject) {
+                    // these are not valid trigger objects
                     return;
                 }
                 if (triggerer == null) {

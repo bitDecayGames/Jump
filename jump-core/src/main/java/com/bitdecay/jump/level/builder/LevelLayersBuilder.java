@@ -78,7 +78,7 @@ public class LevelLayersBuilder implements ILevelBuilder {
         GeomUtils.splitRect(new BitRectangle(startPoint, endPoint), activeLevel.layers.cellSize, activeLevel.layers.cellSize).forEach(rect ->
                 newObjects.add(new TileObject(rect, oneway, material)));
         if (newObjects.size() > 0) {
-            LayeredBuilderAction createLevelObjectAction = new AddRemoveLayerAction(activeLayer, newObjects, Collections.emptyList());
+            LayeredBuilderAction createLevelObjectAction = new AddRemoveAction(activeLayer, newObjects, Collections.emptyList());
             pushAction(createLevelObjectAction);
         }
     }
@@ -90,7 +90,7 @@ public class LevelLayersBuilder implements ILevelBuilder {
 
     public void createObject(LevelObject object) {
         try {
-            LayeredBuilderAction createObjectAction = new AddRemoveLayerAction(activeLayer, Arrays.asList(object), Collections.emptyList());
+            LayeredBuilderAction createObjectAction = new AddRemoveAction(activeLayer, Arrays.asList(object), Collections.emptyList());
             pushAction(createObjectAction);
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,7 +311,7 @@ public class LevelLayersBuilder implements ILevelBuilder {
     @Override
     public void deleteSelected() {
         if (selection.size() > 0) {
-            LayeredBuilderAction deleteAction = new AddRemoveLayerAction(activeLayer, Collections.emptyList(), selection);
+            LayeredBuilderAction deleteAction = new AddRemoveAction(activeLayer, Collections.emptyList(), selection);
             pushAction(deleteAction);
             selection.clear();
         }

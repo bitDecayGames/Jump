@@ -46,7 +46,7 @@ public class LibGDXLevelRenderer {
         });
         if (RenderLayer.TRIGGERS.enabled) {
             builder.getLevel().layers.getLayer(0).triggers.values().forEach(trigger -> {
-                if (GeomUtils.intersection(view, trigger.rect) != null) {
+                if (GeomUtils.areRectsTouching(view, trigger.rect)) {
                     renderer.setColor(BitColors.SELECTABLE);
                     LevelObject actor =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggerer.uuid);
                     LevelObject victim =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggeree.uuid);
