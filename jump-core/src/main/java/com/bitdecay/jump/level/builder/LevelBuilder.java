@@ -16,7 +16,7 @@ import java.util.*;
  *
  * @author Monday
  */
-public class LevelBuilder {
+public class LevelBuilder implements ILevelBuilder {
 	@VisibleForTesting
 	static final int START_SIZE = 20;
 
@@ -74,14 +74,14 @@ public class LevelBuilder {
 		tileSize = level.tileSize;
 		layers = level.layers;
 //		grid = level.gridObjects;
-		gridOffset = level.gridOffset;
+//		gridOffset = level.gridOffset;
 		tileSize = level.tileSize;
 		otherObjects = new HashMap<>();
-		if (level.otherObjects != null) {
-			for (LevelObject object : level.otherObjects) {
-				otherObjects.put(object.uuid, object);
-			}
-		}
+//		if (level.otherObjects != null) {
+//			for (LevelObject object : level.otherObjects) {
+//				otherObjects.put(object.uuid, object);
+//			}
+//		}
 		triggers = new HashMap<>();
 		if (level.triggers != null) {
 			for (TriggerObject trigger : level.triggers) {
@@ -117,6 +117,11 @@ public class LevelBuilder {
 			BuilderAction createLevelObjectAction = new AddRemoveAction(newObjects, Collections.emptyList());
 			pushAction(createLevelObjectAction);
 		}
+	}
+
+	@Override
+	public int getCellSize() {
+		return tileSize;
 	}
 
 	public void createObject(LevelObject object) {
@@ -346,6 +351,11 @@ public class LevelBuilder {
 		}
 	}
 
+	@Override
+	public List<LevelObject> getSelection() {
+		return selection;
+	}
+
 	public void selectObjects(BitRectangle selectionArea, boolean add) {
 		if (!add) {
 			selection.clear();
@@ -438,7 +448,7 @@ public class LevelBuilder {
 
 		TileObject[][] currentGrid = layers.getLayer(0).grid;
 
-		LevelLayers optimizedLayers = new LevelLayers();
+		LevelLayers optimizedLayers = new LevelLayers(tileSize);
 		TileObject[][] optimizedGrid;
 		BitPointInt optimizedOffset = new BitPointInt();
 
@@ -464,9 +474,9 @@ public class LevelBuilder {
 		optimizedOffset.x = (min.x / tileSize);
 		optimizedOffset.y = (min.y / tileSize);
 
-		optimizedLevel.gridOffset = optimizedOffset;
+//		optimizedLevel.gridOffset = optimizedOffset;
 		optimizedLevel.layers = optimizedLayers;
-		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
+//		optimizedLevel.otherObjects = new ArrayList<>(otherObjects.values());
 		optimizedLevel.triggers = new ArrayList<>(triggers.values());
 		optimizedLevel.debugSpawn = debugSpawn;
 		optimizedLevel.theme = theme;
@@ -520,6 +530,11 @@ public class LevelBuilder {
 	public void setDebugSpawn(DebugSpawnObject spawn) {
 		debugSpawn = spawn;
 		fireToListeners();
+	}
+
+	@Override
+	public Level getLevel() {
+		return optimizeLevel();
 	}
 
 	public void setTheme(int id) {

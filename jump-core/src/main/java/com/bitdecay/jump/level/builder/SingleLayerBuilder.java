@@ -1,8 +1,10 @@
 package com.bitdecay.jump.level.builder;
 
+import com.bitdecay.jump.geom.ArrayUtilities;
 import com.bitdecay.jump.level.*;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -27,9 +29,9 @@ public class SingleLayerBuilder {
         int gridY;
         for (LevelObject obj : objects) {
             if (obj instanceof TileObject) {
-                LayerUtilities.ensureGridFitsObject(layer, (TileObject)obj);
-                gridX = (int) ((obj.rect.xy.x / parent.cellSize) - layer.gridOffset.x);
-                gridY = (int) ((obj.rect.xy.y / parent.cellSize) - layer.gridOffset.y);
+                LayerUtilities.ensureGridFitsObject(parent, layer, (TileObject)obj);
+                gridX = (int) ((obj.rect.xy.x / parent.cellSize) - parent.gridOffset.x);
+                gridY = (int) ((obj.rect.xy.y / parent.cellSize) - parent.gridOffset.y);
                 if (layer.grid[gridX][gridY] != null) {
                     removedObjects.add(layer.grid[gridX][gridY]);
                 }
@@ -46,5 +48,46 @@ public class SingleLayerBuilder {
 //        layer.addLayer(0, grid);
 //        fireToListeners();
         return removedObjects;
+    }
+
+    public Set<LevelObject> removeObjects(Set<LevelObject> objects) {
+        SingleLayer layer = parent.getLayer(editingLayer);
+
+        Set<LevelObject> additionalRemovedObjects = new HashSet<>();
+        additionalRemovedObjects.addAll(objects);
+        // clean up out of other newObjects
+        objects.forEach(object -> {
+//            if (object == debugSpawn) {
+//                debugSpawn = null;
+//            }
+            layer.otherObjects.remove(object.uuid);
+            layer.triggers.remove(object.uuid);
+
+            Iterator<TriggerObject> iterator = layer.triggers.values().iterator();
+            TriggerObject trigger;
+            while (iterator.hasNext()) {
+                trigger = iterator.next();
+                if (trigger.triggerer.uuid.equals(object.uuid) || trigger.triggeree.uuid.equals(object.uuid)) {
+                    // need to remove the trigger.
+                    iterator.remove();
+                    additionalRemovedObjects.add(trigger);
+                }
+            }
+        });
+        // clean out our grid
+        TileObject[][] grid = layer.grid;
+
+        int gridX;
+        int gridY;
+        for (LevelObject obj : objects) {
+            gridX = (int) ((obj.rect.xy.x / parent.cellSize) - parent.gridOffset.x);
+            gridY = (int) ((obj.rect.xy.y / parent.cellSize) - parent.gridOffset.y);
+            if (ArrayUtilities.onGrid(grid, gridX, gridY) && grid[gridX][gridY] == obj) {
+                grid[gridX][gridY] = null;
+                LayerUtilities.updateNeighbors(layer, gridX, gridY);
+            }
+        }
+//        fireToListeners();
+        return additionalRemovedObjects;
     }
 }

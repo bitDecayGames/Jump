@@ -27,18 +27,18 @@ public class AddRemoveLayerAction implements LayeredBuilderAction {
          *when performing our actions, it may be the case that adding an option removes something where the
          * object was placed (specifically in when drawing out tiles)
          */
-//        collateralRemoves = builder.addObjects(createObjects);
+        collateralRemoves = builder.layerBuilders.get(layer).addObjects(createObjects);
 
         /*
          * Removing some objects may also remove attached data such as triggers tied to that object
          */
-//        removeObjects.addAll(builder.removeObjects(removeObjects));
+        removeObjects.addAll(builder.layerBuilders.get(layer).removeObjects(removeObjects));
     }
 
 //    @Override
     public void undo(LevelLayersBuilder builder) {
-//        builder.removeObjects(createObjects);
-//        builder.addObjects(removeObjects);
-//        builder.addObjects(collateralRemoves);
+        builder.layerBuilders.get(layer).removeObjects(createObjects);
+        builder.layerBuilders.get(layer).addObjects(removeObjects);
+        builder.layerBuilders.get(layer).addObjects(collateralRemoves);
     }
 }

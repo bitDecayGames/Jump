@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.utils.EditorKeys;
@@ -19,7 +19,7 @@ public class DropObjectMode extends BaseMouseMode{
 
     private LevelEditor editor;
 
-    public DropObjectMode(LevelBuilder builder, LevelEditor editor) {
+    public DropObjectMode(ILevelBuilder builder, LevelEditor editor) {
         super(builder);
         this.editor = editor;
     }
@@ -52,7 +52,7 @@ public class DropObjectMode extends BaseMouseMode{
         if (EditorKeys.DISABLE_SNAP.isPressed()) {
             currentLocation = new BitPointInt(point.x, point.y);
         } else {
-            currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+            currentLocation = GeomUtils.snap(point.x - builder.getCellSize()/2, point.y - builder.getCellSize()/2, builder.getCellSize(), 0, 0);
         }
     }
 
@@ -62,7 +62,7 @@ public class DropObjectMode extends BaseMouseMode{
         if (EditorKeys.DISABLE_SNAP.isPressed()) {
             currentLocation = new BitPointInt(point.x, point.y);
         } else {
-            currentLocation = GeomUtils.snap(point.x - builder.tileSize / 2, point.y - builder.tileSize / 2, builder.tileSize, 0, 0);
+            currentLocation = GeomUtils.snap(point.x - builder.getCellSize() / 2, point.y - builder.getCellSize() / 2, builder.getCellSize(), 0, 0);
         }
     }
 

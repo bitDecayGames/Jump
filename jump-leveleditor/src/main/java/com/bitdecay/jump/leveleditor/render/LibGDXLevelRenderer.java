@@ -9,7 +9,7 @@ import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.LevelObject;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class LibGDXLevelRenderer {
         renderer = new ShapeRenderer();
     }
 
-    public void render(LevelBuilder builder, OrthographicCamera cam) {
+    public void render(ILevelBuilder builder, OrthographicCamera cam) {
         BitRectangle view = new BitRectangle(cam.position.x, cam.position.y, cam.viewportWidth * cam.zoom, cam.viewportHeight * cam.zoom);
         view.translate(-view.width / 2, -view.height / 2);
         renderer.setProjectionMatrix(cam.combined);
@@ -34,7 +34,7 @@ public class LibGDXLevelRenderer {
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         batch.setColor(1, 1, 1, .3f);
-        builder.otherObjects.values().forEach(object -> {
+        builder.getLevel().layers.getLayer(0).otherObjects.values().forEach(object -> {
             if (GeomUtils.intersection(view, object.rect) != null) {
                 if (object instanceof RenderableLevelObject) {
                     batch.draw(((RenderableLevelObject) object).texture(), object.rect.xy.x, object.rect.xy.y, object.rect.width, object.rect.height);
@@ -45,11 +45,11 @@ public class LibGDXLevelRenderer {
             }
         });
         if (RenderLayer.TRIGGERS.enabled) {
-            builder.triggers.values().forEach(trigger -> {
+            builder.getLevel().layers.getLayer(0).triggers.values().forEach(trigger -> {
                 if (GeomUtils.intersection(view, trigger.rect) != null) {
                     renderer.setColor(BitColors.SELECTABLE);
-                    LevelObject actor = builder.otherObjects.get(trigger.triggerer.uuid);
-                    LevelObject victim = builder.otherObjects.get(trigger.triggeree.uuid);
+                    LevelObject actor =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggerer.uuid);
+                    LevelObject victim =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggeree.uuid);
 
                     BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
                     float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());

@@ -20,7 +20,7 @@ import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.level.*;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.LevelLayersBuilder;
 import com.bitdecay.jump.leveleditor.EditorHook;
 import com.bitdecay.jump.leveleditor.render.mouse.*;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -81,7 +81,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public SpriteBatch spriteBatch;
     public SpriteBatch uiBatch;
 
-    public LevelBuilder curLevelBuilder;
+    public LevelLayersBuilder curLevelBuilder;
     public String currentFile = "";
 
     private OrthographicCamera camera;
@@ -117,7 +117,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
         font.setColor(BitColors.UI_TEXT);
 
-        curLevelBuilder = new LevelBuilder(TILE_SIZE);
+        curLevelBuilder = new LevelLayersBuilder(TILE_SIZE);
         curLevelBuilder.addListener(hooker);
 
         camera = new OrthographicCamera(1600, 900);
@@ -135,7 +135,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         mouseModes.put(OptionsMode.TRIGGERS, new TriggerMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.SET_SPAWN, new SpawnMouseMode(curLevelBuilder));
         mouseModes.put(OptionsMode.DROP_OBJECT, new DropObjectMode(curLevelBuilder, this));
-        mouseModes.put(OptionsMode.DROP_SIZABLE_OBJECT, new DropSizedObjectMode(curLevelBuilder, this));
+        mouseModes.put(OptionsMode.DROP_SIZABLE_OBJECT, new DropSizedObjectMode(curLevelBuilder));
         mouseModes.put(OptionsMode.PROPERTY_INSPECT, new PropertyInspectMode(curLevelBuilder, this));
 
         mouseMode = mouseModes.get(OptionsMode.SELECT);
@@ -150,11 +150,11 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     }
 
     private void setCamToOrigin() {
-        int tileSize = curLevelBuilder.tileSize;
-        float width = curLevelBuilder.layers.getLayer(0).grid.length * tileSize;
-        float height = curLevelBuilder.layers.getLayer(0).grid[0].length * tileSize;
+        int tileSize = curLevelBuilder.getCellSize();
+        float width = curLevelBuilder.getLevel().layers.getLayer(0).grid.length * tileSize;
+        float height = curLevelBuilder.getLevel().layers.getLayer(0).grid[0].length * tileSize;
 
-        BitPoint center = new BitPoint(0, 0).plus(curLevelBuilder.gridOffset.x * tileSize, curLevelBuilder.gridOffset.y * tileSize);
+        BitPoint center = new BitPoint(0, 0).plus(curLevelBuilder.getLevel().layers.gridOffset.x * tileSize, curLevelBuilder.getLevel().layers.gridOffset.y * tileSize);
         center.add(width / 2, height / 2);
         camera.position.set(center.x, center.y, 0);
 
@@ -246,17 +246,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
                 shaper.rect(obj.rect.xy.x, obj.rect.xy.y, obj.rect.width, obj.rect.height);
             }
         }
-        if (curLevelBuilder.debugSpawn != null) {
+        if (curLevelBuilder.getLevel().debugSpawn != null) {
             shaper.setColor(BitColors.SPAWN_OUTER);
-            shaper.circle(curLevelBuilder.debugSpawn.rect.xy.x, curLevelBuilder.debugSpawn.rect.xy.y, DebugSpawnObject.OUTER_DIAMETER);
+            shaper.circle(curLevelBuilder.getLevel().debugSpawn.rect.xy.x, curLevelBuilder.getLevel().debugSpawn.rect.xy.y, DebugSpawnObject.OUTER_DIAMETER);
             shaper.setColor(BitColors.SPAWN);
-            shaper.circle(curLevelBuilder.debugSpawn.rect.xy.x, curLevelBuilder.debugSpawn.rect.xy.y, DebugSpawnObject.INNER_DIAMETER);
+            shaper.circle(curLevelBuilder.getLevel().debugSpawn.rect.xy.x, curLevelBuilder.getLevel().debugSpawn.rect.xy.y, DebugSpawnObject.INNER_DIAMETER);
         }
         shaper.setColor(BitColors.GRID_SIZE);
 
-        TileObject[][] grid = curLevelBuilder.layers.getLayer(0).grid;
-        shaper.rect(curLevelBuilder.gridOffset.x * curLevelBuilder.tileSize, curLevelBuilder.gridOffset.y * curLevelBuilder.tileSize,
-                grid.length * curLevelBuilder.tileSize, grid[0].length * curLevelBuilder.tileSize);
+        TileObject[][] grid = curLevelBuilder.getLevel().layers.getLayer(0).grid;
+        shaper.rect(curLevelBuilder.getLevel().layers.gridOffset.x * curLevelBuilder.getCellSize(), curLevelBuilder.getLevel().layers.gridOffset.y * curLevelBuilder.getCellSize(),
+                grid.length * curLevelBuilder.getCellSize(), grid[0].length * curLevelBuilder.getCellSize());
         shaper.end();
 
 
@@ -317,15 +317,15 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
         shaper.begin(ShapeType.Line);
         shaper.setColor(BitColors.GRID_LINES);
-        Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.tileSize, -curLevelBuilder.tileSize, 0));
-        BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.tileSize);
-        Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.tileSize, 0));
-        BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), curLevelBuilder.tileSize);
+        Vector3 topLeft = camera.unproject(new Vector3(-curLevelBuilder.getCellSize(), -curLevelBuilder.getCellSize(), 0));
+        BitPointInt snapTopLeft = GeomUtils.snap(new BitPointInt((int) topLeft.x, (int) topLeft.y), curLevelBuilder.getCellSize());
+        Vector3 bottomRight = camera.unproject(new Vector3(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() + 2 * curLevelBuilder.getCellSize(), 0));
+        BitPointInt snapBottomRight = GeomUtils.snap(new BitPointInt((int) bottomRight.x, (int) bottomRight.y), curLevelBuilder.getCellSize());
 
-        for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += curLevelBuilder.tileSize) {
+        for (float x = snapTopLeft.x; x <= snapBottomRight.x; x += curLevelBuilder.getCellSize()) {
             shaper.line(x, snapTopLeft.y, x, snapBottomRight.y);
         }
-        for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += curLevelBuilder.tileSize) {
+        for (float y = snapBottomRight.y; y <= snapTopLeft.y; y += curLevelBuilder.getCellSize()) {
             shaper.line(snapTopLeft.x, y, snapBottomRight.x, y);
         }
         shaper.end();
@@ -334,7 +334,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     private void drawOrigin() {
         shaper.setColor(BitColors.ORIGIN);
         shaper.begin(ShapeType.Filled);
-        shaper.circle(0, 0, camera.zoom * (curLevelBuilder.tileSize / 3));
+        shaper.circle(0, 0, camera.zoom * (curLevelBuilder.getCellSize() / 3));
         shaper.end();
     }
 

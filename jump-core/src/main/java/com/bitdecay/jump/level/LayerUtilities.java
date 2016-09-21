@@ -81,12 +81,13 @@ public class LayerUtilities {
     /**
      * Ensures the given object fits on the builder's grid. If not, resize
      * and rebuild the grid such that it does fit.
+     * @param parent
      * @param obj The new tile object being added to the builder
      */
-    public static void ensureGridFitsObject(SingleLayer layer, TileObject obj) {
+    public static void ensureGridFitsObject(LevelLayers parent, SingleLayer layer, TileObject obj) {
         TileObject[][] grid = layer.grid;
 
-        BitPointInt objCell = LayerUtilities.getOccupiedCell(layer, obj);
+        BitPointInt objCell = LayerUtilities.getOccupiedCell(parent, layer, obj);
         while (!ArrayUtilities.onGrid(grid, objCell.x, objCell.y)) {
             TileObject[][] newGrid = new TileObject[grid.length * 2][grid[0].length * 2];
             BitPointInt newCell = new BitPointInt(0, 0);
@@ -100,17 +101,17 @@ public class LayerUtilities {
             grid = newGrid;
 
             layer.grid = grid;
-            layer.gridOffset.set(layer.gridOffset.x - newGrid.length / 4, layer.gridOffset.y - newGrid[0].length / 4);
+            parent.gridOffset.set(parent.gridOffset.x - newGrid.length / 4, parent.gridOffset.y - newGrid[0].length / 4);
 
             // rebuild our objCell now that we changed the grid
-            objCell = LayerUtilities.getOccupiedCell(layer, obj);
+            objCell = LayerUtilities.getOccupiedCell(parent, layer, obj);
         }
     }
 
-    private static BitPointInt getOccupiedCell(SingleLayer layer, LevelObject obj) {
+    private static BitPointInt getOccupiedCell(LevelLayers parent, SingleLayer layer, LevelObject obj) {
         BitPointInt objCell;
         objCell = new BitPointInt((int) obj.rect.xy.x, (int) obj.rect.xy.y);
-        objCell = objCell.floorDivideBy(layer.cellSize, layer.cellSize).minus(layer.gridOffset);
+        objCell = objCell.floorDivideBy(layer.cellSize, layer.cellSize).minus(parent.gridOffset);
         return objCell;
     }
 }

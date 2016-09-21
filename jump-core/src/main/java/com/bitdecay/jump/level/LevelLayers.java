@@ -12,7 +12,7 @@ import java.util.TreeMap;
 public class LevelLayers {
     public int cellSize;
 
-    public BitPointInt gridOffset;
+    public final BitPointInt gridOffset = new BitPointInt();
 
     public SortedMap<Integer, SingleLayer> layers = new TreeMap<>();
 

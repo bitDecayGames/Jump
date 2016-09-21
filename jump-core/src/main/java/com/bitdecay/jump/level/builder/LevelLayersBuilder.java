@@ -4,6 +4,7 @@ import com.bitdecay.jump.annotation.VisibleForTesting;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
+import com.bitdecay.jump.geom.PathPoint;
 import com.bitdecay.jump.level.*;
 
 import java.util.*;
@@ -11,7 +12,7 @@ import java.util.*;
 /**
  * Created by Monday on 9/19/2016.
  */
-public class LevelLayersBuilder  {
+public class LevelLayersBuilder implements ILevelBuilder {
 
     @VisibleForTesting
     LinkedList<LayeredBuilderAction> actions = new LinkedList<>();
@@ -22,6 +23,9 @@ public class LevelLayersBuilder  {
     public List<LevelObject> selection;
 
     public Level activeLevel;
+
+    public Map<Integer, SingleLayerBuilder> layerBuilders;
+
     private int activeLayer = 0;
 
     public List<LevelBuilderListener> listeners;
@@ -31,13 +35,35 @@ public class LevelLayersBuilder  {
     }
 
     public LevelLayersBuilder(Level level) {
-        activeLevel = level;
-
+        layerBuilders = new HashMap<>();
         listeners = new ArrayList<>();
         selection = new ArrayList<>();
         actions = new LinkedList<>();
         lastAction = -1;
 
+        setLevel(level);
+    }
+
+    @Override
+    public void newLevel(int cellSize) {
+        setLevel(new Level(cellSize));
+    }
+
+    @Override
+    public void setLevel(Level level) {
+        activeLevel = level;
+
+        for (Integer layerNumber : activeLevel.layers.layers.keySet()) {
+            layerBuilders.put(layerNumber, new SingleLayerBuilder(activeLevel.layers, layerNumber));
+        }
+
+        actions = new LinkedList<>();
+        lastAction = -1;
+    }
+
+    @Override
+    public int getCellSize() {
+        return activeLevel.tileSize;
     }
 
     public void setActiveLayer(int layer) {
@@ -55,6 +81,11 @@ public class LevelLayersBuilder  {
         }
     }
 
+    @Override
+    public void createKineticObject(BitRectangle platform, List<PathPoint> pathPoints, boolean pendulum) {
+
+    }
+
     public void createObject(LevelObject object) {
         try {
             LayeredBuilderAction createObjectAction = new AddRemoveLayerAction(activeLayer, Arrays.asList(object), Collections.emptyList());
@@ -68,6 +99,7 @@ public class LevelLayersBuilder  {
         LayeredBuilderAction undoAction = popAction();
         if (undoAction != null) {
             undoAction.undo(this);
+            fireToListeners();
         }
     }
 
@@ -76,6 +108,7 @@ public class LevelLayersBuilder  {
             LayeredBuilderAction redoAction = actions.get(lastAction+1);
             redoAction.perform(this);
             lastAction++;
+            fireToListeners();
         }
     }
 
@@ -108,18 +141,18 @@ public class LevelLayersBuilder  {
         BitPointInt optimizedOffset = new BitPointInt();
         optimizedOffset.x = (min.x / activeLevel.layers.cellSize);
         optimizedOffset.y = (min.y / activeLevel.layers.cellSize);
-        optimizedLevel.gridOffset = optimizedOffset;
 
         LevelLayers optimizedLevelLayers = new LevelLayers(activeLevel.layers.cellSize);
         optimizedLevel.layers = optimizedLevelLayers;
+        optimizedLevel.layers.gridOffset.set(optimizedOffset);
 
         for (Integer layerNumber : activeLevel.layers.layers.keySet()) {
             SingleLayer currentLayer = activeLevel.layers.getLayer(layerNumber);
             TileObject[][] currentGrid = currentLayer.grid;
 
             SingleLayer optimizedLayer = new SingleLayer(activeLevel.layers.cellSize);
-            optimizedLevel.otherObjects = new ArrayList<>(currentLayer.otherObjects.values());
-            optimizedLevel.triggers = new ArrayList<>(currentLayer.triggers.values());
+            optimizedLayer.otherObjects = new HashMap<>(currentLayer.otherObjects);
+            optimizedLayer.triggers = new HashMap<>(currentLayer.triggers);
 
             TileObject[][] optimizedGrid;
 
@@ -220,4 +253,35 @@ public class LevelLayersBuilder  {
             listener.levelChanged(optimizedLevel);
         }
     }
+
+    @Override
+    public void selectObject(BitPointInt startPoint, boolean shift) {
+
+    }
+
+    @Override
+    public void selectObject(BitPointInt point, boolean b, boolean b1) {
+
+    }
+
+    @Override
+    public void selectObjects(BitRectangle rect, boolean shift) {
+
+    }
+
+    @Override
+    public void deleteSelected() {
+
+    }
+
+    @Override
+    public List<LevelObject> getSelection() {
+        return null;
+    }
+
+    public Level getLevel() {
+        return activeLevel;
+    }
+
+
 }

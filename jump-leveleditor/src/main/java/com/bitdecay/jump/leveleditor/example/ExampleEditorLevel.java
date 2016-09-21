@@ -97,7 +97,7 @@ public class ExampleEditorLevel implements EditorHook {
          * TODO: we still need to find a better way to load a grid into the world but with custom tile objects.
          * It shouldn't be hard, but it does need to be done.
         **/
-        TileObject[][] layer = currentLevel.layers.getLayer(0);
+        TileObject[][] layer = currentLevel.layers.getLayer(0).grid;
         for (int x = 0; x < layer.length; x++) {
             for (int y = 0; y < layer[0].length; y++) {
                 TileObject obj = layer[x][y];
@@ -139,7 +139,7 @@ public class ExampleEditorLevel implements EditorHook {
 
         currentLevel = level;
         world.setLevel(level);
-        world.setObjects(buildBodies(level.otherObjects));
+        world.setObjects(buildBodies(level.layers.getLayer(0).otherObjects.values()));
         world.resetTimePassed();
 
         if (level.debugSpawn != null) {

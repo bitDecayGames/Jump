@@ -26,6 +26,10 @@ public class BitPointInt {
 		this.y = y;
 	}
 
+	public void set(BitPointInt other) {
+		set(other.x, other.y);
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof BitPointInt) {

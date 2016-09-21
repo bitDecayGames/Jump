@@ -522,16 +522,12 @@ public class BitWorld {
 		return Collections.unmodifiableList(staticBodies);
 	}
 
-	public void setGridOffset(BitPointInt bodyOffset) {
-		this.gridOffset = bodyOffset;
-	}
-
 	public void setLevel(Level level) {
 		tileSize = level.tileSize;
 		if (tileSize <= 0) {
 			throw new RuntimeException("Tile Size cannot be less than 1");
 		}
-		gridOffset = level.gridOffset;
+		gridOffset = level.layers.gridOffset;
 		if (level.layers.hasLayer(0)) {
 			parseGrid(level.layers.getLayer(0).grid);
 		} else {
