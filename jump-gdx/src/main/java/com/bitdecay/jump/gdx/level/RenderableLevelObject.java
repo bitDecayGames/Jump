@@ -8,4 +8,13 @@ import com.bitdecay.jump.level.LevelObject;
  */
 public abstract class RenderableLevelObject extends LevelObject {
     public abstract TextureRegion texture();
+
+    public RenderableLevelObject newInstance(){
+        try {
+            return this.getClass().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return this;
+        }
+    }
 }
