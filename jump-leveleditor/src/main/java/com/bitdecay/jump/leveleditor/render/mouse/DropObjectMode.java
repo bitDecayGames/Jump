@@ -31,7 +31,8 @@ public class DropObjectMode extends BaseMouseMode{
 
     private void getNewReference() {
         try {
-            reference = objectClass.newInstance();
+            if (reference != null) reference = reference.newInstance();
+            else reference = objectClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
