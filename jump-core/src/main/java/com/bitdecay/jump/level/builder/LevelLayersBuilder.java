@@ -95,8 +95,16 @@ public class LevelLayersBuilder implements ILevelBuilder {
     }
 
     @Override
-    public void createKineticObject(BitRectangle platform, List<PathPoint> pathPoints, boolean pendulum) {
+    public void createKineticObject(BitRectangle rect, List<PathPoint> path, boolean pendulum) {
+        // copy the list so we don't share data between the level and the world
+        List<PathPoint> listCopy = new ArrayList<>();
+        for (PathPoint point : path) {
+            listCopy.add(new PathPoint(point.destination.minus(rect.xy.plus(rect.width / 2, rect.height / 2)), point.speed, point.stayTime));
+        }
+        PathedLevelObject kObj = new PathedLevelObject(rect.copyOf(), listCopy, pendulum);
 
+        LayeredBuilderAction createKineticAction = new AddRemoveAction(activeLayer, Arrays.asList(kObj), Collections.emptyList());
+        pushAction(createKineticAction);
     }
 
     public void createObject(LevelObject object) {
@@ -197,7 +205,8 @@ public class LevelLayersBuilder implements ILevelBuilder {
         return optimizedLevel;
     }
 
-    private BitPointInt getMinXY() {
+    @VisibleForTesting
+    BitPointInt getMinXY() {
         int xmin = Integer.MAX_VALUE;
         int ymin = Integer.MAX_VALUE;
 
@@ -218,7 +227,8 @@ public class LevelLayersBuilder implements ILevelBuilder {
         return new BitPointInt(xmin, ymin);
     }
 
-    private BitPointInt getMaxXY() {
+    @VisibleForTesting
+    BitPointInt getMaxXY() {
         int xmax = Integer.MIN_VALUE;
         int ymax = Integer.MIN_VALUE;
 
