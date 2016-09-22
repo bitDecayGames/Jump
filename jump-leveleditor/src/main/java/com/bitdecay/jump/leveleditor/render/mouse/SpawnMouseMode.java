@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.DebugSpawnObject;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class SpawnMouseMode extends BaseMouseMode {
 
-    public SpawnMouseMode(LevelBuilder builder) {
+    public SpawnMouseMode(ILevelBuilder builder) {
         super(builder);
     }
 

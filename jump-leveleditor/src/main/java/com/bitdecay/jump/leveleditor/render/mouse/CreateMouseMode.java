@@ -4,13 +4,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 public class CreateMouseMode extends BaseMouseMode {
     protected int material = 0;
 
-    public CreateMouseMode(LevelBuilder builder) {
+    public CreateMouseMode(ILevelBuilder builder) {
         super(builder);
     }
 
@@ -20,18 +20,18 @@ public class CreateMouseMode extends BaseMouseMode {
 
     @Override
     public void mouseDown(BitPointInt point, MouseButton button) {
-        startPoint = GeomUtils.snap(point, builder.tileSize);
+        startPoint = GeomUtils.snap(point, builder.getCellSize());
     }
 
     @Override
     public void mouseDragged(BitPointInt point) {
         super.mouseDragged(point);
-        endPoint = GeomUtils.snap(point, builder.tileSize);
+        endPoint = GeomUtils.snap(point, builder.getCellSize());
     }
 
     @Override
     public void mouseUpLogic(BitPointInt point, MouseButton button) {
-        endPoint = GeomUtils.snap(point, builder.tileSize);
+        endPoint = GeomUtils.snap(point, builder.getCellSize());
         if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
             builder.createLevelObject(startPoint, endPoint, false, material);
         }

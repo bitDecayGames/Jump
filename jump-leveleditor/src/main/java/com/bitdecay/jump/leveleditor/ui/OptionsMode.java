@@ -15,12 +15,13 @@ public enum OptionsMode {
     REDO("Redo", ModeType.ACTION, null, EditorKeys.REDO, "icons/redo.png"),
 
     // Modes that are toggle
-    RENDER("Layers", ModeType.MOUSE, MenuPage.RenderMenu, null, "icons/render.png"),
+    RENDER("Render", ModeType.MOUSE, MenuPage.RenderMenu, null, "icons/render.png"),
     SELECT("Select", ModeType.MOUSE, null, null, "icons/select.png"),
     MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, null, "icons/movingPlatform.png"),
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/tiles.png"),
     ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/oneway.png"),
     THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, null, "icons/theme.png"),
+    LAYERS("Layers", ModeType.MOUSE, MenuPage.LayersMenu, null, "icons/layers.png"),
 
     // Modes that are a one-time action
     DROP_OBJECT("Object", ModeType.MOUSE, MenuPage.LevelObjectMenu, null, "icons/object.png"),

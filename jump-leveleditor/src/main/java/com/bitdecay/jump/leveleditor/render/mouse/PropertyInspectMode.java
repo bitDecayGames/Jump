@@ -3,10 +3,8 @@ package com.bitdecay.jump.leveleditor.render.mouse;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
-import com.bitdecay.jump.leveleditor.render.mouse.MouseMode;
-import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.ui.PropModUI;
 import com.bitdecay.jump.leveleditor.ui.PropModUICallback;
 
@@ -19,7 +17,7 @@ public class PropertyInspectMode extends BaseMouseMode implements PropModUICallb
 
     private LevelEditor editor;
 
-    public PropertyInspectMode(LevelBuilder builder, LevelEditor editor) {
+    public PropertyInspectMode(ILevelBuilder builder, LevelEditor editor) {
         super(builder);
         this.editor = editor;
     }
@@ -27,12 +25,12 @@ public class PropertyInspectMode extends BaseMouseMode implements PropModUICallb
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         builder.selectObject(startPoint, false);
-        if (builder.selection.size() > 0) {
+        if (builder.getSelection().size() > 0) {
             if (ui != null) {
                 ui.close();
             }
-            selectedObject = builder.selection.get(0);
-            ui = new PropModUI(this, builder.selection.get(0));
+            selectedObject = builder.getSelection().get(0);
+            ui = new PropModUI(this, builder.getSelection().get(0));
             ui.setVisible(true);
         }
     }

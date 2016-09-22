@@ -50,6 +50,7 @@ public class EditorMenus {
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
         rightMenus.put(MenuPage.ThemeMenu, buildThemeMenu(hooker.getThemes()));
+        rightMenus.put(MenuPage.LayersMenu, buildLayerMenu());
         rightMenus.put(MenuPage.RenderMenu, buildRenderMenu());
         topMenuTransition(MenuPage.MainMenu);
     }
@@ -184,6 +185,60 @@ public class EditorMenus {
 
         stage.addActor(parentMenu);
         return parentMenu;
+    }
+
+    private Actor buildLayerMenu() {
+        Table menu = new Table();
+        menu.setVisible(false);
+        menu.setFillParent(true);
+        menu.setOrigin(Align.topRight);
+        menu.align(Align.right);
+
+        ButtonGroup layersGroup = new ButtonGroup();
+        layersGroup.setUncheckLast(true);
+        layersGroup.setMaxCheckCount(1);
+        layersGroup.setMinCheckCount(1);
+
+        CheckBox backgroundCheck = new CheckBox("Background", skin);
+        layersGroup.add(backgroundCheck);
+        backgroundCheck.setChecked(false);
+        backgroundCheck.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                levelEditor.setActiveLayer(-1);
+            }
+        });
+        menu.add(backgroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.row();
+
+        CheckBox middlegroundCheck = new CheckBox("Middle Ground", skin);
+        layersGroup.add(middlegroundCheck);
+
+        middlegroundCheck.setChecked(true);
+        middlegroundCheck.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                levelEditor.setActiveLayer(0);
+            }
+        });
+        menu.add(middlegroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.row();
+
+        CheckBox foregroundCheck = new CheckBox("Foreground", skin);
+        layersGroup.add(foregroundCheck);
+
+        foregroundCheck.setChecked(false);
+        foregroundCheck.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                levelEditor.setActiveLayer(1);
+            }
+        });
+        menu.add(foregroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.row();
+
+        stage.addActor(menu);
+        return menu;
     }
 
     private Actor buildThemeMenu(List<EditorIdentifierObject> themes) {

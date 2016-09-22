@@ -8,5 +8,6 @@ public enum MenuPage {
     LevelObjectMenu,
     ThemeMenu,
     TileMenu,
-    RenderMenu
+    RenderMenu,
+    LayersMenu
 }

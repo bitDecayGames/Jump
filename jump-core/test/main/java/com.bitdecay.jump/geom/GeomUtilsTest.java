@@ -177,6 +177,45 @@ public class GeomUtilsTest {
     }
 
     @Test
+    public void testNotTouching() {
+        BitRectangle left = new BitRectangle(0, 0, 10, 10);
+        BitRectangle right = new BitRectangle(20, 0, 10, 10);
+
+        assertFalse(GeomUtils.areRectsTouching(left, right));
+    }
+
+    @Test
+    public void testTouchingWithOverlap() {
+        BitRectangle left = new BitRectangle(0, 0, 10, 10);
+        BitRectangle right = new BitRectangle(5, 3, 10, 10);
+
+        assertTrue(GeomUtils.areRectsTouching(left, right));
+    }
+
+    @Test
+    public void testTouchingSharedEdge() {
+        BitRectangle left = new BitRectangle(0, 0, 10, 10);
+        BitRectangle right = new BitRectangle(10, 5, 10, 10);
+
+        assertTrue(GeomUtils.areRectsTouching(left, right));
+        assertTrue(GeomUtils.areRectsTouching(right, left));
+
+        BitRectangle top = new BitRectangle(0, 0, 10, 10);
+        BitRectangle bottom = new BitRectangle(5, 10, 10, 10);
+
+        assertTrue(GeomUtils.areRectsTouching(top, bottom));
+        assertTrue(GeomUtils.areRectsTouching(bottom, top));
+    }
+
+    @Test
+    public void testTouchingWithin() {
+        BitRectangle left = new BitRectangle(0, 0, 10, 10);
+        BitRectangle right = new BitRectangle(5, 2, 0, 6);
+
+        assertTrue(GeomUtils.areRectsTouching(left, right));
+    }
+
+    @Test
     public void testPointsToFloats() {
         List<BitPoint> points = Arrays.asList(new BitPoint(0, 0),
                 new BitPoint(5, 5), new BitPoint(10, 10), new BitPoint(15, 15));
