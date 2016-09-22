@@ -520,4 +520,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
     public void queueReload() {
         refresh.set(true);
     }
+
+    public void setActiveLayer(int layerNumber) {
+        curLevelBuilder.setActiveLayer(layerNumber);
+    }
 }
