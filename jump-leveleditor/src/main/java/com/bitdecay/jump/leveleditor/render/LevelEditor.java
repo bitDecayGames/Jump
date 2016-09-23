@@ -502,12 +502,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
     }
 
-    public void dropObject(Class<? extends RenderableLevelObject> objectClass) {
-        if (UserSizedLevelObject.class.isAssignableFrom(objectClass)) {
-            ((DropSizedObjectMode)mouseModes.get(OptionsMode.DROP_SIZABLE_OBJECT)).setObject(objectClass);
+    public void dropObject(RenderableLevelObject modelInstance) {
+        if (UserSizedLevelObject.class.isAssignableFrom(modelInstance.getClass())) {
+            ((DropSizedObjectMode)mouseModes.get(OptionsMode.DROP_SIZABLE_OBJECT)).setObject(modelInstance);
             setMode(OptionsMode.DROP_SIZABLE_OBJECT);
         } else {
-            ((DropObjectMode) mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(objectClass);
+            ((DropObjectMode) mouseModes.get(OptionsMode.DROP_OBJECT)).setObject(modelInstance);
             setMode(OptionsMode.DROP_OBJECT);
         }
     }

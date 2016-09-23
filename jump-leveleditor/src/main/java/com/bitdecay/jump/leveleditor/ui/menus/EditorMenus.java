@@ -306,7 +306,7 @@ public class EditorMenus {
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    levelEditor.dropObject(object.getClass());
+                    levelEditor.dropObject(object);
                 }
             });
             itemTable.add(button);
