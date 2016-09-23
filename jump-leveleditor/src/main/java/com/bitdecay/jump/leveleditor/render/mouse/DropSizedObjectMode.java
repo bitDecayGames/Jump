@@ -14,21 +14,21 @@ import com.bitdecay.jump.leveleditor.utils.EditorKeys;
  * Created by Monday on 10/19/2015.
  */
 public class DropSizedObjectMode extends BaseMouseMode{
-    private Class<? extends RenderableLevelObject> objectClass;
-    private RenderableLevelObject reference;
+    private RenderableLevelObject modelInstance;
+    private RenderableLevelObject instanceToDrop;
 
     public DropSizedObjectMode(ILevelBuilder builder) {
         super(builder);
     }
 
-    public void setObject(Class<? extends RenderableLevelObject> objectClass) {
-        this.objectClass = objectClass;
-        getNewReference();
+    public void setObject(RenderableLevelObject modelInstance) {
+        this.modelInstance = modelInstance;
+        getNewInstanceToDrop();
     }
 
-    private void getNewReference() {
+    private void getNewInstanceToDrop() {
         try {
-            reference = objectClass.newInstance();
+            instanceToDrop = modelInstance.getNewCopy();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -51,25 +51,25 @@ public class DropSizedObjectMode extends BaseMouseMode{
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
-        if (reference != null) {
-            reference.rect = new BitRectangle(startPoint, GeomUtils.snap(point, builder.getCellSize()));
-            builder.createObject(reference);
+        if (instanceToDrop != null) {
+            instanceToDrop.rect = new BitRectangle(startPoint, GeomUtils.snap(point, builder.getCellSize()));
+            builder.createObject(instanceToDrop);
             startPoint = null;
             endPoint = null;
             if (EditorKeys.DROP_MULTI.isPressed()) {
-                getNewReference();
+                getNewInstanceToDrop();
             } else {
-                reference = null;
+                instanceToDrop = null;
             }
         }
     }
 
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
-        if (currentLocation != null && reference != null) {
-            spriteBatch.draw(reference.texture(), currentLocation.x, currentLocation.y, reference.rect.width, reference.rect.height);
+        if (currentLocation != null && instanceToDrop != null) {
+            spriteBatch.draw(instanceToDrop.texture(), currentLocation.x, currentLocation.y, instanceToDrop.rect.width, instanceToDrop.rect.height);
             shaper.setColor(BitColors.GAME_OBJECT);
-            shaper.rect(currentLocation.x, currentLocation.y, reference.rect.width, reference.rect.height);
+            shaper.rect(currentLocation.x, currentLocation.y, instanceToDrop.rect.width, instanceToDrop.rect.height);
         }
 
         if (startPoint != null && endPoint != null) {
