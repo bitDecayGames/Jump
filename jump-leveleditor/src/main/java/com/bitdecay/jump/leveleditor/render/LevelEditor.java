@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -106,8 +105,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
      */
     private AtomicBoolean refresh = new AtomicBoolean(false);
 
-    private FPSLogger fpsLogger = new FPSLogger();
-
     public LevelEditor(EditorHook hooker) {
         this.hooker = hooker;
         setUpMenus();
@@ -169,7 +166,6 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         editorUpdates++;
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        fpsLogger.log();
         if (refresh.get()) {
             refresh.set(false);
             curLevelBuilder.fireToListeners();
@@ -278,6 +274,7 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         if (RenderLayer.UI_STRINGS.enabled) {
             font.draw(uiBatch, String.format("World time: %.2f", hooker.getWorld().getTimePassed()), 20, 20);
             font.draw(uiBatch, "Mouse Coordinates: " + getMouseCoords().toString(), 200, 20);
+            font.draw(uiBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 500, 20);
             font.draw(uiBatch, EditorKeys.HELP.getHelp(), 10, Gdx.graphics.getHeight() - 100);
         }
 
