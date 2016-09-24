@@ -17,8 +17,12 @@ public class SingleLayer {
     }
 
     public SingleLayer(int cellSize) {
+        this(cellSize, 10, 10);
+    }
+
+    public SingleLayer(int cellSize, int width, int height) {
         this.cellSize = cellSize;
-        grid = new TileObject[10][10];
+        grid = new TileObject[width][height];
         otherObjects = new HashMap<>();
         triggers = new HashMap<>();
     }

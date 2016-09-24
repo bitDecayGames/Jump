@@ -73,7 +73,7 @@ public class LevelLayersBuilder implements ILevelBuilder {
         activeLayer = layer;
 
         if (!activeLevel.layers.hasLayer(layer)) {
-            SingleLayer newLayer = new SingleLayer(activeLevel.layers.cellSize);
+            SingleLayer newLayer = new SingleLayer(activeLevel.layers.cellSize, activeLevel.layers.getLayer(0).grid.length, activeLevel.layers.getLayer(0).grid[0].length);
             activeLevel.layers.addLayer(layer, newLayer);
         }
 
