@@ -6,7 +6,7 @@ import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.level.DebugSpawnObject;
 import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.level.TriggerObject;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
 /**
@@ -16,7 +16,7 @@ public class TriggerMouseMode extends BaseMouseMode {
     private LevelObject triggerer;
     private LevelObject triggeree;
 
-    public TriggerMouseMode(LevelBuilder builder) {
+    public TriggerMouseMode(ILevelBuilder builder) {
         super(builder);
     }
 
@@ -24,22 +24,23 @@ public class TriggerMouseMode extends BaseMouseMode {
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
         if (MouseButton.LEFT.equals(button)) {
             builder.selectObject(point, false, false);
-            if (builder.selection.size() > 0) {
-                if (builder.selection.get(0) instanceof DebugSpawnObject) {
-                    // this is not a valid trigger object
+            if (builder.getSelection().size() > 0) {
+                if (builder.getSelection().get(0) instanceof DebugSpawnObject ||
+                        builder.getSelection().get(0) instanceof TriggerObject) {
+                    // these are not valid trigger objects
                     return;
                 }
                 if (triggerer == null) {
-                    triggerer = builder.selection.get(0);
+                    triggerer = builder.getSelection().get(0);
                 } else {
                     // create our trigger
-                    triggeree = builder.selection.get(0);
+                    triggeree = builder.getSelection().get(0);
                     builder.createObject(new TriggerObject(triggerer, triggeree));
                     triggerer = null;
                     triggeree = null;
                 }
             }
-            builder.selection.clear();
+            builder.getSelection().clear();
         } else if (MouseButton.RIGHT.equals(button)) {
             triggerer = null;
             triggeree = null;

@@ -6,18 +6,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.ToolAction;
 
 public abstract class BaseMouseMode implements MouseMode, ToolAction {
 
-    public LevelBuilder builder;
+    public ILevelBuilder builder;
     public BitPointInt startPoint;
     public BitPointInt endPoint;
     public BitPointInt currentLocation;
 
-    public BaseMouseMode(LevelBuilder builder) {
+    public BaseMouseMode(ILevelBuilder builder) {
         this.builder = builder;
     }
 

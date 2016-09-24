@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 import com.bitdecay.jump.leveleditor.utils.EditorKeys;
@@ -14,24 +14,24 @@ import com.bitdecay.jump.leveleditor.utils.EditorKeys;
  * Created by Monday on 10/19/2015.
  */
 public class DropObjectMode extends BaseMouseMode{
-    private Class<? extends RenderableLevelObject> objectClass;
-    private RenderableLevelObject reference;
+    private RenderableLevelObject modelInstance;
+    private RenderableLevelObject instanceToDrop;
 
     private LevelEditor editor;
 
-    public DropObjectMode(LevelBuilder builder, LevelEditor editor) {
+    public DropObjectMode(ILevelBuilder builder, LevelEditor editor) {
         super(builder);
         this.editor = editor;
     }
 
-    public void setObject(Class<? extends RenderableLevelObject> objectClass) {
-        this.objectClass = objectClass;
-        getNewReference();
+    public void setObject(RenderableLevelObject modelInstance) {
+        this.modelInstance = modelInstance;
+        getNewInstanceToDrop();
     }
 
-    private void getNewReference() {
+    private void getNewInstanceToDrop() {
         try {
-            reference = objectClass.newInstance();
+            instanceToDrop = modelInstance.getNewCopy();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,7 +42,7 @@ public class DropObjectMode extends BaseMouseMode{
         super.mouseDown(point, button);
         if (MouseButton.RIGHT.equals(button)) {
             // end our object dropping
-            reference = null;
+            instanceToDrop = null;
         }
     }
 
@@ -52,7 +52,7 @@ public class DropObjectMode extends BaseMouseMode{
         if (EditorKeys.DISABLE_SNAP.isPressed()) {
             currentLocation = new BitPointInt(point.x, point.y);
         } else {
-            currentLocation = GeomUtils.snap(point.x - builder.tileSize/2, point.y - builder.tileSize/2, builder.tileSize, 0, 0);
+            currentLocation = GeomUtils.snap(point.x - builder.getCellSize()/2, point.y - builder.getCellSize()/2, builder.getCellSize(), 0, 0);
         }
     }
 
@@ -62,29 +62,29 @@ public class DropObjectMode extends BaseMouseMode{
         if (EditorKeys.DISABLE_SNAP.isPressed()) {
             currentLocation = new BitPointInt(point.x, point.y);
         } else {
-            currentLocation = GeomUtils.snap(point.x - builder.tileSize / 2, point.y - builder.tileSize / 2, builder.tileSize, 0, 0);
+            currentLocation = GeomUtils.snap(point.x - builder.getCellSize() / 2, point.y - builder.getCellSize() / 2, builder.getCellSize(), 0, 0);
         }
     }
 
     @Override
     protected void mouseUpLogic(BitPointInt point, MouseButton button) {
-        if (reference != null) {
-            reference.rect.xy.set(currentLocation.x, currentLocation.y);
-            builder.createObject(reference);
+        if (instanceToDrop != null) {
+            instanceToDrop.rect.xy.set(currentLocation.x, currentLocation.y);
+            builder.createObject(instanceToDrop);
             if (EditorKeys.DROP_MULTI.isPressed()) {
-                getNewReference();
+                getNewInstanceToDrop();
             } else {
-                reference = null;
+                instanceToDrop = null;
             }
         }
     }
 
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
-        if (currentLocation != null && reference != null) {
-            spriteBatch.draw(reference.texture(), currentLocation.x, currentLocation.y, reference.rect.width, reference.rect.height);
+        if (currentLocation != null && instanceToDrop != null) {
+            spriteBatch.draw(instanceToDrop.texture(), currentLocation.x, currentLocation.y, instanceToDrop.rect.width, instanceToDrop.rect.height);
             shaper.setColor(BitColors.GAME_OBJECT);
-            shaper.rect(currentLocation.x, currentLocation.y, reference.rect.width, reference.rect.height);
+            shaper.rect(currentLocation.x, currentLocation.y, instanceToDrop.rect.width, instanceToDrop.rect.height);
         }
     }
 

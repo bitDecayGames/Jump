@@ -1,11 +1,11 @@
 package com.bitdecay.jump.leveleditor.render.mouse;
 
 import com.bitdecay.jump.geom.BitPointInt;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 
 public class DeleteMouseMode extends BaseMouseMode {
 
-    public DeleteMouseMode(LevelBuilder builder) {
+    public DeleteMouseMode(ILevelBuilder builder) {
         super(builder);
     }
 

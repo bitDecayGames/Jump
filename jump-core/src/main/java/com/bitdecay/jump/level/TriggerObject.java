@@ -33,7 +33,7 @@ public class TriggerObject extends LevelObject {
 
     @Override
     public boolean selects(BitPointInt point) {
-        return rect.xy.minus(point).len() < 10;
+        return rect.center().minus(point).len() < 10;
     }
 
     @Override

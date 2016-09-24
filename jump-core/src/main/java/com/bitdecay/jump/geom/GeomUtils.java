@@ -107,6 +107,19 @@ public class GeomUtils {
 		}
 	}
 
+	public static boolean areRectsTouching(BitRectangle rec1, BitRectangle rec2) {
+		float x1 = Math.max(rec1.xy.x, rec2.xy.x);
+		float y1 = Math.max(rec1.xy.y, rec2.xy.y);
+		float x2 = Math.min(rec1.xy.x + rec1.width, rec2.xy.x + rec2.width);
+		float y2 = Math.min(rec1.xy.y + rec1.height, rec2.xy.y + rec2.height);
+
+		if (x1 > x2 || y1 > y2) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	/**
 	 * Rotates a list of points counterclickby the given angle around the origin.
 	 * @see GeomUtils#rotatePoint(BitPoint, float, BitPoint)

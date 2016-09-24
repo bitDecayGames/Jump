@@ -3,7 +3,7 @@ package com.bitdecay.jump.leveleditor.render;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.*;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.mouse.BaseMouseMode;
 import com.bitdecay.jump.leveleditor.render.mouse.MouseButton;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MovingPlatformMouseMode extends BaseMouseMode {
-    private LevelBuilder builder;
 
     private BitPointInt currentPoint;
 
@@ -28,10 +27,9 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
 
     private MouseButton mouseButtonDown = null;
 
-    public MovingPlatformMouseMode(LevelBuilder builder) {
+    public MovingPlatformMouseMode(ILevelBuilder builder) {
         super(builder);
-        this.builder = builder;
-        pauseSnapSize = builder.tileSize / 4;
+        pauseSnapSize = builder.getCellSize() / 4;
     }
 
     @Override
@@ -39,7 +37,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
         if (platform != null) {
             int xOffset = platform.width % 2 == 0 ? 0: 4;
             int yOffset = platform.height % 2 == 0 ? 0 : -4;
-            currentPoint = GeomUtils.snap(point.x + xOffset, point.y + yOffset, builder.tileSize, (int) (platform.xy.x + platform.width / 2), (int) (platform.xy.y + platform.height / 2));
+            currentPoint = GeomUtils.snap(point.x + xOffset, point.y + yOffset, builder.getCellSize(), (int) (platform.xy.x + platform.width / 2), (int) (platform.xy.y + platform.height / 2));
             pausePoint = null;
         }
     }
@@ -54,7 +52,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
 
         if (MouseButton.LEFT.equals(mouseButtonDown)) {
             if (platform == null) {
-                startPoint = GeomUtils.snap(point, builder.tileSize);
+                startPoint = GeomUtils.snap(point, builder.getCellSize());
             } else {
                 startPoint = currentPoint;
             }
@@ -71,7 +69,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
             platformSpeed = (int) (lineSegment.len());
         } else {
             if (platform == null) {
-                endPoint = GeomUtils.snap(point, builder.tileSize);
+                endPoint = GeomUtils.snap(point, builder.getCellSize());
             } else {
                 pausePoint = GeomUtils.snap(point, pauseSnapSize);
                 BitPoint lineSegment = new BitPoint(pausePoint.x - startPoint.x, pausePoint.y - startPoint.y);
@@ -89,7 +87,7 @@ public class MovingPlatformMouseMode extends BaseMouseMode {
         } else {
             mouseButtonDown = null;
             if (platform == null) {
-                endPoint = GeomUtils.snap(point, builder.tileSize);
+                endPoint = GeomUtils.snap(point, builder.getCellSize());
                 if (startPoint.x != endPoint.x && startPoint.y != endPoint.y) {
                     platform = new BitRectangle(startPoint, endPoint);
                     pathPoints = new ArrayList<>();

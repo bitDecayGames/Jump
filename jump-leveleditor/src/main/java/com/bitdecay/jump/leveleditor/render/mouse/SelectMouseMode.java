@@ -8,8 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.bitdecay.jump.geom.BitPointInt;
 import com.bitdecay.jump.geom.BitRectangle;
-import com.bitdecay.jump.geom.GeomUtils;
-import com.bitdecay.jump.level.builder.LevelBuilder;
+import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
 
 /**
@@ -21,7 +20,7 @@ public class SelectMouseMode extends BaseMouseMode {
     private static final Color LINE_COLOR = new Color(0, 0, 255, 1f);
     private Texture fillTexture;
 
-    public SelectMouseMode(LevelBuilder builder) {
+    public SelectMouseMode(ILevelBuilder builder) {
         super(builder);
         fillTexture = new Texture(Gdx.files.internal(LevelEditor.EDITOR_ASSETS_FOLDER + "/fill.png"));
     }
