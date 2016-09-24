@@ -250,12 +250,12 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         }
         shaper.setColor(BitColors.GRID_SIZE);
 
-        TileObject[][] grid = curLevelBuilder.getLevel().layers.getLayer(0).grid;
-        shaper.rect(curLevelBuilder.getLevel().layers.gridOffset.x * curLevelBuilder.getCellSize(), curLevelBuilder.getLevel().layers.gridOffset.y * curLevelBuilder.getCellSize(),
-                grid.length * curLevelBuilder.getCellSize(), grid[0].length * curLevelBuilder.getCellSize());
+        for (Integer layerNumber : curLevelBuilder.getLevel().layers.layers.keySet()) {
+            TileObject[][] grid = curLevelBuilder.getLevel().layers.getLayer(layerNumber).grid;
+            shaper.rect(curLevelBuilder.getLevel().layers.gridOffset.x * curLevelBuilder.getCellSize(), curLevelBuilder.getLevel().layers.gridOffset.y * curLevelBuilder.getCellSize(),
+                    grid.length * curLevelBuilder.getCellSize(), grid[0].length * curLevelBuilder.getCellSize());
+        }
         shaper.end();
-
-
     }
 
     private void renderStrings() {
