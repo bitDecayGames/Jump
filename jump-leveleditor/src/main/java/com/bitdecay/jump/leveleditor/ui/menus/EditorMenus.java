@@ -137,7 +137,7 @@ public class EditorMenus {
             }
         });
         // If we want to set the size explicitly, do it like this
-//         itemTable.add(button).width(32).height(32);
+//        itemTable.add(button).width(32).height(32);
         itemTable.add(button);
         itemTable.row();
         Label label = new Label(mode.label, skin);
@@ -173,7 +173,7 @@ public class EditorMenus {
                     levelEditor.setMaterial(object.id);
                 }
             });
-            itemTable.add(button);
+            itemTable.add(button).width(32).height(32);
             itemTable.row();
             Label label = new Label(object.displayName, skin);
             itemTable.add(label).padBottom(20);
@@ -309,7 +309,7 @@ public class EditorMenus {
                     levelEditor.dropObject(object);
                 }
             });
-            itemTable.add(button);
+            itemTable.add(button).width(32).height(32);
             itemTable.row();
             Label label = new Label(object.name(), skin);
             itemTable.add(label).padBottom(20);
