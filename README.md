@@ -48,3 +48,6 @@ Also to note.  If your .iml files get deleted and you are now having build error
 - On the popup, say that you want to import it from existing sources and select the Maven option
 
 You should now have your project all put back together.  If it STILL didn't work, you might try starting over with a fresh workspace, importing the project from GitHub, and then copying over the file changes you made into the new workspace, and then delete the old workspace.
+
+### Maven Install
+```mvn clean source:jar install```
