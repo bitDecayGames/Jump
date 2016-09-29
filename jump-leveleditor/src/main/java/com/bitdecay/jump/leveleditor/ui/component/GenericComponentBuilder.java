@@ -11,7 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -87,7 +88,7 @@ public class GenericComponentBuilder implements ComponentBuilder {
                 first = false;
             }
             try {
-                ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getName());
+                ComponentBuilder builder = ComponentBuilderFactory.getBuilder(field.getType().getSimpleName());
                 if (builder != null) {
                     List<JComponent> components = builder.build(field, inspectedObject, callback, depth + 1);
                     if (components != null && components.size() > 0) {
