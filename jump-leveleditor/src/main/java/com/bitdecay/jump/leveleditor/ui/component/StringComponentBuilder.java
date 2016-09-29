@@ -17,8 +17,12 @@ public class StringComponentBuilder implements ComponentBuilder {
     @Override
     public List<JComponent> build(Field field, Object thing, PropModUICallback callback, int depth) throws IllegalArgumentException, IllegalAccessException {
         JTextField textField = new JTextField(4);
-        textField.setMaximumSize(new Dimension(10, 0));
-        textField.setText(field.get(thing).toString());
+        textField.setMaximumSize(new Dimension(50, 30));
+        try {
+            textField.setText(field.get(thing).toString());
+        } catch (NullPointerException e) {
+            textField.setText("");
+        }
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

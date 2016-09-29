@@ -21,11 +21,9 @@ import com.bitdecay.jump.level.Level;
 import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.level.TileObject;
 import com.bitdecay.jump.leveleditor.EditorHook;
-import com.bitdecay.jump.leveleditor.example.game.GameObject;
-import com.bitdecay.jump.leveleditor.example.game.GravityField;
-import com.bitdecay.jump.leveleditor.example.game.SecretObject;
-import com.bitdecay.jump.leveleditor.example.game.ShellObject;
+import com.bitdecay.jump.leveleditor.example.game.*;
 import com.bitdecay.jump.leveleditor.example.level.GravityLvlObject;
+import com.bitdecay.jump.leveleditor.example.level.PropertyTestLevelObject;
 import com.bitdecay.jump.leveleditor.example.level.SecretThing;
 import com.bitdecay.jump.leveleditor.example.level.ShellLevelObject;
 import com.bitdecay.jump.leveleditor.render.LevelEditor;
@@ -125,7 +123,10 @@ public class ExampleEditorLevel implements EditorHook {
                 if (builderMap.containsKey(levelObject.getClass())) {
                     GameObject newObject;
                     newObject = (GameObject) builderMap.get(levelObject.getClass()).newInstance();
-                    bodies.addAll(newObject.build(levelObject));
+                    List<BitBody> newBodies = newObject.build(levelObject);
+                    if (newBodies != null && newBodies.size() > 0) {
+                        bodies.addAll(newBodies);
+                    }
                     gameObjects.add(newObject);
                 } else {
                     bodies.add(levelObject.buildBody());
@@ -197,10 +198,12 @@ public class ExampleEditorLevel implements EditorHook {
         builderMap.put(SecretThing.class, SecretObject.class);
         builderMap.put(ShellLevelObject.class, ShellObject.class);
         builderMap.put(GravityLvlObject.class, GravityField.class);
+        builderMap.put(PropertyTestLevelObject.class, PropertyTestObject.class);
         List<RenderableLevelObject> exampleItems = new ArrayList<>();
         exampleItems.add(new SecretThing());
         exampleItems.add(new ShellLevelObject());
         exampleItems.add(new GravityLvlObject());
+        exampleItems.add(new PropertyTestLevelObject());
         return exampleItems;
     }
 }
