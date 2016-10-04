@@ -17,9 +17,12 @@ public class LevelUtilities {
 	}
 
 	public static Level loadLevel(File file) {
-
-		return null;
+		return FileUtils.loadFileAs(Level.class, file);
 	}
+
+	public static Level loadLevelFromJson(String json){
+        return FileUtils.loadFileAs(Level.class, json);
+    }
 
 	public static Level saveLevel(ILevelBuilder builder, boolean canCancel) {
 		if(canCancel) {
