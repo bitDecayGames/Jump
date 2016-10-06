@@ -14,7 +14,7 @@ public class FileUtils {
 
 	public static String lastTouchedFileName = "";
 
-	private static String lastTouchedDirectory = null;
+	private static String lastTouchedDirectory = ".";
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
@@ -129,4 +129,9 @@ public class FileUtils {
 		return null;
 	}
 
+
+	public static void setFileChooserWorkingDirectory(String workingDirectory){
+        lastTouchedDirectory = workingDirectory;
+        lastTouchedFileName = "";
+    }
 }

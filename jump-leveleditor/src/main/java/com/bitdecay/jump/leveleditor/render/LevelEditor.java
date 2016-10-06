@@ -47,6 +47,17 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
         EDITOR_ASSETS_FOLDER = ASSETS_FOLDER + "editorAssets";
     }
 
+    /**
+     * The starting path defaults to the project directory.  But if you wanted to have
+     * it start from, say, a level directory inside of your resources directory, then you
+     * would set it as "src/main/resources/level" and that would start it out at that
+     * location.
+     * @param startingDirectory path to start the file dialog at
+     */
+    public static void setFileDialogStartingDirectory(String startingDirectory){
+        FileUtils.setFileChooserWorkingDirectory(startingDirectory);
+    }
+
     public static int TILE_SIZE = 16;
 
     private EditorMenus menus;
