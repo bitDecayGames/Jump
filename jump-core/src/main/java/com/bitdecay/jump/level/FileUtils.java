@@ -89,7 +89,6 @@ public class FileUtils {
 	}
 
 	public static String loadFile() {
-        System.out.println("Load file: " + lastTouchedDirectory);
 		JFileChooser fileChooser = new JFileChooser(lastTouchedDirectory);
 		fileChooser.setApproveButtonText("Load");
 
@@ -134,6 +133,5 @@ public class FileUtils {
 	public static void setFileChooserWorkingDirectory(String workingDirectory){
         lastTouchedDirectory = workingDirectory;
         lastTouchedFileName = "";
-        System.out.println("Set last touched to: " + workingDirectory);
     }
 }
