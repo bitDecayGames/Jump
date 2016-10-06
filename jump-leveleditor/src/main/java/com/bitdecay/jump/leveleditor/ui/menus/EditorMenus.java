@@ -126,7 +126,7 @@ public class EditorMenus {
 
         menu.align(Align.topLeft);
         menu.setFillParent(true);
-        menu.setVisible(true);
+        menu.setVisible(false);
         stage.addActor(menu);
         return menu;
     }
