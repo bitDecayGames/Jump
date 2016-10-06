@@ -451,8 +451,8 @@ public class LevelEditor extends InputAdapter implements Screen, OptionsUICallba
 
     private void saveIfChanges() {
         if (curLevelBuilder.hasChanges()) {
-            JOptionPane.showMessageDialog(null, "Some changes have not been saved");
-            LevelUtilities.saveLevel(curLevelBuilder, false);
+            int result = JOptionPane.showConfirmDialog(null, "Would you like to save your unsaved changes?", null, JOptionPane.YES_NO_OPTION);
+            if(result == JOptionPane.YES_OPTION) LevelUtilities.saveLevel(curLevelBuilder, false);
         }
     }
 
