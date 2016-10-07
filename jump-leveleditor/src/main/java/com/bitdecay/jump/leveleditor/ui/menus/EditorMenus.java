@@ -41,7 +41,13 @@ public class EditorMenus {
     private Actor currentTopMenu;
     private Actor currentRightMenu;
 
+    private float WIDTH = 0;
+    private float HEIGHT = 0;
+
     public EditorMenus(LevelEditor levelEditor, EditorHook hooker) {
+        WIDTH = (float) Gdx.graphics.getWidth() / 1600f;
+        HEIGHT = (float) Gdx.graphics.getHeight() / 900f;
+
         this.levelEditor = levelEditor;
         TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/ui.atlas"));
         skin = new Skin(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/menu-skin.json"), menuAtlas);
@@ -54,6 +60,9 @@ public class EditorMenus {
         rightMenus.put(MenuPage.RenderMenu, buildRenderMenu());
         topMenuTransition(MenuPage.MainMenu);
     }
+
+    private float w(float i){ return WIDTH * i; }
+    private float h(float i){ return HEIGHT * i; }
 
     private Actor buildRenderMenu() {
         Table menu = new Table();
@@ -72,7 +81,7 @@ public class EditorMenus {
                         layer.enabled = checkBox.isChecked();
                     }
                 });
-                menu.add(checkBox).align(Align.left).padRight(10).padBottom(5);
+                menu.add(checkBox).align(Align.left).padRight(w(10)).padBottom(h(5));
                 menu.row();
             }
         }
@@ -85,14 +94,20 @@ public class EditorMenus {
         menu.setWidth(stage.getWidth());
         menu.align(Align.top);
 
+        TextureRegionDrawable background = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "ui/pixel.png"))));
+        float grayCol = 0.425f;
+        Color backgroundColor = new Color(grayCol, grayCol, grayCol, 1);
+
         Table miscActionTable = new Table();
+        miscActionTable.setColor(backgroundColor);
+        miscActionTable.setBackground(background);
 
         for (OptionsMode mode : OptionsMode.values()) {
             if (mode.type == ModeType.ACTION) {
                 buildImageButton(miscActionTable, mode, null);
             }
         }
-        menu.add(miscActionTable).padRight(40);
+        menu.add(miscActionTable).padRight(w(40));
 
         ButtonGroup toolGroup = new ButtonGroup();
         toolGroup.setUncheckLast(true);
@@ -100,6 +115,8 @@ public class EditorMenus {
         toolGroup.setMinCheckCount(1);
 
         Table toolsTable = new Table();
+        toolsTable.setColor(backgroundColor);
+        toolsTable.setBackground(background);
         for (OptionsMode mode : OptionsMode.values()) {
             if (mode.type == ModeType.MOUSE && mode.icon != null) {
                 buildImageButton(toolsTable, mode, toolGroup);
@@ -137,8 +154,7 @@ public class EditorMenus {
             }
         });
         // If we want to set the size explicitly, do it like this
-//        itemTable.add(button).width(32).height(32);
-        itemTable.add(button);
+        itemTable.add(button).width(w(64)).height(h(64));
         itemTable.row();
         Label label = new Label(mode.label, skin);
         itemTable.add(label);
@@ -173,15 +189,15 @@ public class EditorMenus {
                     levelEditor.setMaterial(object.id);
                 }
             });
-            itemTable.add(button).width(32).height(32);
+            itemTable.add(button).width(w(32)).height(h(32));
             itemTable.row();
             Label label = new Label(object.displayName, skin);
-            itemTable.add(label).padBottom(20);
+            itemTable.add(label).padBottom(h(20));
 
-            menu.add(itemTable).padRight(20);
+            menu.add(itemTable).padRight(w(20));
             menu.row();
         }
-        menu.padBottom(-20);
+        menu.padBottom(h(-20));
 
         stage.addActor(parentMenu);
         return parentMenu;
@@ -208,7 +224,7 @@ public class EditorMenus {
                 levelEditor.setActiveLayer(-1);
             }
         });
-        menu.add(backgroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.add(backgroundCheck).align(Align.left).padRight(w(10)).padBottom(h(5));
         menu.row();
 
         CheckBox middlegroundCheck = new CheckBox("Middle Ground", skin);
@@ -221,7 +237,7 @@ public class EditorMenus {
                 levelEditor.setActiveLayer(0);
             }
         });
-        menu.add(middlegroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.add(middlegroundCheck).align(Align.left).padRight(w(10)).padBottom(h(5));
         menu.row();
 
         CheckBox foregroundCheck = new CheckBox("Foreground", skin);
@@ -234,7 +250,7 @@ public class EditorMenus {
                 levelEditor.setActiveLayer(1);
             }
         });
-        menu.add(foregroundCheck).align(Align.left).padRight(10).padBottom(5);
+        menu.add(foregroundCheck).align(Align.left).padRight(w(10)).padBottom(h(5));
         menu.row();
 
         stage.addActor(menu);
@@ -271,12 +287,12 @@ public class EditorMenus {
             itemTable.add(button);
             itemTable.row();
             Label label = new Label(object.displayName, skin);
-            itemTable.add(label).padBottom(20);
+            itemTable.add(label).padBottom(h(20));
 
-            menu.add(itemTable).padRight(20);
+            menu.add(itemTable).padRight(w(20));
             menu.row();
         }
-        menu.padBottom(-20);
+        menu.padBottom(h(-20));
 
         stage.addActor(parentMenu);
         return parentMenu;
@@ -309,20 +325,20 @@ public class EditorMenus {
                     levelEditor.dropObject(object);
                 }
             });
-            itemTable.add(button).width(32).height(32);
+            itemTable.add(button).width(w(32)).height(h(32));
             itemTable.row();
             Label label = new Label(object.name(), skin);
-            itemTable.add(label).padBottom(20);
+            itemTable.add(label).padBottom(h(20));
 
             if (column % 2 == 0) {
-                menu.add(itemTable).padRight(20);
+                menu.add(itemTable).padRight(w(20));
                 menu.row();
             } else {
-                menu.add(itemTable).padLeft(15).padRight(20);
+                menu.add(itemTable).padLeft(w(15)).padRight(w(20));
             }
             column++;
         }
-        menu.padBottom(-20);
+        menu.padBottom(h(-20));
 
         stage.addActor(parentMenu);
         return parentMenu;

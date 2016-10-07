@@ -8,8 +8,9 @@ public class Launcher {
     public static void main(String[] arg) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.resizable = false;
-        config.width = 1600;
-        config.height = 900;
+        float scale = 1f;
+        config.width = (int) (1600f * scale);
+        config.height = (int) (900f * scale);
         config.title = "Jump Level Editor";
         new LwjglApplication(new EditorApp(), config);
     }
