@@ -138,16 +138,6 @@ public class CollisionUtilitiesTest {
     }
 
     @Test
-    public void testTileCollisionCanBeSkippedLastPosition() {
-        TileBody body = new TileBody();
-        Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
-        float resPosition = 0;
-        float lastPosition = -1;
-        boolean canBeSkipped = CollisionUtilities.canTileCollisionCanBeSkipped(body, manifold, resPosition, lastPosition);
-        assertTrue(canBeSkipped);
-    }
-
-    @Test
     public void testTileCollisionsCanBeSkippedWithoutAxis() {
         TileBody body = new TileBody();
         Manifold manifold = new Manifold(new BitPoint(1, 0), 1);
