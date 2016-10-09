@@ -24,10 +24,11 @@ public class CollisionUtilities {
             return true;
         }
 
-        if (manifold.distance > 0 && lastPosition < resolutionPosition) {
-            // The actor was already inside the tileBody before it moved, so we can skip it.
-            return true;
-        }
+        // TODO: This needs to be revisited to see if it is useful or necessary. Currently it's just causing bugs
+//        if (manifold.distance > 0 && lastPosition < resolutionPosition) {
+//            // The actor was already inside the tileBody before it moved, so we can skip it.
+//            return true;
+//        }
 
         if (tileBody.collisionAxis != null) {
             return canSkipAxis(tileBody.collisionAxis, manifold);

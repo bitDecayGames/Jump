@@ -21,12 +21,11 @@ public class CollisionHelper {
         BitPoint startCell = actor.aabb.xy.floorDivideBy(cellSize, cellSize).minus(offset);
 
         // 2. determine width/height in tiles
-        int endX = (int) (startCell.x + Math.ceil(1.0 * actor.aabb.width / cellSize));
-        int endY = (int) (startCell.y + Math.ceil(1.0 * actor.aabb.height / cellSize));
+        BitPoint endCell = actor.aabb.xy.plus(actor.aabb.getWidth(), actor.aabb.getHeight()).floorDivideBy(cellSize, cellSize).minus(offset);
 
         // 3. loop over those all occupied tiles
-        for (int x = (int) startCell.x; x <= endX; x++) {
-            for (int y = (int) startCell.y; y <= endY; y++) {
+        for (int x = (int) startCell.x; x <= (int) endCell.x; x++) {
+            for (int y = (int) startCell.y; y <= (int) endCell.y; y++) {
                 // ensure valid cell
                 if (ArrayUtilities.onGrid(grid, x, y) && grid[x][y] != null) {
                     BitBody suspect = grid[x][y];
