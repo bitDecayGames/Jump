@@ -17,6 +17,11 @@ public class TriggerObject extends LevelObject {
 
     public TriggerObject(LevelObject triggerer, LevelObject triggeree) {
         super(new BitRectangle(triggerer.rect.center(), triggeree.rect.center()));
+        if (triggerer.uuid.equals(triggeree.uuid)) {
+            // this will give us a better rectangle for self-triggering objects
+            float smallestAxis = Math.min(triggeree.rect.getWidth(), triggeree.rect.getHeight());
+            rect = new BitRectangle(triggeree.rect.xy.plus(0, triggeree.rect.getHeight()), -smallestAxis, smallestAxis);
+        }
         this.triggerer = triggerer;
         this.triggeree = triggeree;
     }

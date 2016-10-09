@@ -3,6 +3,7 @@ package com.bitdecay.jump.geom;
 public class MathUtils {
 	public static final float FLOAT_PRECISION = .0001f;
 	public static final float PI_OVER_TWO = (float) (Math.PI / 2);
+	public static final float PI_OVER_FOUR = (float) (Math.PI / 4);
 
 	public static boolean close(float f1, float f2) {
 		return within(f1, f2, FLOAT_PRECISION);

@@ -8,6 +8,7 @@ import com.bitdecay.jump.gdx.level.RenderableLevelObject;
 import com.bitdecay.jump.geom.BitPoint;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
+import com.bitdecay.jump.geom.MathUtils;
 import com.bitdecay.jump.level.LevelObject;
 import com.bitdecay.jump.level.builder.ILevelBuilder;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
@@ -51,10 +52,27 @@ public class LibGDXLevelRenderer {
                     LevelObject actor =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggerer.uuid);
                     LevelObject victim =  builder.getLevel().layers.getLayer(0).otherObjects.get(trigger.triggeree.uuid);
 
-                    BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
-                    float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());
-                    renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
-                    renderer.line(actor.rect.center().x, actor.rect.center().y, victim.rect.center().x, victim.rect.center().y);
+                    if (actor.uuid.equals(victim.uuid)) {
+                        BitPoint topLeftCorner = new BitPoint(actor.rect.center().x - actor.rect.getWidth()/2, actor.rect.center().y + actor.rect.getHeight() / 2);
+
+                        float radius = 0;
+                        if (actor.rect.getWidth() < actor.rect.getHeight()) {
+                            radius = actor.rect.getWidth() / 2;
+                        } else {
+                            radius = actor.rect.getHeight() / 2;
+                        }
+
+                        BitPoint radiusVector = new BitPoint(-radius, radius).normalize().scale(radius);
+                        BitPoint middleOfLine = topLeftCorner.plus(radiusVector);
+
+                        renderer.arc(actor.rect.center().x - actor.rect.getWidth()/2, actor.rect.center().y + actor.rect.getHeight() / 2 , radius, 0, 270);
+                        renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, MathUtils.PI_OVER_FOUR), middleOfLine)));
+                    } else {
+                        BitPoint middleOfLine = new BitPoint((actor.rect.center().x + victim.rect.center().x) / 2, (actor.rect.center().y + victim.rect.center().y) / 2);
+                        float angle = GeomUtils.angle(actor.rect.center(), victim.rect.center());
+                        renderer.polyline(GeomUtils.pointsToFloats(GeomUtils.translatePoints(GeomUtils.rotatePoints(arrow, angle), middleOfLine)));
+                        renderer.line(actor.rect.center().x, actor.rect.center().y, victim.rect.center().x, victim.rect.center().y);
+                    }
                 }
             });
         }

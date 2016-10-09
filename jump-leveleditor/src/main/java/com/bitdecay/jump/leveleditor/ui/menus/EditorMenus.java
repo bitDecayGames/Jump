@@ -52,6 +52,7 @@ public class EditorMenus {
         TextureAtlas menuAtlas = new TextureAtlas(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/ui.atlas"));
         skin = new Skin(Gdx.files.internal(LevelEditor.ASSETS_FOLDER + "skins/menu-skin.json"), menuAtlas);
         stage = new Stage();
+
         topMenus.put(MenuPage.MainMenu, buildMainMenu());
         rightMenus.put(MenuPage.TileMenu, buildTilesetMenu(hooker.getTilesets()));
         rightMenus.put(MenuPage.LevelObjectMenu, buildObjectMenu(hooker.getCustomObjects()));
