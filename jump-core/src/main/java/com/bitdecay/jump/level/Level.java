@@ -2,7 +2,6 @@ package com.bitdecay.jump.level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
@@ -27,21 +26,11 @@ public class Level {
 	public Level(int unitSize) {
 		this.tileSize = unitSize;
 		layers = new LevelLayers(unitSize);
-//		layers.addLayer(0, new TileObject[10][10]);
-//		gridObjects = new TileObject[10][10];
-//		otherObjects = new ArrayList<>();
-		triggers = new ArrayList<>();
-
-//        gridOffset = new BitPointInt();
 	}
 
 	public Level(Level level) {
 		tileSize = level.tileSize;
 		layers = new LevelLayers(tileSize);
-//		gridObjects = level.gridObjects;
-//		otherObjects = level.otherObjects;
-		triggers = level.triggers;
-//		gridOffset = level.gridOffset;
 		debugSpawn = level.debugSpawn;
 		theme = level.theme;
 	}
