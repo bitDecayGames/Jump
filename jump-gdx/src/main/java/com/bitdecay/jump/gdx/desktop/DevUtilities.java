@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-public class FileUtilities {
+public class DevUtilities {
     private static boolean generated = false;
 
     public static void generateImageAtlases() {
