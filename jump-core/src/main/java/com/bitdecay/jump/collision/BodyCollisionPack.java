@@ -90,7 +90,7 @@ public class BodyCollisionPack {
             if (overlap.with.bodyType.equals(BodyType.DYNAMIC)) {
                 continue;
             }
-            overlap.resolutionManifold = CollisionUtilities.solve(overlap.bundle, actor, overlap.with, new BitPoint());
+            overlap.resolutionManifold = CollisionUtilities.solve(overlap.bundle, actor, overlap.with);
             if (overlap.resolutionManifold.axis.equals(GeomUtils.ZERO_AXIS)) {
                 continue;
             } else if (overlap.with.props.collides) {

@@ -11,12 +11,12 @@ import com.bitdecay.jump.level.TileBody;
  * Created by Monday on 6/16/2016.
  */
 public class CollisionUtilities {
-    public static BitPoint getRelativeMovement(BitBody body, BitBody otherBody, BitPoint cumulativeResolution) {
+    public static BitPoint getRelativeMovement(BitBody body, BitBody otherBody) {
         // this line is just taking where the body tried to move and the partially resolved position into account to
         // figure out the relative momentum.
         BitPoint bodyAttempt = body.resolutionLocked ? new BitPoint(0, 0) : body.currentAttempt;
         BitPoint otherBodyAttempt = otherBody.resolutionLocked ? new BitPoint(0, 0) : otherBody.currentAttempt;
-        return bodyAttempt.plus(cumulativeResolution).minus(otherBodyAttempt);
+        return bodyAttempt.minus(otherBodyAttempt);
     }
 
     public static boolean canTileCollisionCanBeSkipped(TileBody tileBody, Manifold manifold, float resolutionPosition, float lastPosition) {
@@ -24,11 +24,13 @@ public class CollisionUtilities {
             return true;
         }
 
-        // TODO: This needs to be revisited to see if it is useful or necessary. Currently it's just causing bugs
-//        if (manifold.distance > 0 && lastPosition < resolutionPosition) {
-//            // The actor was already inside the tileBody before it moved, so we can skip it.
-//            return true;
-//        }
+        // XXX: This + 0.0001f is to account for minute floating point rounding issues that cause the raw math to be off
+        // by tiny fractions. We want to basically account for these fractions and correctly enforce this case.
+        // See that this fails: assertEquals(0.593822f, 32.593822f - 32.0f, 0);
+        if (lastPosition + 0.001f < resolutionPosition) {
+            // The actor was already inside the tileBody before it moved, so we can skip it.
+            return true;
+        }
 
         if (tileBody.collisionAxis != null) {
             return canSkipAxis(tileBody.collisionAxis, manifold);
@@ -54,15 +56,13 @@ public class CollisionUtilities {
      *
      * <b>NOTE:</b> Due to logic to make sure the feel is correct, there are situations (such as one-way
      * platforms) that can result in NO axis (aka the Zero-axis) being set on the resolution.
-     *
-     *  @param body the body being resolved
+     * @param body the body being resolved
      * @param otherBody the other body that participated in the collision
-     * @param cumulativeResolution the current partially built resolved position
      */
-    public static Manifold solve(ManifoldBundle bundle, BitBody body, BitBody otherBody, BitPoint cumulativeResolution) {
+    public static Manifold solve(ManifoldBundle bundle, BitBody body, BitBody otherBody) {
         bundle.getCandidates().sort((o1, o2) -> Float.compare(Math.abs(o1.distance), Math.abs(o2.distance)));
 
-        BitPoint relativeMovement = CollisionUtilities.getRelativeMovement(body, otherBody, cumulativeResolution);
+        BitPoint relativeMovement = CollisionUtilities.getRelativeMovement(body, otherBody);
 
         float dotProd;
         for (Manifold manifold : bundle.getCandidates()) {
@@ -70,10 +70,12 @@ public class CollisionUtilities {
             if (dotProd != 0 && !MathUtils.sameSign(dotProd, manifold.distance)) {
                 if (otherBody instanceof TileBody) {
                     // confirm that body came from past this thing
-                    float resolutionPosition = body.aabb.xy.plus(cumulativeResolution).plus(manifold.result).dot(manifold.axis);
-                    float lastPosition = body.lastPosition.dot(manifold.axis);
 
-                    if (CollisionUtilities.canTileCollisionCanBeSkipped((TileBody) otherBody, manifold, resolutionPosition, lastPosition)) {
+                    // use the relative position between the centers of the bodies
+                    float resolutionDistance = body.aabb.center().minus(otherBody.aabb.center()).plus(manifold.result).dot(manifold.axis);
+                    float lastDistance = body.aabb.center().minus(body.currentAttempt).minus(otherBody.aabb.center()).dot(manifold.axis);
+
+                    if (CollisionUtilities.canTileCollisionCanBeSkipped((TileBody) otherBody, manifold, resolutionDistance, lastDistance)) {
                         continue;
                     }
                 }
