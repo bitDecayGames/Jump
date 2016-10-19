@@ -32,4 +32,9 @@ public class NoOpMouseMode implements MouseMode {
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
 
     }
+
+    @Override
+    public void scrolled(int amount) {
+
+    }
 }

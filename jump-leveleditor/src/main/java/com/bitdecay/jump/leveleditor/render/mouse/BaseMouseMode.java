@@ -51,6 +51,11 @@ public abstract class BaseMouseMode implements MouseMode, ToolAction {
     }
 
     @Override
+    public void scrolled(int amount) {
+        // nothing by default
+    }
+
+    @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
     }
 

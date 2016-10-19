@@ -13,8 +13,20 @@ public class BitPointInt {
 		this.y = y;
 	}
 
+	public BitPointInt plus(int x, int y) {
+		return new BitPointInt(this.x + x, this.y + y);
+	}
+
+	public BitPointInt plus(BitPointInt point) {
+		return plus(point.x, point.y);
+	}
+
+	public BitPointInt minus(int x, int y) {
+		return new BitPointInt(this.x - x, this.y - y);
+	}
+
 	public BitPointInt minus(BitPointInt point) {
-		return new BitPointInt(x - point.x, y - point.y);
+		return minus(point.x, point.y);
 	}
 
 	public BitPointInt floorDivideBy(int xDiv, int yDiv) {

@@ -82,6 +82,11 @@ public class BodyCollisionPack {
     }
 
     public void filterActionableResolutions() {
+        // HERE WE need a way to distinguish between different kinds of collisions. Standard collisions and
+        // angled collisions.
+
+        // Angled collisions need to be able to turn off other collisions.
+        // Ex. If a body is touching a ramp and a floor tile, we may want to skip the floor tile collision
         if (actor.props.collides == false || actor.resolutionLocked) {
             return;
         }

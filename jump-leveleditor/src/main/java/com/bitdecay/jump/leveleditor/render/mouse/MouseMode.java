@@ -23,5 +23,7 @@ public interface MouseMode {
      */
     void mouseMoved(BitPointInt point);
 
+    void scrolled(int amount);
+
     void render(ShapeRenderer shaper, SpriteBatch spriteBatch);
 }
