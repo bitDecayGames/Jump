@@ -19,7 +19,7 @@ public enum OptionsMode {
     SELECT("Select", ModeType.MOUSE, null, null, "icons/select.png"),
     MOVING_PLATFORM("Moving Plat", ModeType.MOUSE, null, null, "icons/movingPlatform.png"),
     CREATE("Create", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/tiles.png"),
-    SINGLE("Single", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/tiles.png"),
+    SLOPES("Slopes", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/slopes.png"),
     ONEWAY("One Way", ModeType.MOUSE, MenuPage.TileMenu, null, "icons/oneway.png"),
     THEME("Theme", ModeType.MOUSE, MenuPage.ThemeMenu, null, "icons/theme.png"),
     LAYERS("Layers", ModeType.MOUSE, MenuPage.LayersMenu, null, "icons/layers.png"),
