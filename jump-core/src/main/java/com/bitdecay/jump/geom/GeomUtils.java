@@ -17,7 +17,7 @@ public class GeomUtils {
 	public static final Manifold ZERO_MANIFOLD = new Manifold(ZERO_AXIS, 0);
 
 	/**
-	 * Given a rectangle
+	 * Given a rectangle, will break it into splitWidth by splitHeight sub-rectangles.
 	 * @param rect
 	 * @param splitWidth
 	 * @param splitHeight

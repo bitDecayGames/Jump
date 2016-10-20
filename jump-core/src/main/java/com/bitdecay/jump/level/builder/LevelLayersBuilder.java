@@ -83,11 +83,57 @@ public class LevelLayersBuilder implements ILevelBuilder {
         }
     }
 
-    public void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
+    public void createLevelObjects(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material) {
         List<LevelObject> newObjects = new ArrayList<>();
 
         GeomUtils.splitRect(new BitRectangle(startPoint, endPoint), activeLevel.layers.cellSize, activeLevel.layers.cellSize).forEach(rect ->
                 newObjects.add(new TileObject(rect, oneway, material)));
+        if (newObjects.size() > 0) {
+            LayeredBuilderAction createLevelObjectAction = new AddRemoveAction(activeLayer, newObjects, Collections.emptyList());
+            pushAction(createLevelObjectAction);
+        }
+    }
+
+    @Override
+    public void createSlopedLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean isFloor, boolean oneway, int material) {
+
+        if (Math.abs(startPoint.y - endPoint.y) != activeLevel.layers.cellSize) {
+            System.out.println("Sloped platforms can only be created as single-row objects");
+            return;
+        }
+
+        List<LevelObject> newObjects = new ArrayList<>();
+
+        List<BitRectangle> slopeTileRects = GeomUtils.splitRect(new BitRectangle(startPoint, endPoint), activeLevel.layers.cellSize, activeLevel.layers.cellSize);
+
+        // need to determine our start y. Either 0 (if floor) or cellSize (if ceiling)
+        // determine our y-step per tile (based on number of tiles)
+        float startY;
+        if (isFloor) {
+            if (startPoint.x < endPoint.x) {
+                startY = 0;
+            } else {
+                startY = 1;
+            }
+        } else {
+            if (startPoint.x < endPoint.x) {
+                startY = 1;
+            } else {
+                startY = 0;
+            }
+        }
+        float yStep = (1f / slopeTileRects.size()) * (startY == 1 ? -1f : 1f);
+        for (BitRectangle rect : slopeTileRects) {
+            float rightHeight = startY + yStep;
+            if (yStep < 0 && rightHeight < yStep / 2) {
+                rightHeight = 0;
+            } else if (yStep > 0 && rightHeight > 1 - (yStep / 2)) {
+                rightHeight = 1;
+            }
+            newObjects.add(new SlopedTileObject(rect, oneway, material, startY, rightHeight, isFloor));
+            startY += yStep;
+        }
+
         if (newObjects.size() > 0) {
             LayeredBuilderAction createLevelObjectAction = new AddRemoveAction(activeLayer, newObjects, Collections.emptyList());
             pushAction(createLevelObjectAction);

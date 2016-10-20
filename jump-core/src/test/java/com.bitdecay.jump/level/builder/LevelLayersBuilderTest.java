@@ -78,7 +78,7 @@ public class LevelLayersBuilderTest {
     public void testCreateLevelObject() {
         LevelLayersBuilder builder = new LevelLayersBuilder(32);
 
-        builder.createLevelObject(new BitPointInt(0, 0), new BitPointInt(32, 32), false, 5);
+        builder.createLevelObjects(new BitPointInt(0, 0), new BitPointInt(32, 32), false, 5);
 
         //compensating for grid offset
         TileObject createdTile = builder.activeLevel.layers.getLayer(0).grid[5][5];
@@ -117,9 +117,9 @@ public class LevelLayersBuilderTest {
     public void testMinMaxXY() {
         LevelLayersBuilder builder = new LevelLayersBuilder(32);
 
-        builder.createLevelObject(new BitPointInt(0, 0), new BitPointInt(32, 32), false, 5);
+        builder.createLevelObjects(new BitPointInt(0, 0), new BitPointInt(32, 32), false, 5);
 
-        builder.createLevelObject(new BitPointInt(128, 128), new BitPointInt(160, 160), false, 5);
+        builder.createLevelObjects(new BitPointInt(128, 128), new BitPointInt(160, 160), false, 5);
 
         BitPointInt minXY = builder.getMinXY();
         assertEquals(0, minXY.x);

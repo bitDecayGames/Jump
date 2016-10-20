@@ -5,7 +5,13 @@ import com.bitdecay.jump.BodyType;
 import com.bitdecay.jump.annotation.CantInspect;
 import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "objectType")
+@JsonSubTypes({
+	@JsonSubTypes.Type(value = SlopedTileObject.class, name = "SlopedTileObject")
+})
 public class TileObject extends LevelObject {
 	@CantInspect
 	public int material;

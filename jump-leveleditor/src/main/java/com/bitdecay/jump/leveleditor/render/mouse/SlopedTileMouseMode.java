@@ -30,15 +30,63 @@ public class SlopedTileMouseMode extends CreateMouseMode {
     }
 
     @Override
+    public void mouseDown(BitPointInt point, MouseButton button) {
+        if (MouseButton.RIGHT.equals(button)) {
+            startPoint = null;
+            endPoint = null;
+        } else {
+            super.mouseDown(point, button);
+            endPoint = snapToSlopeSizes(point);
+        }
+    }
+
+    @Override
     public void mouseDragged(BitPointInt point) {
-        super.mouseDragged(point);
-        currentLocation = GeomUtils.snap(point.x - builder.getCellSize()/2, point.y - builder.getCellSize()/2, builder.getCellSize(), 0, 0);
+        if (startPoint != null) {
+            super.mouseDragged(point);
+            endPoint = snapToSlopeSizes(point);
+        }
+    }
+
+    private BitPointInt snapToSlopeSizes(BitPointInt point) {
+        /*
+         * permitted multiples:
+         * rise:run
+         * 1:1
+         * 1:2
+         * 1:3
+         * 1:4
+         */
+        BitPointInt clip = GeomUtils.snap(point, builder.getCellSize());
+
+        int rise = clip.y - startPoint.y;
+        int run = clip.x - startPoint.x;
+
+        if (rise < 0) {
+            clip.y = startPoint.y - builder.getCellSize();
+        } else {
+            clip.y = startPoint.y + builder.getCellSize();
+        }
+
+        int maxRunDistance = 4;
+        if (run < 0) {
+            clip.x = Math.max(startPoint.x - builder.getCellSize() * maxRunDistance, clip.x);
+        } else if (run > 0) {
+            clip.x = Math.min(startPoint.x + builder.getCellSize() * maxRunDistance, clip.x);
+        } else {
+            clip.x = startPoint.x + builder.getCellSize();
+        }
+
+        return clip;
     }
 
     @Override
     public void mouseUpLogic(BitPointInt point, MouseButton button) {
-        endPoint = GeomUtils.snap(currentLocation.plus(builder.getCellSize(), builder.getCellSize()), builder.getCellSize());
-        builder.createLevelObject(currentLocation, endPoint, false, material);
+        if (MouseButton.LEFT.equals(button) && startPoint != null && endPoint != null) {
+            endPoint = snapToSlopeSizes(point);
+            boolean isFloor = startPoint.y < endPoint.y;
+            builder.createSlopedLevelObject(startPoint, endPoint, isFloor, false, material);
+        }
     }
 
     @Override
@@ -53,10 +101,11 @@ public class SlopedTileMouseMode extends CreateMouseMode {
 
     @Override
     public void render(ShapeRenderer shaper, SpriteBatch spriteBatch) {
-        if (currentLocation != null) {
+        if (startPoint != null && endPoint != null) {
             shaper.setColor(BitColors.GAME_OBJECT);
-            shaper.rect(currentLocation.x, currentLocation.y, builder.getCellSize(), builder.getCellSize());
-            shaper.line(currentLocation.x, currentLocation.y + Math.abs(renderHeight), currentLocation.x + builder.getCellSize(), currentLocation.y + Math.abs(renderHeight));
+            shaper.circle(startPoint.x, startPoint.y, 1);
+            shaper.circle(endPoint.x, endPoint.y, 1);
+            shaper.polygon(new float[] {startPoint.x, startPoint.y, endPoint.x, endPoint.y, endPoint.x, startPoint.y });
         }
     }
 }

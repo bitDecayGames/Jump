@@ -6,4 +6,5 @@ package com.bitdecay.jump.level;
 public class SlopedTileBody extends TileBody {
     public float leftY = 1;
     public float rightY = 1;
+    public boolean isFloor;
 }

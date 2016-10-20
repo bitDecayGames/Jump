@@ -11,6 +11,7 @@ import com.bitdecay.jump.geom.BitRectangle;
 import com.bitdecay.jump.geom.GeomUtils;
 import com.bitdecay.jump.geom.PathPoint;
 import com.bitdecay.jump.level.Direction;
+import com.bitdecay.jump.level.SlopedTileBody;
 import com.bitdecay.jump.level.TileBody;
 import com.bitdecay.jump.leveleditor.tools.BitColors;
 
@@ -41,36 +42,7 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
                             // don't even attempt to draw if not on camera
                             continue;
                         }
-                        float leftX = levelObject.aabb.xy.x;
-                        float rightX = levelObject.aabb.xy.x + levelObject.aabb.width;
-                        float bottomY = levelObject.aabb.xy.y;
-                        float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
-                        int nValue = 0;
-                        if (levelObject instanceof TileBody) {
-                            nValue = ((TileBody) levelObject).nValue;
-                        }
-                        if (((TileBody) levelObject).collisionAxis != null) {
-                            // currently we are just assuming it's a one-way platform
-                            renderer.setColor(BitColors.COLLISION);
-                            renderer.line(leftX, topY, rightX, topY);
-                            continue;
-                        } else {
-                            renderer.setColor(BitColors.STATIC_OBJECT);
-                        }
-
-
-                        if ((nValue & Direction.UP) == 0) {
-                            renderer.line(leftX, topY, rightX, topY);
-                        }
-                        if ((nValue & Direction.DOWN) == 0) {
-                            renderer.line(leftX, bottomY, rightX, bottomY);
-                        }
-                        if ((nValue & Direction.LEFT) == 0) {
-                            renderer.line(leftX, bottomY, leftX, topY);
-                        }
-                        if ((nValue & Direction.RIGHT) == 0) {
-                            renderer.line(rightX, bottomY, rightX, topY);
-                        }
+                        renderGridBody(levelObject);
                     }
                 }
             }
@@ -94,6 +66,65 @@ public class LibGDXWorldRenderer implements BitWorldRenderer {
             renderer.rect(col.xy.x, col.xy.y, col.width, col.height);
         }
         renderer.end();
+    }
+
+    private void renderGridBody(BitBody levelObject) {
+        float leftX = levelObject.aabb.xy.x;
+        float rightX = levelObject.aabb.xy.x + levelObject.aabb.width;
+        float bottomY = levelObject.aabb.xy.y;
+        float topY = levelObject.aabb.xy.y + levelObject.aabb.height;
+        int nValue = 0;
+        if (levelObject instanceof TileBody) {
+            nValue = ((TileBody) levelObject).nValue;
+        }
+        if (((TileBody) levelObject).collisionAxis != null) {
+            // currently we are just assuming it's a one-way platform
+            renderer.setColor(BitColors.COLLISION);
+            renderer.line(leftX, topY, rightX, topY);
+            return;
+        } else {
+            renderer.setColor(BitColors.STATIC_OBJECT);
+        }
+
+        if (levelObject instanceof SlopedTileBody) {
+            SlopedTileBody slopedBody = (SlopedTileBody) levelObject;
+            renderer.line(leftX, bottomY + levelObject.aabb.height * slopedBody.leftY, rightX, bottomY + levelObject.aabb.height * slopedBody.rightY);
+            if ((nValue & Direction.UP) == 0 && !slopedBody.isFloor) {
+                // only render the top of the rect if we are a ceiling
+                renderer.line(leftX, topY, rightX, topY);
+            }
+            if ((nValue & Direction.DOWN) == 0 && slopedBody.isFloor) {
+                // only render the bottom of the rect if we are a floor
+                renderer.line(leftX, bottomY, rightX, bottomY);
+            }
+            if ((nValue & Direction.LEFT) == 0) {
+                if (slopedBody.isFloor) {
+                    renderer.line(leftX, bottomY, leftX, bottomY + slopedBody.aabb.height * slopedBody.leftY);
+                } else {
+                    renderer.line(leftX, topY, leftX, bottomY + slopedBody.aabb.height * slopedBody.leftY);
+                }
+            }
+            if ((nValue & Direction.RIGHT) == 0) {
+                if (slopedBody.isFloor) {
+                    renderer.line(rightX, bottomY, rightX, bottomY + slopedBody.aabb.height * slopedBody.rightY);
+                } else {
+                    renderer.line(rightX, topY, rightX, bottomY + slopedBody.aabb.height * slopedBody.rightY);
+                }
+            }
+        } else {
+            if ((nValue & Direction.UP) == 0) {
+                renderer.line(leftX, topY, rightX, topY);
+            }
+            if ((nValue & Direction.DOWN) == 0) {
+                renderer.line(leftX, bottomY, rightX, bottomY);
+            }
+            if ((nValue & Direction.LEFT) == 0) {
+                renderer.line(leftX, bottomY, leftX, topY);
+            }
+            if ((nValue & Direction.RIGHT) == 0) {
+                renderer.line(rightX, bottomY, rightX, topY);
+            }
+        }
     }
 
     private void renderBodies(ShapeRenderer renderer, List<BitBody> bodies, BitRectangle view) {

@@ -27,9 +27,9 @@ public interface ILevelBuilder {
 
     List<LevelObject> getSelection();
 
-    void createLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean b, int material);
+    void createLevelObjects(BitPointInt startPoint, BitPointInt endPoint, boolean oneway, int material);
 
-    int getCellSize();
+    void createSlopedLevelObject(BitPointInt startPoint, BitPointInt endPoint, boolean isFloor, boolean oneway, int material);
 
     void createKineticObject(BitRectangle platform, List<PathPoint> pathPoints, boolean pendulum);
 
@@ -38,6 +38,8 @@ public interface ILevelBuilder {
     Level getLevel();
 
     Level optimizeLevel();
+
+    int getCellSize();
 
     void newLevel(int cellSize);
 
